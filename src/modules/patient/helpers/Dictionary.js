@@ -1,0 +1,30 @@
+export const RELATION_SHIP=[
+    {
+        label:"Esposo/Esposa",
+        value:"esposo"
+    },
+    {
+        label:"Hijo/Hija",
+        value:"hijo"
+    },
+    {
+        label:"Padre/Madre",
+        value:"padre"
+    },
+    {
+        label:"Hermano/Hermana",
+        value:"hermano"
+    },
+    {
+        label:"Abuelo/Abuela",
+        value:"abuelo"
+    },
+    {
+        label:"Tutor/Representante",
+        value:"tutor"
+    },
+    {
+        label:"Otro",
+        value:"otro"
+    }
+]
