@@ -33,6 +33,11 @@ const router = createRouter({
           name: "users",
           component: () => import("@/modules/users/view/UserView.vue"),
         },
+        {
+          path: "calendario",
+          name: "admin-calendar",
+          component: () => import("@/views/admin/CalendarView.vue"),
+        },
       ],
     },
     {
@@ -82,6 +87,11 @@ const router = createRouter({
                 import("../views/appointments/AppointmentView.vue"),
             },
           ],
+        },
+        {
+          path: "calendario",
+          name: "my-calendar",
+          component: () => import("@/views/appointments/CalendarAppointmentView.vue"),
         },
         {
           path: ":id/editar",

@@ -12,12 +12,20 @@
           Cerrar Sesión
         </button>
       </div>
-      <nav class="flex gap-2 items-center justify-end">
+      <nav class="flex gap-2 items-center justify-end flex-wrap">
         <RouterLink
           :to="{ name: 'my-appointments' }"
           class="p-3 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
         >
           Mis Citas
+        </RouterLink>
+        <RouterLink
+          :to="{ name: 'my-calendar' }"
+          class="p-3 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Calendario
         </RouterLink>
         <RouterLink
           :to="{ name: 'new-appointment' }"

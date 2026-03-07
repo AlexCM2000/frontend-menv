@@ -33,6 +33,9 @@ export default{
     },
     delete(id){
         return api.delete(`/appointments/${id}`)
+    },
+    getCalendar(start, end) {
+        return api.get(`/appointments/calendar?start=${start}&end=${end}`)
     }
-    
+
 }

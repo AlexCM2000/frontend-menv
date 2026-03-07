@@ -11,6 +11,12 @@
   "dependencies": {
     "@formkit/themes": "^1.6.5",
     "@formkit/vue": "^1.6.5",
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/list": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
+    "@fullcalendar/vue3": "^6.1.20",
     "@primevue/themes": "^4.1.1",
     "axios": "^1.6.5",
     "date-fns": "^3.6.0",

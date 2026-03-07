@@ -2,6 +2,7 @@
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { RouterLink } from "vue-router";
 const userAuth = useUserStore();
 const { user } = storeToRefs(userAuth);
 onMounted(() => {
@@ -18,8 +19,8 @@ onMounted(() => {
       </h2>
     </div>
 
-    <div class="flex flex-col space-y-5">
-      <div class="flex gap-2 items-center">
+    <div class="flex flex-col space-y-3">
+      <div class="flex gap-2 items-center justify-end">
         <p class="text-[#3A3A3A] font-medium text-xl text-right">
           Bienvenido: {{ user?.name }}
         </p>
@@ -31,6 +32,36 @@ onMounted(() => {
           Cerrar Sesión
         </button>
       </div>
+      <nav class="flex gap-2 items-center justify-end flex-wrap">
+        <RouterLink
+          :to="{ name: 'admin-appointments' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Citas
+        </RouterLink>
+        <RouterLink
+          :to="{ name: 'admin-calendar' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Calendario
+        </RouterLink>
+        <RouterLink
+          :to="{ name: 'my-health-records' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Historial Clínico
+        </RouterLink>
+        <RouterLink
+          :to="{ name: 'users' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Usuarios
+        </RouterLink>
+      </nav>
     </div>
   </div>
   <main class="space-y-6">
