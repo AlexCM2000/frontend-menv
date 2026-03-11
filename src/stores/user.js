@@ -15,9 +15,12 @@ import { useRouter } from "vue-router";
     const page_size=ref(10)
     const search = ref('')
     const totalRecords=ref(0)
-    const page_first = ref(0)
+    const page_first = computed(() => (page.value - 1) * page_size.value)
     const health = ref('')
-    
+    const appointmentState = ref('')
+    const dateFrom = ref(null)
+    const dateTo = ref(null)
+
     //traer las citas del cliente logueado
     const getUserAppointments =async(id)=>{
         try {
@@ -27,7 +30,10 @@ import { useRouter } from "vue-router";
                     {page:page.value,
                      page_size:page_size.value,
                      ...((search.value ) && { search: search.value }),
-                     ...(health.value && { health: health.value })})
+                     ...(health.value && { health: health.value }),
+                     ...(appointmentState.value && { state: appointmentState.value }),
+                     ...(dateFrom.value && { date_from: dateFrom.value }),
+                     ...(dateTo.value && { date_to: dateTo.value })})
                 userAppointments.value = data.results
                 loading.value = false
                 totalRecords.value = data.count
@@ -42,22 +48,30 @@ import { useRouter } from "vue-router";
     const onPage=async(event)=>{
         page.value=event.page+1
         page_size.value=event.rows
-      await  getUserAppointments(user.value._id)
-      console.log(event)
+        await getUserAppointments(user.value._id)
     }
     const onSearch=async(value)=>{
-        if(value!=='') search.value=value
-        else search.value=null
-       await getUserAppointments(user.value._id)
+        search.value = value && value !== '' ? value : null
+        page.value = 1
+        await getUserAppointments(user.value._id)
     }
 
     const getSelectedHealths =async(value)=>{
-        if(value!==''){
-            health.value=value
-        }
-        else{
-            health.value=null
-        }
+        health.value = value && value !== '' ? value : null
+        page.value = 1
+        await getUserAppointments(user.value._id)
+    }
+
+    const setAppointmentState = async (value) => {
+        appointmentState.value = value && value !== '' ? value : ''
+        page.value = 1
+        await getUserAppointments(user.value._id)
+    }
+
+    const setDateFilter = async (from, to) => {
+        dateFrom.value = from ?? null
+        dateTo.value = to ?? null
+        page.value = 1
         await getUserAppointments(user.value._id)
     }
     
@@ -97,9 +111,14 @@ import { useRouter } from "vue-router";
         getUser,
         onPage,
         page,
-        page_size,search   ,onSearch,
+        page_size,search,onSearch,
         totalRecords,
         page_first,
-        getSelectedHealths
+        getSelectedHealths,
+        appointmentState,
+        setAppointmentState,
+        dateFrom,
+        dateTo,
+        setDateFilter
     }
  })

@@ -7,23 +7,7 @@ export default {
    * params puede contener: page, page_size, search, health, sort, etc.
    */
   list(params = {}) {
-    // valores por defecto si no vienen
-    const page = params.page ?? 1;
-    const page_size = params.page_size ?? 10;
-
-    let url = `/usersList?page=${page}&page_size=${page_size}`;
-
-    if (params.search) {
-      url += `&search=${encodeURIComponent(params.search)}`;
-    }
-    if (params.health) {
-      url += `&health=${encodeURIComponent(params.health)}`;
-    }
-    if (params.sort) {
-      url += `&sort=${encodeURIComponent(params.sort)}`;
-    }
-
-    return api.get(url);
+    return api.get("/usersList", { params });
   },
 
   /**

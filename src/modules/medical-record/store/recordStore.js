@@ -1,4 +1,4 @@
-import { inject, ref } from "vue";
+import { computed, inject, ref } from "vue";
 
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
@@ -13,6 +13,7 @@ export const useRecordStore = defineStore("health-records", () => {
   const totalRecords = ref(0);
   const page = ref(1);
   const page_size = ref(10);
+  const page_first = computed(() => (page.value - 1) * page_size.value);
   const loading = ref(false);
   const visibleForm = ref(false);
   const visibleDetail = ref(false);
@@ -20,10 +21,22 @@ export const useRecordStore = defineStore("health-records", () => {
   const currentRecord = ref(null);
   const currentRecordDetail = ref(null);
 
+  // Filtros
+  const search = ref(null);
+  const state = ref(null);
+  const health = ref(null);
+
   const setRecords = async () => {
     try {
       loading.value = true;
-      const data = await getRecords();
+      const params = {
+        page: page.value,
+        page_size: page_size.value,
+        ...(search.value ? { search: search.value } : {}),
+        ...(state.value ? { state: state.value } : {}),
+        ...(health.value ? { health: health.value } : {}),
+      };
+      const data = await getRecords(params);
       records.value = data.results;
       totalRecords.value = data.count;
       page.value = data.page;
@@ -32,11 +45,43 @@ export const useRecordStore = defineStore("health-records", () => {
     } catch (error) {
       loading.value = false;
       toast.open({
-        message: error.response.data.message,
+        message: error?.response?.data?.message ?? "Error al cargar historiales",
         type: "error",
       });
       console.log(error);
     }
+  };
+
+  const onPage = async (event) => {
+    page.value = event.page + 1;
+    page_size.value = event.rows;
+    await setRecords();
+  };
+
+  const onSearch = async (value) => {
+    search.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setRecords();
+  };
+
+  const setStateFilter = async (value) => {
+    state.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setRecords();
+  };
+
+  const setHealthFilter = async (value) => {
+    health.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setRecords();
+  };
+
+  const resetFilters = async () => {
+    search.value = null;
+    state.value = null;
+    health.value = null;
+    page.value = 1;
+    await setRecords();
   };
 
   const onCreateRecord = async (record) => {
@@ -150,6 +195,7 @@ export const useRecordStore = defineStore("health-records", () => {
     totalRecords,
     page,
     page_size,
+    page_first,
     loading,
     visibleForm,
     openModal,
@@ -163,5 +209,13 @@ export const useRecordStore = defineStore("health-records", () => {
     closeModalDetail,
     onCurrentRecordDetail,
     currentRecordDetail,
+    search,
+    state,
+    health,
+    onPage,
+    onSearch,
+    setStateFilter,
+    setHealthFilter,
+    resetFilters,
   };
 });

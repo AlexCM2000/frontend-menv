@@ -1,4 +1,4 @@
-import { inject, ref } from "vue";
+import { computed, inject, ref } from "vue";
 import {
   createPatient,
   deletePatient,
@@ -13,6 +13,7 @@ export const usePatientStore = defineStore("patients", () => {
   const totalRecords = ref(0);
   const page = ref(1);
   const page_size = ref(10);
+  const page_first = computed(() => (page.value - 1) * page_size.value);
   const loading = ref(false);
   const visibleForm = ref(false);
   const visibleDetail = ref(false);
@@ -20,10 +21,22 @@ export const usePatientStore = defineStore("patients", () => {
   const currentPatient = ref(null);
   const currentPatientDetail = ref(null);
 
+  // Filtros
+  const search = ref(null);
+  const health = ref(null);
+  const gender = ref(null);
+
   const setPatients = async () => {
     try {
       loading.value = true;
-      const data = await getPatients();
+      const params = {
+        page: page.value,
+        page_size: page_size.value,
+        ...(search.value ? { search: search.value } : {}),
+        ...(health.value ? { health: health.value } : {}),
+        ...(gender.value ? { gender: gender.value } : {}),
+      };
+      const data = await getPatients(params);
       patients.value = data.results;
       totalRecords.value = data.count;
       page.value = data.page;
@@ -33,6 +46,38 @@ export const usePatientStore = defineStore("patients", () => {
       loading.value = false;
       console.log(error);
     }
+  };
+
+  const onPage = async (event) => {
+    page.value = event.page + 1;
+    page_size.value = event.rows;
+    await setPatients();
+  };
+
+  const onSearch = async (value) => {
+    search.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setPatients();
+  };
+
+  const setHealthFilter = async (value) => {
+    health.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setPatients();
+  };
+
+  const setGenderFilter = async (value) => {
+    gender.value = value && value !== "" ? value : null;
+    page.value = 1;
+    await setPatients();
+  };
+
+  const resetFilters = async () => {
+    search.value = null;
+    health.value = null;
+    gender.value = null;
+    page.value = 1;
+    await setPatients();
   };
 
   const onCreatePatient = async (patient) => {
@@ -146,6 +191,7 @@ export const usePatientStore = defineStore("patients", () => {
     totalRecords,
     page,
     page_size,
+    page_first,
     loading,
     visibleForm,
     openModal,
@@ -160,5 +206,13 @@ export const usePatientStore = defineStore("patients", () => {
     closeModalDetail,
     onCurrentPatientDetail,
     currentPatientDetail,
+    search,
+    health,
+    gender,
+    onPage,
+    onSearch,
+    setHealthFilter,
+    setGenderFilter,
+    resetFilters,
   };
 });

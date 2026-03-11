@@ -7,21 +7,8 @@ export default{
     getByDate(date){
         return api.get(`/appointments?date=${date}`)
     },
-    getUserAppointments(userId,params){
-         // Construir la URL base
-    let url = `/users/${userId.id}/appointments?page=${params.page}&page_size=${params.page_size}`;
-    
-    // Agregar el parámetro search solo si tiene un valor válido
-    if (params.search) {
-        url += `&search=${encodeURIComponent(params.search)}`;
-    }
-    
-    // Agregar el parámetro health solo si tiene un valor válido
-    if (params.health) {
-        url += `&health=${encodeURIComponent(params.health)}`;
-    }
-
-    return api.get(url);
+    getUserAppointments(userId, params) {
+        return api.get(`/users/${userId.id}/appointments`, { params });
     },
     getById(userId){
         return api.get(`/appointments/${userId}`)

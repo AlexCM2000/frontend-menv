@@ -1,72 +1,112 @@
 <template>
-  <p class="text-[#3A3A3A] text-lg mt-5">
-    A continiación podrás administrar tus próximas citas
-  </p>
-
-  <p class="text-white text-2xl text-center mt-5" v-if="loading">Cargando...</p>
-
-  <div v-else>
-    <p v-if="user?.noAppoinments" class="text-white text-2xl text-center mt-5">
-      No tienes próximas citas
-    </p>
-
-    <Card v-else class="" :pt="{ body: { class: 'shadow-2xl px-0' } }">
+  <div class="px-3 sm:px-5 pt-4">
+    <Card :pt="{ body: { class: 'px-3 sm:px-5' } }">
       <template #title>
-        <div class="flex justify-between">
-          <p class="text-start text-lg text-gray-900">
-            {{
-              "Mostrando " +
-              userAppointments.length +
-              " de " +
-              totalRecords +
-              " registros"
-            }}
-          </p>
-          <p class="text-end">
-            <FormKit
-              id="filterForm"
-              type="form"
-              :actions="false"
-              @submit="handleSubmit"
-              incomplete-message="No se pudo enviar el formulario, revisa los campos"
-              class="space-y-8 mt-8"
-            >
-              <div class="flex gap-x-2 text-dark">
-                <FormKit
-                  type="text"
-                  name="search"
-                  placeholder="buscar por paciente"
-                  label-class="text-gray-700 font-medium"
-                  v-model="search"
-                  input-class="placeholder-gray-400 text-sm w-40  h-10 px-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300"
-                />
-                <div class="relative inline-block w-full">
-                  <FormKit
-                    type="select"
-                    name="health"
-                    :options="healths"
-                    placeholder="Seleccione un centro"
-                    label-class="text-gray-700 font-medium"
-                    input-class="text-sm p-0 h-10 px-2 w-auto  border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300"
-                    v-model="selectedHealth"
-                  />
-                  <button
-                    v-if="selectedHealth"
-                    @click="clearSelection"
-                    type="button"
-                    class="absolute right-5 top-1/2 transform -translate-y-1/2 text-sm text-gray-400 hover:text-gray-600"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            </FormKit>
-          </p>
+        <div class="flex items-center gap-2">
+          <div class="flex-1">
+            <p class="font-bold text-base text-gray-800">Citas médicas</p>
+            <p class="text-xs font-normal text-gray-400 mt-0.5">
+              {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+            </p>
+          </div>
         </div>
       </template>
+
       <template #content>
+        <!-- Barra de filtros -->
+        <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center">
+
+          <!-- Búsqueda (admin y branchManager): flex-1 en desktop -->
+          <IconField v-if="user?.admin || user?.branchManager" class="w-full sm:flex-1">
+            <InputIcon class="pi pi-search" />
+            <InputText
+              v-model="search"
+              placeholder="Buscar por nombre, email o SUS..."
+              class="w-full"
+              @keyup.enter="handleSubmit"
+            />
+          </IconField>
+
+          <!-- Estado (todos los roles) -->
+          <Select
+            v-model="selectedState"
+            :options="stateOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Estado"
+            showClear
+            class="w-full sm:w-44"
+          >
+            <template #value="{ value }">
+              <div v-if="value" class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(value)" />
+                <span>{{ value }}</span>
+              </div>
+              <span v-else class="text-gray-400">Estado</span>
+            </template>
+            <template #option="{ option }">
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(option.value)" />
+                <span>{{ option.label }}</span>
+              </div>
+            </template>
+          </Select>
+
+          <!-- Rango de fechas (admin y branchManager) -->
+          <DatePicker
+            v-if="user?.admin || user?.branchManager"
+            v-model="dateRange"
+            selectionMode="range"
+            :manualInput="false"
+            placeholder="Rango de fechas"
+            showButtonBar
+            showIcon
+            class="w-full sm:w-60"
+            dateFormat="dd/mm/yy"
+          />
+
+          <!-- Centro de salud (solo admin) -->
+          <Select
+            v-if="user?.admin"
+            v-model="selectedHealth"
+            :options="healths"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Centro de salud"
+            showClear
+            class="w-full sm:w-48"
+          />
+
+          <!-- Acciones -->
+          <div class="flex gap-2 sm:ml-auto">
+            <Button
+              label="Buscar"
+              icon="pi pi-search"
+              class="flex-1 sm:flex-none"
+              @click="handleSubmit"
+            />
+            <Button
+              icon="pi pi-filter-slash"
+              severity="secondary"
+              outlined
+              class="flex-shrink-0"
+              v-tooltip.top="'Limpiar filtros'"
+              @click="clearAllFilters"
+            />
+          </div>
+        </div>
+
+        <!-- Skeleton loader -->
+        <DataTable v-if="loading" :value="Array(5).fill({})" showGridLines>
+          <Column v-for="n in 5" :key="n" style="min-width: 120px">
+            <template #header><Skeleton width="60%" height="1rem" /></template>
+            <template #body><Skeleton width="75%" height="0.85rem" /></template>
+          </Column>
+        </DataTable>
+
+        <!-- Tabla -->
         <DataTable
-          v-show="!loading"
+          v-else
           :value="userAppointments"
           v-model:first="page_first"
           :total-records="totalRecords"
@@ -76,137 +116,142 @@
           paginator
           :rows="10"
           lazy
+          stripedRows
+          scrollable
         >
-          <Column class="min-w-[150px]">
-            <template #header>
-              <p class="font-bold text-lg">Servicio</p>
-            </template>
+          <!-- Servicio -->
+          <Column style="min-width: 160px">
+            <template #header><p class="font-semibold text-sm">Servicio</p></template>
             <template #body="{ data }">
-              <p class="font-semibold text-base text-gray-700">
-                {{ data?.services[0]?.category }}
+              <p class="text-xs text-gray-400 uppercase tracking-wide leading-none mb-0.5">
+                {{ data?.services[0]?.category ?? "—" }}
               </p>
-              <p class="font-semibold text-sm text-gray-500">
-                {{ data?.services[0]?.name }}
+              <p class="font-semibold text-sm text-gray-700">
+                {{ data?.services[0]?.name ?? "—" }}
               </p>
             </template>
           </Column>
 
-          <Column class="min-w-[150px]">
-            <template #header>
-              <p class="font-bold text-lg">Fecha cita</p>
-            </template>
+          <!-- Fecha / Hora -->
+          <Column style="min-width: 130px">
+            <template #header><p class="font-semibold text-sm">Fecha / Hora</p></template>
             <template #body="{ data }">
-              <p class="font-semibold text-sm text-gray-500">
-                {{ formatDate(data?.date) }}
-              </p>
+              <div class="flex items-center gap-1.5">
+                <i class="pi pi-calendar text-xs text-gray-400" />
+                <p class="text-sm text-gray-700">{{ formatDate(data?.date) }}</p>
+              </div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <i class="pi pi-clock text-xs text-gray-400" />
+                <p class="text-xs text-gray-400">{{ data?.time }}</p>
+              </div>
             </template>
           </Column>
-          <Column class="min-w-[100px]">
-            <template #header>
-              <p class="font-bold text-lg">Hora cita</p>
-            </template>
+
+          <!-- Paciente (solo admin y branchManager) -->
+          <Column v-if="user?.admin || user?.branchManager" style="min-width: 190px">
+            <template #header><p class="font-semibold text-sm">Paciente</p></template>
             <template #body="{ data }">
-              <p class="font-semibold text-sm text-gray-500">
-                {{ data?.time }}
-              </p>
-            </template>
-          </Column>
-          <Column class="min-w-[150px]">
-            <template #header>
-              <p class="font-bold text-lg">Paciente</p>
-            </template>
-            <template #body="{ data }">
-              <p class="font-semibold text-sm text-gray-700">
-                {{ data?.user?.name }}
-              </p>
-            </template>
-          </Column>
-          <Column class="min-w-[100px]">
-            <template #header>
-              <p class="font-bold text-lg">Centro medico</p>
-            </template>
-            <template #body="{ data }">
-              <p class="font-semibold text-sm text-gray-500">
-                {{ data?.health?.name }}
-              </p>
-            </template>
-          </Column>
-          <Column class="min-w-[50px]">
-            <template #header>
-              <p class="font-bold text-lg">Estado</p>
-            </template>
-            <template #body="{ data }">
-              <Badge :value="data?.state" severity="info"></Badge>
-            </template>
-          </Column>
-          <Column class="min-w-[50px]">
-            <template #header>
-              <p class="font-bold text-lg">Acción</p>
-            </template>
-            <template #body="{ data }">
-              <div class="relative">
-                <!-- Contenedor de cada celda -->
-                <Button
-                  icon="pi pi-ellipsis-v"
-                  type="button"
-                  severity="secondary"
-                  aria-label="Options"
-                  @click="toggleDropdown(data._id)"
-                  size="small"
+              <div class="flex items-center gap-2">
+                <Avatar
+                  :label="getInitials(data?.user?.name)"
+                  shape="circle"
+                  class="bg-indigo-100 text-indigo-700 font-semibold flex-shrink-0 text-xs"
                 />
-                <div
-                  v-if="activeDropdown === data._id"
-                  class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20"
-                >
-                  <ul class="py-1">
-                    <li
-                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      @click="selected(data, 'Pendiente')"
-                    >
-                      Pendiente
-                    </li>
-                    <li
-                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      @click="selected(data, 'Completada')"
-                    >
-                      Completada
-                    </li>
-                    <li
-                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      @click="selected(data, 'Cancelada')"
-                    >
-                      Cancelada
-                    </li>
-                  </ul>
+                <div class="min-w-0">
+                  <p class="font-semibold text-sm text-gray-800 truncate">{{ data?.user?.name }}</p>
+                  <p class="text-xs text-gray-400 truncate">{{ data?.user?.email }}</p>
                 </div>
               </div>
             </template>
           </Column>
+
+          <!-- Centro médico -->
+          <Column style="min-width: 130px" class="hidden md:table-cell">
+            <template #header><p class="font-semibold text-sm">Centro médico</p></template>
+            <template #body="{ data }">
+              <p class="text-sm text-gray-500">{{ data?.health?.name ?? "—" }}</p>
+            </template>
+          </Column>
+
+          <!-- Estado -->
+          <Column style="min-width: 110px">
+            <template #header><p class="font-semibold text-sm">Estado</p></template>
+            <template #body="{ data }">
+              <Tag
+                :value="data?.state"
+                :severity="appointmentSeverity(data?.state)"
+                class="text-xs"
+              />
+            </template>
+          </Column>
+
+          <!-- Acción -->
+          <Column style="min-width: 60px; text-align: center">
+            <template #header><p class="font-semibold text-sm">Acción</p></template>
+            <template #body="{ data }">
+              <div class="flex justify-center">
+                <Button
+                  icon="pi pi-ellipsis-v"
+                  text
+                  rounded
+                  size="small"
+                  @click="openPanel($event, data)"
+                />
+              </div>
+            </template>
+          </Column>
         </DataTable>
+
+        <!-- OverlayPanel -->
+        <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 170px">
+          <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">
+            Cambiar estado
+          </p>
+          <ul class="pb-1">
+            <li
+              v-for="state in ['Pendiente', 'Completada', 'Reprogramada', 'Cancelada', 'No asistio']"
+              :key="state"
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded transition-colors"
+              :class="{ 'font-semibold': activeRow?.state === state }"
+              @click="changeState(state)"
+            >
+              <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(state)" />
+              {{ state }}
+              <i v-if="activeRow?.state === state" class="pi pi-check ml-auto text-xs text-gray-400" />
+            </li>
+          </ul>
+        </OverlayPanel>
       </template>
     </Card>
   </div>
 </template>
 
 <script setup>
-import { list } from "@/helpers";
+import AppointmentApi from "@/api/AppointmentApi";
 import { formatDate } from "@/helpers/date";
 import { useHealthStore } from "@/stores/healths";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import Badge from "primevue/badge";
+import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
-import Popover from "primevue/popover";
-import { onMounted, ref, watch } from "vue";
+import DatePicker from "primevue/datepicker";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
+import InputText from "primevue/inputtext";
+import OverlayPanel from "primevue/overlaypanel";
+import Select from "primevue/select";
+import Skeleton from "primevue/skeleton";
+import Tag from "primevue/tag";
+import { inject, onMounted, ref, watch } from "vue";
+
+const toast = inject("toast");
 
 const userAuth = useUserStore();
-
-const { loading, totalRecords, user, userAppointments, page, page_first } =
-  storeToRefs(userAuth);
-const { onPage, onSearch, getSelectedHealths } = userAuth;
+const { loading, totalRecords, user, userAppointments, page_first } = storeToRefs(userAuth);
+const { onPage, onSearch, getSelectedHealths, setAppointmentState, getUserAppointments, setDateFilter } = userAuth;
 
 const healthStore = useHealthStore();
 const { getHealths } = healthStore;
@@ -214,41 +259,97 @@ const { healths } = storeToRefs(healthStore);
 
 onMounted(async () => {
   await userAuth.getUser();
-  await userAuth.getUserAppointments(user.value._id);
-  await getHealths();
+  await getUserAppointments(user.value._id);
+  if (user.value?.admin) await getHealths();
 });
 
-const selectedHealth = ref("");
+const selectedHealth = ref(null);
+const selectedState = ref(null);
 const search = ref("");
+const dateRange = ref(null);
+const panel = ref(null);
+const activeRow = ref(null);
 
-watch(selectedHealth, async (selectedHealth) => {
-  if (selectedHealth !== "") getSelectedHealths(selectedHealth);
+const stateOptions = [
+  { label: "Pendiente", value: "Pendiente" },
+  { label: "Reprogramada", value: "Reprogramada" },
+  { label: "Cancelada", value: "Cancelada" },
+  { label: "Completada", value: "Completada" },
+  { label: "No asistio", value: "No asistio" },
+];
+
+const stateDot = (state) => ({
+  "bg-yellow-400": state === "Pendiente",
+  "bg-blue-400": state === "Reprogramada",
+  "bg-red-400": state === "Cancelada",
+  "bg-green-500": state === "Completada",
+  "bg-gray-400": state === "No asistio",
 });
 
-watch(search, (search) => {
-  if (search.length === 0) onSearch("");
+const appointmentSeverity = (state) => {
+  if (state === "Completada") return "success";
+  if (state === "Pendiente") return "warn";
+  if (state === "Cancelada") return "danger";
+  if (state === "Reprogramada") return "info";
+  return "secondary";
+};
+
+function getInitials(name = "") {
+  const parts = name.trim().split(" ");
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return name[0]?.toUpperCase() ?? "";
+}
+
+watch(selectedHealth, async (val) => {
+  await getSelectedHealths(val ?? "");
+});
+
+watch(selectedState, async (val) => {
+  await setAppointmentState(val ?? "");
+});
+
+watch(search, (val) => {
+  if (!val || val.length === 0) onSearch("");
+});
+
+watch(dateRange, async (val) => {
+  if (val && val[0] && val[1]) {
+    await setDateFilter(val[0].toISOString(), val[1].toISOString());
+  } else if (!val) {
+    await setDateFilter(null, null);
+  }
 });
 
 const handleSubmit = () => {
-  if (search.value.length > 3) {
-    onSearch(search.value);
+  if (search.value?.length >= 2) onSearch(search.value);
+};
+
+const clearAllFilters = async () => {
+  search.value = "";
+  selectedState.value = null;
+  selectedHealth.value = null;
+  dateRange.value = null;
+  await onSearch("");
+  await setAppointmentState("");
+  await getSelectedHealths("");
+  await setDateFilter(null, null);
+};
+
+function openPanel(event, data) {
+  activeRow.value = data;
+  panel.value.toggle(event);
+}
+
+const changeState = async (state) => {
+  panel.value?.hide();
+  if (!activeRow.value?._id) return;
+  try {
+    await AppointmentApi.update(activeRow.value._id, { state });
+    activeRow.value.state = state;
+    await getUserAppointments(user.value._id);
+    toast?.add({ severity: "success", summary: "Estado actualizado", detail: `Cita marcada como "${state}"`, life: 3000 });
+  } catch {
+    toast?.add({ severity: "error", summary: "Error", detail: "No se pudo actualizar el estado", life: 3000 });
   }
-};
-
-const clearSelection = async () => {
-  selectedHealth.value = "";
-  getSelectedHealths("");
-};
-const activeDropdown = ref(null);
-
-const toggleDropdown = (id) => {
-  // Alternar la visibilidad del dropdown
-  activeDropdown.value = activeDropdown.value === id ? null : id;
-};
-
-const selected = (data, state) => {
-  console.log("Acción seleccionada:", state, "Para fila:", data);
-  // Realizar la acción con la data y el estado
-  activeDropdown.value = null; // Cerrar el dropdown después de seleccionar
 };
 </script>

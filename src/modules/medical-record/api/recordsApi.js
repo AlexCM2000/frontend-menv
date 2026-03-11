@@ -1,8 +1,8 @@
 import api from "@/lib/axios";
 
-export const getRecords = async () => {
+export const getRecords = async (params = {}) => {
   try {
-    const { data } = await api.get("health-records");
+    const { data } = await api.get("health-records", { params });
     return data;
   } catch (error) {
     console.log(error);
