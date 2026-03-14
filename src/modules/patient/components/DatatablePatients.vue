@@ -3,6 +3,11 @@
     <template #title>
       <div class="flex items-center gap-2">
         <p class="font-semibold text-lg flex-1">Lista de Pacientes</p>
+        <ExportMenu
+          endpoint="/export/patients"
+          :params="exportParams"
+          filename="pacientes"
+        />
         <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
       </div>
     </template>
@@ -244,6 +249,7 @@ import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import ModalPatientForm from "./ModalPatientForm.vue";
 import ModalPatientDetail from "./ModalPatientDetail.vue";
+import ExportMenu from "@/components/ExportMenu.vue";
 
 const patientStore = usePatientStore();
 const { loading, patients, totalRecords, page_first } = storeToRefs(patientStore);
@@ -263,6 +269,12 @@ const {
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const isAdmin = computed(() => user.value?.admin === true);
+
+const exportParams = computed(() => ({
+  ...(localSearch.value && { search: localSearch.value }),
+  ...(localGender.value && { gender: localGender.value }),
+  ...(isAdmin.value && localHealth.value && { health: localHealth.value }),
+}));
 
 const healthStore = useHealthStore();
 const { healths } = storeToRefs(healthStore);

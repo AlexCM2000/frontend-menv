@@ -9,6 +9,12 @@
               {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
             </p>
           </div>
+          <ExportMenu
+            v-if="user?.admin || user?.branchManager"
+            endpoint="/export/appointments"
+            :params="exportParams"
+            filename="citas_medicas"
+          />
         </div>
       </template>
 
@@ -245,12 +251,13 @@ import OverlayPanel from "primevue/overlaypanel";
 import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
-import { inject, onMounted, ref, watch } from "vue";
+import { inject, computed, onMounted, ref, watch } from "vue";
+import ExportMenu from "@/components/ExportMenu.vue";
 
 const toast = inject("toast");
 
 const userAuth = useUserStore();
-const { loading, totalRecords, user, userAppointments, page_first } = storeToRefs(userAuth);
+const { loading, totalRecords, user, userAppointments, page_first, dateFrom, dateTo } = storeToRefs(userAuth);
 const { onPage, onSearch, getSelectedHealths, setAppointmentState, getUserAppointments, setDateFilter } = userAuth;
 
 const healthStore = useHealthStore();
@@ -269,6 +276,14 @@ const search = ref("");
 const dateRange = ref(null);
 const panel = ref(null);
 const activeRow = ref(null);
+
+const exportParams = computed(() => ({
+  ...(search.value        && { search:    search.value }),
+  ...(selectedState.value && { state:     selectedState.value }),
+  ...(selectedHealth.value&& { health:    selectedHealth.value }),
+  ...(dateFrom.value      && { date_from: dateFrom.value }),
+  ...(dateTo.value        && { date_to:   dateTo.value }),
+}));
 
 const stateOptions = [
   { label: "Pendiente", value: "Pendiente" },

@@ -3,6 +3,11 @@
     <template #title>
       <div class="flex items-center gap-2">
         <p class="font-semibold text-lg flex-1">Historiales médicos</p>
+        <ExportMenu
+          endpoint="/export/health-records"
+          :params="exportParams"
+          filename="historiales_medicos"
+        />
         <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
       </div>
     </template>
@@ -204,6 +209,7 @@ import { computed, onMounted, ref } from "vue";
 import { useRecordStore } from "../store/recordStore";
 import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
+import ExportMenu from "@/components/ExportMenu.vue";
 
 const recordStore = useRecordStore();
 const { loading, records, totalRecords, page_first } = storeToRefs(recordStore);
@@ -221,6 +227,12 @@ const {
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const isAdmin = computed(() => user.value?.admin === true);
+
+const exportParams = computed(() => ({
+  ...(localSearch.value && { search: localSearch.value }),
+  ...(localState.value  && { state:  localState.value  }),
+  ...(isAdmin.value && localHealth.value && { health: localHealth.value }),
+}));
 
 const healthStore = useHealthStore();
 const { healths } = storeToRefs(healthStore);

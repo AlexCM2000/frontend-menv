@@ -8,6 +8,11 @@
             {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
           </p>
         </div>
+        <ExportMenu
+          endpoint="/export/users"
+          :params="exportParams"
+          filename="usuarios"
+        />
         <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openNewUser" />
       </div>
     </template>
@@ -274,6 +279,7 @@ import ModalUserDetail from "./ModalUserDetail.vue";
 import ModalUserForm from "./ModalUserForm.vue";
 import { useUserEditorStore } from "@/modules/users/store/useUserEditorStore";
 import { useUsersStore } from "@/modules/users/store/useUserStore";
+import ExportMenu from "@/components/ExportMenu.vue";
 
 const usersStore = useUsersStore();
 const editorStore = useUserEditorStore();
@@ -288,6 +294,13 @@ const { healths } = storeToRefs(healthStore);
 
 const { user } = storeToRefs(authStore);
 const isAdmin = computed(() => user.value?.admin === true);
+
+const exportParams = computed(() => ({
+  ...(localSearch.value                              && { search:   localSearch.value }),
+  ...(localRole.value                               && { role:     localRole.value }),
+  ...(localVerified.value !== null                  && { verified: String(localVerified.value) }),
+  ...(isAdmin.value && localHealth.value            && { health:   localHealth.value }),
+}));
 
 
 const panel = ref(null);
