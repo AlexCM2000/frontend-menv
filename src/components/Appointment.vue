@@ -11,6 +11,15 @@
         {{ service.name }}
       </p>
     </div>
+    <!-- Médico asignado -->
+    <div v-if="appointment.doctor" class="flex items-center gap-2 text-sm text-gray-600">
+      <i class="pi pi-user text-indigo-400 text-xs"></i>
+      <span>
+        <span class="font-semibold">{{ appointment.doctor.name }}</span>
+        <span class="text-gray-400"> — {{ appointment.doctor.specialty }}</span>
+      </span>
+    </div>
+
     <p class="text-2xl font-black text-blue-500">
       {{ appointment.state }}
     </p>

@@ -55,6 +55,13 @@ onMounted(() => {
           Historial Clínico
         </RouterLink>
         <RouterLink
+          :to="{ name: 'doctors-list' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Médicos
+        </RouterLink>
+        <RouterLink
           :to="{ name: 'users' }"
           class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
           active-class="bg-gray-100"

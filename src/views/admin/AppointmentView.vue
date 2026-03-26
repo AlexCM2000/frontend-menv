@@ -9,12 +9,21 @@
               {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
             </p>
           </div>
-          <ExportMenu
-            v-if="user?.admin || user?.branchManager"
-            endpoint="/export/appointments"
-            :params="exportParams"
-            filename="citas_medicas"
-          />
+          <div class="flex items-center gap-2">
+            <Button
+              v-if="user?.admin || user?.branchManager"
+              label="Nueva cita"
+              icon="pi pi-plus"
+              size="small"
+              @click="showNewModal = true"
+            />
+            <ExportMenu
+              v-if="user?.admin || user?.branchManager"
+              endpoint="/export/appointments"
+              :params="exportParams"
+              filename="citas_medicas"
+            />
+          </div>
         </div>
       </template>
 
@@ -179,6 +188,21 @@
             </template>
           </Column>
 
+          <!-- Médico -->
+          <Column style="min-width: 150px" class="hidden lg:table-cell">
+            <template #header><p class="font-semibold text-sm">Médico</p></template>
+            <template #body="{ data }">
+              <div v-if="data?.doctor" class="flex items-center gap-1.5">
+                <i class="pi pi-user text-xs text-indigo-400" />
+                <div>
+                  <p class="text-sm text-gray-700 font-medium">{{ data.doctor.name }}</p>
+                  <p class="text-xs text-gray-400">{{ data.doctor.specialty }}</p>
+                </div>
+              </div>
+              <span v-else class="text-xs text-gray-400">Sin asignar</span>
+            </template>
+          </Column>
+
           <!-- Estado -->
           <Column style="min-width: 110px">
             <template #header><p class="font-semibold text-sm">Estado</p></template>
@@ -207,6 +231,12 @@
             </template>
           </Column>
         </DataTable>
+
+        <!-- Modal Nueva Cita -->
+        <ModalAdminAppointment
+          v-model:visible="showNewModal"
+          @created="getUserAppointments(user._id)"
+        />
 
         <!-- OverlayPanel -->
         <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 170px">
@@ -253,6 +283,7 @@ import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
 import { inject, computed, onMounted, ref, watch } from "vue";
 import ExportMenu from "@/components/ExportMenu.vue";
+import ModalAdminAppointment from "@/components/ModalAdminAppointment.vue";
 
 const toast = inject("toast");
 
@@ -276,6 +307,7 @@ const search = ref("");
 const dateRange = ref(null);
 const panel = ref(null);
 const activeRow = ref(null);
+const showNewModal = ref(false);
 
 const exportParams = computed(() => ({
   ...(search.value        && { search:    search.value }),

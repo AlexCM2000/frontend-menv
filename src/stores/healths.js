@@ -10,8 +10,9 @@ export const useHealthStore = defineStore("health", () => {
       const { data } = await HealthApi.all();
       console.log(data);
       healths.value = data.map((center) => ({
-        value: center.codigo, // Asignamos el codigo como value
-        label: center.name, // Asignamos el nombre como label
+        value: center.codigo,
+        label: center.name,
+        id: center._id,
       }));
     } catch (error) {
       console.log(error);

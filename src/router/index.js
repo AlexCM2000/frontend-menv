@@ -52,6 +52,18 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: "/medicos",
+      name: "doctors",
+      component: () => import("@/views/admin/AdminLayout.vue"),
+      children: [
+        {
+          path: "",
+          name: "doctors-list",
+          component: () => import("@/modules/doctors/view/DoctorView.vue"),
+        },
+      ],
+    },
 
     {
       path: "/reservaciones",

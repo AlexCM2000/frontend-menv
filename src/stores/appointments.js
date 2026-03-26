@@ -18,6 +18,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   const appointmentsByDate=ref([])
   const maxAppointments=ref(false)
   const state = ref("Pendiente")
+  const doctor = ref(null)
 
   const user = useUserStore()
 
@@ -67,6 +68,7 @@ const setSelectedAppointment = (appointment)=>{
   date.value = convertToDDMMYYYY(appointment.date)
   appointmentID.value=appointment._id
   state.value=appointment.state
+  doctor.value=appointment.doctor?._id ?? appointment.doctor ?? null
 }
 
   const onServiceSelected = (service) => {
@@ -117,7 +119,8 @@ const setSelectedAppointment = (appointment)=>{
       date:convertToISO(date.value),
       time:time.value,
       totalAmount:totalAmount.value,
-      state:state.value
+      state:state.value,
+      doctor:doctor.value || null
     }
 
     if(appointmentID.value){
@@ -177,6 +180,7 @@ const setSelectedAppointment = (appointment)=>{
     services.value=[]
     date.value=''
     time.value=''
+    doctor.value=null
   }
   return {
     onServiceSelected,
@@ -184,7 +188,7 @@ const setSelectedAppointment = (appointment)=>{
     isValidReservation,
     isServiceSelected,
     noServicesSelected,
-     saveAppointment,
+    saveAppointment,
     setSelectedAppointment,
     clearAppointmentsData,
     cancelAppointment,
@@ -194,6 +198,7 @@ const setSelectedAppointment = (appointment)=>{
     date,
     hours,
     time,
-     isDateSelected
+    isDateSelected,
+    doctor,
   };
 });

@@ -30,6 +30,30 @@
   </h3>
 
   <div v-if="!appointments.noServicesSelected" class="space-y-8">
+
+    <!-- Selector de médico -->
+    <div>
+      <h3 class="text-3xl font-extrabold text-[#3A3A3A] mb-4">Médico (opcional)</h3>
+      <div class="max-w-sm">
+        <label class="block text-gray-600 text-sm font-medium mb-1">
+          Selecciona un médico para tu cita
+        </label>
+        <select
+          v-model="appointments.doctor"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        >
+          <option :value="null">Sin preferencia de médico</option>
+          <option
+            v-for="doc in availableDoctors"
+            :key="doc._id"
+            :value="doc._id"
+          >
+            {{ doc.name }} — {{ doc.specialty }}
+          </option>
+        </select>
+      </div>
+    </div>
+
     <h3 class="text-3xl font-extrabold text-[#3A3A3A]">Fecha y Hora</h3>
 
     <div class="lg:flex gap-5 items-start">
@@ -84,8 +108,10 @@ import VueTailwindDatepicker from "vue-tailwind-datepicker";
 import { es as esLocale } from "date-fns/locale";
 import { addDays, nextFriday, isWithinInterval } from "date-fns";
 import { useRoute } from "vue-router";
+import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
 
 const appointments = useAppointmentsStore();
+const availableDoctors = ref([]);
 
 const formatter = ref({
   date: "DD/MM/YYYY",
@@ -94,13 +120,17 @@ const formatter = ref({
 
 const disabledDate = (date) => {
   const today = new Date();
-  const startDate = addDays(today, 1); // Un día después del día actual
-  const endDate = nextFriday(today); // Ajusta el último día habilitado al viernes de esta semana
-
+  const startDate = addDays(today, 1);
+  const endDate = nextFriday(today);
   return !isWithinInterval(date, { start: startDate, end: endDate });
 };
+
 const route = useRoute();
-onMounted(() => {
-  console.log(route.params.id);
+onMounted(async () => {
+  try {
+    availableDoctors.value = await getDoctorsForSelect();
+  } catch {
+    availableDoctors.value = [];
+  }
 });
 </script>
