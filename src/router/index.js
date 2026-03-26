@@ -38,6 +38,16 @@ const router = createRouter({
           name: "admin-calendar",
           component: () => import("@/views/admin/CalendarView.vue"),
         },
+        {
+          path: "categorias",
+          name: "admin-categories",
+          component: () => import("@/modules/categories/view/CategoryView.vue"),
+        },
+        {
+          path: "servicios",
+          name: "admin-services",
+          component: () => import("@/modules/services-admin/view/ServicesAdminView.vue"),
+        },
       ],
     },
     {
@@ -160,7 +170,7 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const requiredAuth = to.matched.some((url) => url.meta.requiredAuth);
 
   if (requiredAuth) {

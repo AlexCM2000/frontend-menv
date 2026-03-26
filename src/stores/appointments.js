@@ -1,26 +1,26 @@
 import { defineStore } from "pinia";
-import { ref, computed, onMounted,inject, watch } from "vue";
+import { ref, computed, onMounted, inject, watch } from "vue";
 import AppointmentApi from "../api/AppointmentApi";
 import { convertToDDMMYYYY, convertToISO } from "@/helpers/date";
 import { useRouter } from "vue-router";
 import { useUserStore } from "./user";
-import Appointment from "@/components/Appointment.vue";
 
 
 export const useAppointmentsStore = defineStore("appointments", () => {
   const services = ref([]);
   const appointmentID = ref("");
-  const date =ref("");
-  const hours= ref([]);
+  const date = ref("");
+  const hours = ref([]);
   const time = ref('');
-  const toast=inject('toast')
-  const router = useRouter()
-  const appointmentsByDate=ref([])
-  const maxAppointments=ref(false)
-  const state = ref("Pendiente")
-  const doctor = ref(null)
+  const toast = inject('toast');
+  const router = useRouter();
+  const maxAppointments = ref(false);
+  const state = ref("Pendiente");
+  const doctor = ref(null);
+  const selectedCategory = ref(null);
+  const availabilityData = ref({ doctors: [], appointments: [] });
 
-  const user = useUserStore()
+  const user = useUserStore();
 
   onMounted(() => {
     // Primer intervalo: de 8:30 a 12:30
@@ -50,26 +50,35 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     }
   });
   
-watch(()=>date.value,async()=>{
-  time.value=""
-  if(date.value=="") return
-  const {data}= await AppointmentApi.getByDate(date.value)
-  if(appointmentID.value){
-    appointmentsByDate.value=data.filter((appointment)=>appointment._id!==appointmentID.value)
-    time.value = data.filter((appointment)=>appointment._id===appointmentID?.value)[0]?.time
-  }else{
-    appointmentsByDate.value=data
+watch(() => date.value, async () => {
+  time.value = "";
+  if (!date.value || !selectedCategory.value) return;
+  try {
+    const { data } = await AppointmentApi.getAvailability(
+      date.value,
+      selectedCategory.value,
+      appointmentID.value || null
+    );
+    availabilityData.value = data;
+  } catch (error) {
+    console.log(error);
+    availabilityData.value = { doctors: [], appointments: [] };
   }
-},{deep:true})
+}, { deep: true });
 
-const setSelectedAppointment = (appointment)=>{
-  services.value=appointment.services
-  time.value=appointment.time
-  date.value = convertToDDMMYYYY(appointment.date)
-  appointmentID.value=appointment._id
-  state.value=appointment.state
-  doctor.value=appointment.doctor?._id ?? appointment.doctor ?? null
-}
+const setSelectedCategory = (categoryName) => {
+  selectedCategory.value = categoryName;
+};
+
+const setSelectedAppointment = (appointment) => {
+  services.value = appointment.services;
+  time.value = appointment.time;
+  date.value = convertToDDMMYYYY(appointment.date);
+  appointmentID.value = appointment._id;
+  state.value = appointment.state;
+  doctor.value = appointment.doctor?._id ?? appointment.doctor ?? null;
+  selectedCategory.value = appointment.services[0]?.category ?? null;
+};
 
   const onServiceSelected = (service) => {
     if (
@@ -107,11 +116,20 @@ const setSelectedAppointment = (appointment)=>{
     return date.value ? true : false  
   })
 
-  const disableTime =computed(()=>{
-    return (hour)=>{
-      return appointmentsByDate.value.find((appointment)=>appointment.time===hour)
-    }
-  })
+  const disableTime = computed(() => {
+    const { doctors, appointments: appts } = availabilityData.value;
+    const selectedDoc = doctor.value;
+    return (hour) => {
+      const bookedAtHour = appts.filter(a => a.time === hour);
+      if (doctors.length === 0) return false;
+      if (bookedAtHour.length >= doctors.length) return true;
+      if (selectedDoc) {
+        const bookedDoctorIds = bookedAtHour.map(a => a.doctor?.toString()).filter(Boolean);
+        if (bookedDoctorIds.includes(selectedDoc.toString())) return true;
+      }
+      return false;
+    };
+  });
 
   const saveAppointment=async()=>{
     const appointment={
@@ -173,15 +191,15 @@ const setSelectedAppointment = (appointment)=>{
     }
   }
 
-  //limpiar datos
+  const clearAppointmentsData = () => {
+    appointmentID.value = '';
+    services.value = [];
+    date.value = '';
+    time.value = '';
+    doctor.value = null;
+    selectedCategory.value = null;
+  };
 
-  const clearAppointmentsData=()=>{
-    appointmentID.value=''
-    services.value=[]
-    date.value=''
-    time.value=''
-    doctor.value=null
-  }
   return {
     onServiceSelected,
     maxAppointments,
@@ -200,5 +218,7 @@ const setSelectedAppointment = (appointment)=>{
     time,
     isDateSelected,
     doctor,
+    selectedCategory,
+    setSelectedCategory,
   };
 });

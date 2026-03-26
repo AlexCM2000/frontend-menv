@@ -128,7 +128,8 @@ const disabledDate = (date) => {
 const route = useRoute();
 onMounted(async () => {
   try {
-    availableDoctors.value = await getDoctorsForSelect();
+    const params = appointments.selectedCategory ? { specialty: appointments.selectedCategory } : {};
+    availableDoctors.value = await getDoctorsForSelect(params);
   } catch {
     availableDoctors.value = [];
   }

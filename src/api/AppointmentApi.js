@@ -23,6 +23,11 @@ export default{
     },
     getCalendar(start, end) {
         return api.get(`/appointments/calendar?start=${start}&end=${end}`)
-    }
+    },
+    getAvailability(date, category, excludeId = null) {
+        const params = { date, category };
+        if (excludeId) params.excludeId = excludeId;
+        return api.get("/appointments/availability", { params });
+    },
 
 }

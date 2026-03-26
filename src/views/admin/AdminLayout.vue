@@ -68,6 +68,20 @@ onMounted(() => {
         >
           Usuarios
         </RouterLink>
+        <RouterLink
+          :to="{ name: 'admin-categories' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Categorías
+        </RouterLink>
+        <RouterLink
+          :to="{ name: 'admin-services' }"
+          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
+          active-class="bg-gray-100"
+        >
+          Servicios
+        </RouterLink>
       </nav>
     </div>
   </div>

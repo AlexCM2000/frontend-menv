@@ -23,7 +23,9 @@
 
         <Select
           v-model="localSpecialty"
-          :options="SPECIALTIES"
+          :options="specialtyOptions"
+          optionLabel="label"
+          optionValue="value"
           placeholder="Especialidad"
           showClear
           class="w-full sm:w-52"
@@ -266,7 +268,7 @@ import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import ModalDoctorForm from "./ModalDoctorForm.vue";
 import ModalDoctorDetail from "./ModalDoctorDetail.vue";
-import { SPECIALTIES } from "../helpers/Dictionary";
+import CategoryApi from "@/api/CategoryApi";
 
 const doctorStore = useDoctorStore();
 const { loading, doctors, totalRecords, page_first } = storeToRefs(doctorStore);
@@ -303,6 +305,7 @@ const localSpecialty = ref(null);
 const localActive = ref(null);
 const panel = ref(null);
 const activeRow = ref(null);
+const specialtyOptions = ref([]);
 
 function getInitials(name = "") {
   return name
@@ -361,5 +364,11 @@ onMounted(async () => {
   await userStore.getUser();
   if (isAdmin.value) await healthStore.getHealths();
   await setDoctors();
+  try {
+    const { data } = await CategoryApi.getAll({ active: true });
+    specialtyOptions.value = data.map((c) => ({ label: c.name, value: c.name }));
+  } catch {
+    specialtyOptions.value = [];
+  }
 });
 </script>

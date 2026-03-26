@@ -42,7 +42,7 @@
           label="Especialidad"
           name="specialty"
           placeholder="Seleccione una especialidad"
-          :options="SPECIALTIES"
+          :options="categoryOptions"
           validation="required"
           :validation-messages="{
             required: 'La especialidad es obligatoria',
@@ -162,7 +162,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useDoctorStore } from "../store/doctorStore";
 import { useHealthStore } from "@/stores/healths";
 import { useUserStore } from "@/stores/user";
-import { SPECIALTIES } from "../helpers/Dictionary";
+import CategoryApi from "@/api/CategoryApi";
 
 const healthStore = useHealthStore();
 const { getHealths } = healthStore;
@@ -231,8 +231,16 @@ const handleSubmit = async (values) => {
   formData.value = {};
 };
 
+const categoryOptions = ref([]);
+
 onMounted(async () => {
   await userStore.getUser();
   await getHealths();
+  try {
+    const { data } = await CategoryApi.getAll({ active: true });
+    categoryOptions.value = data.map((c) => ({ label: c.name, value: c.name }));
+  } catch {
+    categoryOptions.value = [];
+  }
 });
 </script>
