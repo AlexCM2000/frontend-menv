@@ -131,47 +131,44 @@ const setSelectedAppointment = (appointment) => {
     };
   });
 
-  const saveAppointment=async()=>{
-    const appointment={
-      services:services.value.map((service)=>service._id),
-      date:convertToISO(date.value),
-      time:time.value,
-      totalAmount:totalAmount.value,
-      state:state.value,
-      doctor:doctor.value || null
-    }
+  const saveAppointment = async () => {
+    const appointment = {
+      services: services.value.map((service) => service._id),
+      date: convertToISO(date.value),
+      time: time.value,
+      totalAmount: totalAmount.value,
+      state: state.value,
+      doctor: doctor.value || null,
+    };
 
-    if(appointmentID.value){
+    if (appointmentID.value) {
       try {
-
-        const {data}=  await AppointmentApi.update(appointmentID.value,appointment)
-        //mostrar mensaje
-        toast.open({
-          message:data.msg,
-          type:'success'
-        })
+        const { data } = await AppointmentApi.update(appointmentID.value, appointment);
+        toast.open({ message: data.msg, type: "success" });
       } catch (error) {
-        console.log(error)
+        toast.open({
+          message: error.response?.data?.msg || "Error al actualizar la cita",
+          type: "error",
+        });
+        return; // No redirigir si hubo error
       }
-    }else{
+    } else {
       try {
-        const {data}=  await AppointmentApi.create(appointment)
-        toast.open({
-          message:data.msg,
-          type:'success'
-        })
-     
-  
+        const { data } = await AppointmentApi.create(appointment);
+        toast.open({ message: data.msg, type: "success" });
       } catch (error) {
-        console.log(error)
+        toast.open({
+          message: error.response?.data?.msg || "Error al crear la cita",
+          type: "error",
+        });
+        return; // No redirigir ni limpiar si hubo error (el usuario puede elegir otro horario)
       }
     }
-    clearAppointmentsData()
-    await user.getUserAppointments()
-    //redireccionar
-    router.push({name:'my-appointments'})
 
-  }
+    clearAppointmentsData();
+    await user.getUserAppointments();
+    router.push({ name: "my-appointments" });
+  };
 
   const cancelAppointment=async(id)=>{
     if(confirm("¿Deseas cancelar la cita?")) {
