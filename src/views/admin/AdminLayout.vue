@@ -1,91 +1,114 @@
 <script setup>
+import { ref, computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
 import { RouterLink } from "vue-router";
+
 const userAuth = useUserStore();
 const { user } = storeToRefs(userAuth);
-onMounted(() => {
-  userAuth.getUser();
+
+const isAdmin = computed(() => user.value?.admin === true);
+const isBranchManager = computed(() => user.value?.branchManager === true);
+
+const menuOpen = ref(false);
+
+const navLinks = computed(() => {
+  const links = [
+    { name: "admin-dashboard",   icon: "pi-chart-bar",     label: "Dashboard" },
+    { name: "admin-appointments",icon: "pi-calendar",       label: "Citas" },
+    { name: "admin-calendar",    icon: "pi-calendar-clock", label: "Calendario" },
+    { name: "my-health-records", icon: "pi-file-edit",      label: "Historial Clínico" },
+    { name: "patients-list",     icon: "pi-users",          label: "Pacientes" },
+    { name: "doctors-list",      icon: "pi-user",           label: "Médicos" },
+    { name: "users",             icon: "pi-user-edit",      label: "Usuarios" },
+  ];
+  if (isAdmin.value || isBranchManager.value) {
+    links.push(
+      { name: "admin-categories", icon: "pi-tag",    label: "Categorías" },
+      { name: "admin-services",   icon: "pi-list",   label: "Servicios" },
+    );
+  }
+  return links;
 });
 </script>
 
 <template>
-  <div class="flex justify-between">
-    <div>
-      <h1 class="text-2xl lg:text-6xl font-black text-[#002366]">App Salón</h1>
-      <h2 class="text-xl lg:text-2xl mt-2 font-black text-[#3A3A3A]">
-        Panel de Administración
-      </h2>
-    </div>
+  <div class="min-h-screen bg-gray-50 flex flex-col">
 
-    <div class="flex flex-col space-y-3">
-      <div class="flex gap-2 items-center justify-end">
-        <p class="text-[#3A3A3A] font-medium text-xl text-right">
-          Bienvenido: {{ user?.name }}
-        </p>
-        <button
-          type="button"
-          class="bg-red-600 hover:bg-red-700 p-2 text-white uppercase text-xs font-extrabold rounded-lg"
-          @click="userAuth.logout"
-        >
-          Cerrar Sesión
-        </button>
+    <!-- Top Bar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+      <div class="flex items-center gap-3 px-4 py-3">
+
+        <!-- Logo / nombre -->
+        <div class="flex items-center gap-2 mr-4">
+          <span class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+            <i class="pi pi-heart text-white text-sm"></i>
+          </span>
+          <span class="font-bold text-blue-700 text-base hidden sm:inline">MQV Salud</span>
+        </div>
+
+        <!-- Nav desktop -->
+        <nav class="hidden lg:flex items-center gap-1 flex-1 flex-wrap">
+          <RouterLink
+            v-for="link in navLinks"
+            :key="link.name"
+            :to="{ name: link.name }"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            active-class="bg-blue-50 text-blue-700 font-semibold"
+          >
+            <i class="pi text-sm" :class="link.icon"></i>
+            {{ link.label }}
+          </RouterLink>
+        </nav>
+
+        <!-- Spacer mobile -->
+        <div class="flex-1 lg:hidden" />
+
+        <!-- Usuario + logout -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="hidden sm:flex items-center gap-2 text-sm text-gray-700">
+            <i class="pi pi-user text-gray-400"></i>
+            {{ user?.name }}
+          </span>
+          <button
+            type="button"
+            class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+            @click="userAuth.logout"
+          >
+            <i class="pi pi-sign-out text-sm"></i>
+            <span class="hidden sm:inline">Salir</span>
+          </button>
+          <!-- Hamburger mobile -->
+          <button
+            type="button"
+            class="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+            @click="menuOpen = !menuOpen"
+          >
+            <i class="pi text-gray-600" :class="menuOpen ? 'pi-times' : 'pi-bars'"></i>
+          </button>
+        </div>
       </div>
-      <nav class="flex gap-2 items-center justify-end flex-wrap">
+
+      <!-- Nav mobile desplegable -->
+      <nav v-if="menuOpen" class="lg:hidden border-t border-gray-100 px-4 pb-3 pt-2 flex flex-wrap gap-1">
         <RouterLink
-          :to="{ name: 'admin-appointments' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
+          v-for="link in navLinks"
+          :key="link.name"
+          :to="{ name: link.name }"
+          class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+          active-class="bg-blue-50 text-blue-700 font-semibold"
+          @click="menuOpen = false"
         >
-          Citas
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'admin-calendar' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Calendario
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'my-health-records' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Historial Clínico
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'doctors-list' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Médicos
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'users' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Usuarios
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'admin-categories' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Categorías
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'admin-services' }"
-          class="p-2 text-[#3A3A3A] uppercase text-xs font-black rounded-lg"
-          active-class="bg-gray-100"
-        >
-          Servicios
+          <i class="pi text-sm" :class="link.icon"></i>
+          {{ link.label }}
         </RouterLink>
       </nav>
-    </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="flex-1">
+      <RouterView />
+    </main>
+
   </div>
-  <main class="space-y-6">
-    <RouterView />
-  </main>
 </template>

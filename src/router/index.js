@@ -18,6 +18,11 @@ const router = createRouter({
       children: [
         {
           path: "",
+          name: "admin-dashboard",
+          component: () => import("@/views/admin/DashboardView.vue"),
+        },
+        {
+          path: "citas",
           name: "admin-appointments",
           component: () => import("@/views/admin/AppointmentView.vue"),
         },
