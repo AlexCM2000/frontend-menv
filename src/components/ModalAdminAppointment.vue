@@ -98,6 +98,20 @@
         />
       </div>
 
+      <!-- Motivo de consulta -->
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-medium text-sm mb-1">
+          Motivo de consulta <span class="text-gray-400 font-normal">(opcional)</span>
+        </label>
+        <textarea
+          v-model="form.notes"
+          rows="2"
+          maxlength="300"
+          placeholder="Describe el motivo de la consulta..."
+          class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
+      </div>
+
     </div>
 
     <template #footer>
@@ -131,6 +145,7 @@ const form = ref({
   time: null,
   doctor: null,
   state: "Pendiente",
+  notes: "",
 });
 
 const errors = ref({});
@@ -250,6 +265,7 @@ const submit = async () => {
     totalAmount: selectedService?.price ?? 0,
     state: form.value.state,
     doctor: form.value.doctor || null,
+    notes: form.value.notes || "",
   };
 
   submitting.value = true;
@@ -270,7 +286,7 @@ const submit = async () => {
 };
 
 const resetForm = () => {
-  form.value = { targetUserId: null, serviceId: null, date: null, time: null, doctor: null, state: "Pendiente" };
+  form.value = { targetUserId: null, serviceId: null, date: null, time: null, doctor: null, state: "Pendiente", notes: "" };
   errors.value = {};
 };
 

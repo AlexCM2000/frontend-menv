@@ -20,6 +20,11 @@
       </span>
     </div>
 
+    <!-- Motivo de consulta -->
+    <div v-if="appointment.notes" class="text-sm text-gray-500 italic bg-gray-50 rounded p-2">
+      <span class="font-semibold not-italic text-gray-600">Motivo: </span>{{ appointment.notes }}
+    </div>
+
     <p class="text-2xl font-black text-blue-500">
       {{ appointment.state }}
     </p>

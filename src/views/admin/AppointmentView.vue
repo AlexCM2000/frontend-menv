@@ -144,6 +144,9 @@
               <p class="font-semibold text-sm text-gray-700">
                 {{ data?.services[0]?.name ?? "—" }}
               </p>
+              <p v-if="data?.notes" class="text-xs text-gray-400 italic mt-0.5 truncate max-w-[180px]" :title="data.notes">
+                {{ data.notes }}
+              </p>
             </template>
           </Column>
 

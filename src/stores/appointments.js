@@ -17,6 +17,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   const maxAppointments = ref(false);
   const state = ref("Pendiente");
   const doctor = ref(null);
+  const notes = ref("");
   const selectedCategory = ref(null);
   const availabilityData = ref({ doctors: [], appointments: [] });
   const availabilityLoaded = ref(false);
@@ -81,6 +82,7 @@ const setSelectedAppointment = (appointment) => {
   appointmentID.value = appointment._id;
   state.value = appointment.state;
   doctor.value = appointment.doctor?._id ?? appointment.doctor ?? null;
+  notes.value = appointment.notes ?? "";
   selectedCategory.value = appointment.services[0]?.category ?? null;
 };
 
@@ -142,6 +144,7 @@ const setSelectedAppointment = (appointment) => {
       date: convertToISO(date.value),
       time: time.value,
       totalAmount: totalAmount.value,
+      notes: notes.value || "",
       state: state.value,
       doctor: doctor.value || null,
     };
@@ -199,6 +202,7 @@ const setSelectedAppointment = (appointment) => {
     date.value = '';
     time.value = '';
     doctor.value = null;
+    notes.value = "";
     selectedCategory.value = null;
   };
 
@@ -220,6 +224,7 @@ const setSelectedAppointment = (appointment) => {
     time,
     isDateSelected,
     doctor,
+    notes,
     selectedCategory,
     setSelectedCategory,
     availabilityLoaded,

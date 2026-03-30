@@ -103,6 +103,21 @@
       </div>
     </div>
 
+    <!-- Motivo de consulta -->
+    <div>
+      <h3 class="text-3xl font-extrabold text-[#3A3A3A] mb-2">
+        Motivo de consulta
+        <span class="text-base font-normal text-gray-400">(opcional)</span>
+      </h3>
+      <textarea
+        v-model="appointments.notes"
+        rows="3"
+        maxlength="300"
+        placeholder="Describe brevemente el motivo de tu consulta..."
+        class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      />
+    </div>
+
     <div class="flex justify-end" v-if="appointments.isValidReservation">
       <button
         class="w-full md:w-auto bg-blue-500 p-3 rounded-lg uppercase font-black text-white"

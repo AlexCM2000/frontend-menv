@@ -10,6 +10,16 @@ export const getRecords = async (params = {}) => {
   }
 };
 
+export const getRecordById = async (id) => {
+  try {
+    const { data } = await api.get(`health-records/${id}`);
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 export const createHealthRecord = async (record) => {
   try {
     const { data } = await api.post(`health-records`, record);

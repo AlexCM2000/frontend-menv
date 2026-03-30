@@ -180,6 +180,12 @@
       <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 160px">
         <ul class="py-1">
           <li
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer rounded text-blue-700"
+            @click="viewDetail()"
+          >
+            <i class="pi pi-eye text-sm"></i> Ver detalle
+          </li>
+          <li
             class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-amber-50 cursor-pointer rounded text-amber-700"
             @click="archiveRow()"
           >
@@ -187,6 +193,9 @@
           </li>
         </ul>
       </OverlayPanel>
+
+      <!-- Modal detalle -->
+      <ModalHealthRecordDetail />
     </template>
   </Card>
 </template>
@@ -210,6 +219,7 @@ import { useRecordStore } from "../store/recordStore";
 import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import ExportMenu from "@/components/ExportMenu.vue";
+import ModalHealthRecordDetail from "./ModalHealthRecordDetail.vue";
 
 const recordStore = useRecordStore();
 const { loading, records, totalRecords, page_first } = storeToRefs(recordStore);
@@ -222,6 +232,7 @@ const {
   setStateFilter,
   setHealthFilter,
   resetFilters,
+  onCurrentRecordDetail,
 } = recordStore;
 
 const userStore = useUserStore();
@@ -272,6 +283,11 @@ function openPanel(event, data) {
   activeRow.value = data;
   panel.value.toggle(event);
 }
+
+const viewDetail = () => {
+  panel.value?.hide();
+  onCurrentRecordDetail(activeRow.value);
+};
 
 const archiveRow = () => {
   panel.value?.hide();
