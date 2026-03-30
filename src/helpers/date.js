@@ -24,11 +24,13 @@ export const convertToDDMMYYYY=(isoDate)=>
 }
 
 export const formatDate=(dateString)=> {
+    if (!dateString) return "—";
     const date = new Date(dateString);
-  
+    if (isNaN(date.getTime())) return "—";
+
     const day = date.getUTCDate();
     const month = date.toLocaleString("es-ES", { month: "short" });
     const year = date.getUTCFullYear();
-  
+
     return `${day}/${month}/${year}`;
   }

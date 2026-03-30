@@ -139,10 +139,12 @@
           </template>
           <template #body="{ data }">
             <Tag
-              :value="data?.gender"
-              :severity="data?.gender === 'Masculino' ? 'info' : 'contrast'"
+              v-if="data?.gender"
+              :value="data.gender"
+              :severity="data.gender === 'Masculino' ? 'info' : 'contrast'"
               class="text-xs"
             />
+            <span v-else class="text-xs text-gray-400">—</span>
           </template>
         </Column>
 
