@@ -19,6 +19,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   const doctor = ref(null);
   const selectedCategory = ref(null);
   const availabilityData = ref({ doctors: [], appointments: [] });
+  const availabilityLoaded = ref(false);
 
   const user = useUserStore();
 
@@ -52,6 +53,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   
 watch(() => date.value, async () => {
   time.value = "";
+  availabilityLoaded.value = false;
   if (!date.value || !selectedCategory.value) return;
   try {
     const { data } = await AppointmentApi.getAvailability(
@@ -63,6 +65,8 @@ watch(() => date.value, async () => {
   } catch (error) {
     console.log(error);
     availabilityData.value = { doctors: [], appointments: [] };
+  } finally {
+    availabilityLoaded.value = true;
   }
 }, { deep: true });
 
@@ -120,8 +124,9 @@ const setSelectedAppointment = (appointment) => {
     const { doctors, appointments: appts } = availabilityData.value;
     const selectedDoc = doctor.value;
     return (hour) => {
+      if (!availabilityLoaded.value) return false;
       const bookedAtHour = appts.filter(a => a.time === hour);
-      if (doctors.length === 0) return false;
+      if (doctors.length === 0) return true;
       if (bookedAtHour.length >= doctors.length) return true;
       if (selectedDoc) {
         const bookedDoctorIds = bookedAtHour.map(a => a.doctor?.toString()).filter(Boolean);
@@ -217,5 +222,6 @@ const setSelectedAppointment = (appointment) => {
     doctor,
     selectedCategory,
     setSelectedCategory,
+    availabilityLoaded,
   };
 });

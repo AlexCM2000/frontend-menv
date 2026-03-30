@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Toast siempre encima de modales */
+.v-toast {
+  z-index: 99999 !important;
+}

@@ -31,6 +31,21 @@
 
   <div v-if="!appointments.noServicesSelected" class="space-y-8">
 
+    <!-- Aviso cuando no hay médicos para la especialidad en este centro -->
+    <div
+      v-if="appointments.availabilityLoaded && availableDoctors.length === 0"
+      class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4"
+    >
+      <i class="pi pi-exclamation-triangle text-red-500 mt-0.5"></i>
+      <div>
+        <p class="text-red-700 font-semibold text-sm">No hay médicos disponibles</p>
+        <p class="text-red-600 text-sm mt-0.5">
+          Este centro de salud no tiene médicos registrados para la especialidad
+          <strong>{{ appointments.selectedCategory }}</strong>. Contacta al administrador.
+        </p>
+      </div>
+    </div>
+
     <!-- Selector de médico -->
     <div>
       <h3 class="text-3xl font-extrabold text-[#3A3A3A] mb-4">Médico (opcional)</h3>
