@@ -4,6 +4,7 @@
     modal
     :style="{ minWidth: '50vw' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    @hide="currentDoctor = null"
   >
     <template #header>
       <div class="font-semibold text-xl">
@@ -83,10 +84,10 @@
           label="Teléfono de contacto"
           name="phone"
           placeholder="Ej: 70001234"
-          validation="required|length:7"
+          validation="required|length:7,8"
           :validation-messages="{
             required: 'El teléfono es obligatorio',
-            length: 'El teléfono debe tener al menos 7 dígitos',
+            length: 'Debe tener entre 7 y 8 dígitos',
           }"
           label-class="text-gray-700 font-medium"
           input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"

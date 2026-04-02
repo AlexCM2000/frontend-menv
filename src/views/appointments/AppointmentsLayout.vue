@@ -51,7 +51,7 @@
         <!-- Usuario + logout -->
         <div class="flex items-center gap-2 shrink-0">
           <span class="text-sm text-gray-600 hidden md:inline truncate max-w-[140px]">
-            {{ user?.name }}
+            {{ getUserName }}
           </span>
           <button
             class="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600
@@ -80,7 +80,7 @@ import { RouterLink } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 
-const { user } = storeToRefs(useUserStore());
+const { getUserName } = storeToRefs(useUserStore());
 const { getUser, logout } = useUserStore();
 
 onMounted(async () => {

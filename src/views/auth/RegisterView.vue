@@ -1,113 +1,231 @@
 <template>
-  <div
-    class="h-full bg-white shadow-lg rounded-lg p-10 w-full max-w-lg border border-gray-300"
-  >
-    <h1 class="text-4xl font-bold text-gray-800 text-center">
-      Crear una cuenta
-    </h1>
-    <p class="text-lg text-gray-600 text-center mt-2 mb-6">
-      Crea una cuenta en GAMPA
-    </p>
+  <div class="w-full max-w-lg">
+    <!-- Card principal -->
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
 
-    <FormKit
-      id="registerForm"
-      type="form"
-      :actions="false"
-      @submit="handleSubmit"
-      incomplete-message="No se pudo enviar el formulario, revisa los campos"
-      class="space-y-4"
-    >
-      <FormKit
-        type="text"
-        label="Nombre"
-        name="name"
-        placeholder="Tu nombre"
-        validation="required|length:3"
-        :validation-messages="{
-          required: 'El nombre es obligatorio',
-          length: 'El nombre es muy corto',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+      <!-- Header decorativo -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            <i class="pi pi-user-plus text-white text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-white leading-tight">Crear una cuenta</h1>
+            <p class="text-blue-100 text-xs mt-0.5">Completa el formulario para registrarte</p>
+          </div>
+        </div>
+      </div>
 
-      <FormKit
-        type="email"
-        label="Email"
-        name="email"
-        placeholder="email de registro"
-        validation="required|email"
-        :validation-messages="{
-          required: 'El email es obligatorio',
-          email: 'email no valido',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+      <!-- Formulario -->
+      <div class="px-8 py-6">
+        <FormKit
+          id="registerForm"
+          type="form"
+          :actions="false"
+          @submit="handleSubmit"
+          incomplete-message="Revisa los campos marcados en rojo"
+          class="space-y-5"
+        >
+          <!-- Sección: Datos personales -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center">
+                <i class="pi pi-id-card text-blue-600 text-xs"></i>
+              </div>
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Datos personales</p>
+            </div>
 
-      <FormKit
-        type="select"
-        label="Centro de salud"
-        name="codigo"
-        placeholder="Seleccione el centro de salud al que pertenece"
-        :options="healths"
-        validation="required"
-        :validation-messages="{
-          required: 'Debe seleccionar un centro de salud',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Primer apellido -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Primer apellido <span class="text-red-500">*</span>
+                </label>
+                <FormKit
+                  type="text"
+                  name="primerApellido"
+                  placeholder="Ej. Mamani"
+                  validation="required|length:2"
+                  :validation-messages="{
+                    required: 'El primer apellido es obligatorio',
+                    length: 'Mínimo 2 caracteres',
+                  }"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
 
-      <FormKit
-        type="text"
-        label="Código SUS"
-        name="susCode"
-        placeholder="ingrese el código único del sus"
-        validation="required|length:3"
-        :validation-messages="{
-          required: 'El código sus es obligario',
-          length: 'El código es muy corto',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+              <!-- Segundo apellido -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Segundo apellido <span class="text-gray-400 text-xs font-normal">(opcional)</span>
+                </label>
+                <FormKit
+                  type="text"
+                  name="segundoApellido"
+                  placeholder="Ej. Quispe"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
 
-      <FormKit
-        type="password"
-        label="Contraseña"
-        name="password"
-        placeholder="Ingresa una contraseña"
-        validation="required|length:8"
-        :validation-messages="{
-          required: 'la contraseña es obligatoria',
-          length: 'la contraseña minima es de 8 caracteres',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+              <!-- Nombres -->
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Nombres <span class="text-red-500">*</span>
+                </label>
+                <FormKit
+                  type="text"
+                  name="nombres"
+                  placeholder="Ej. Juan Carlos"
+                  validation="required|length:2"
+                  :validation-messages="{
+                    required: 'Los nombres son obligatorios',
+                    length: 'Mínimo 2 caracteres',
+                  }"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
+            </div>
+          </div>
 
-      <FormKit
-        type="password"
-        label="Repetir contraseña"
-        name="password_confirm"
-        placeholder="Repite la contraseña"
-        validation="required|confirm"
-        :validation-messages="{
-          required: 'la contraseña es obligatoria',
-          confirm: 'las contraseñas no son iguales',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-      />
+          <div class="border-t border-gray-100"></div>
 
-      <FormKit
-        type="submit"
-        input-class="w-full p-3 mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        Crear cuenta
-      </FormKit>
-    </FormKit>
+          <!-- Sección: Centro de salud y SUS -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-5 h-5 bg-teal-100 rounded flex items-center justify-center">
+                <i class="pi pi-building text-teal-600 text-xs"></i>
+              </div>
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Centro de salud y SUS</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Centro de salud <span class="text-red-500">*</span>
+                </label>
+                <FormKit
+                  type="select"
+                  name="codigo"
+                  :options="[{ label: 'Seleccione un centro', value: '' }, ...healths]"
+                  validation="required"
+                  :validation-messages="{ required: 'Seleccione un centro de salud' }"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition bg-white"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Código SUS <span class="text-red-500">*</span>
+                </label>
+                <FormKit
+                  type="text"
+                  name="susCode"
+                  placeholder="Código único SUS"
+                  validation="required|length:3"
+                  :validation-messages="{
+                    required: 'El código SUS es obligatorio',
+                    length: 'Mínimo 3 caracteres',
+                  }"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-100"></div>
+
+          <!-- Sección: Credenciales -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-5 h-5 bg-violet-100 rounded flex items-center justify-center">
+                <i class="pi pi-lock text-violet-600 text-xs"></i>
+              </div>
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Credenciales de acceso</p>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Correo electrónico <span class="text-red-500">*</span>
+                </label>
+                <FormKit
+                  type="email"
+                  name="email"
+                  placeholder="tu@correo.com"
+                  validation="required|email"
+                  :validation-messages="{
+                    required: 'El correo es obligatorio',
+                    email: 'Correo inválido',
+                  }"
+                  input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  messages-class="mt-1 text-xs text-red-500"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Contraseña <span class="text-red-500">*</span>
+                  </label>
+                  <FormKit
+                    type="password"
+                    name="password"
+                    placeholder="Mínimo 8 caracteres"
+                    validation="required|length:8"
+                    :validation-messages="{
+                      required: 'La contraseña es obligatoria',
+                      length: 'Mínimo 8 caracteres',
+                    }"
+                    input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                    messages-class="mt-1 text-xs text-red-500"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Repetir contraseña <span class="text-red-500">*</span>
+                  </label>
+                  <FormKit
+                    type="password"
+                    name="password_confirm"
+                    placeholder="Repite la contraseña"
+                    validation="required|confirm"
+                    :validation-messages="{
+                      required: 'Repite la contraseña',
+                      confirm: 'Las contraseñas no coinciden',
+                    }"
+                    input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                    messages-class="mt-1 text-xs text-red-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón submit -->
+          <button
+            type="submit"
+            class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center justify-center gap-2 shadow-md"
+          >
+            <i class="pi pi-user-plus text-sm"></i>
+            Crear cuenta
+          </button>
+        </FormKit>
+
+        <!-- Link a login -->
+        <p class="text-center text-sm text-gray-500 mt-4">
+          ¿Ya tienes una cuenta?
+          <RouterLink to="/auth/login" class="text-blue-600 font-medium hover:underline">
+            Inicia sesión
+          </RouterLink>
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -115,6 +233,7 @@
 import AuthApi from "@/api/AuthApi";
 import { inject, onMounted } from "vue";
 import { reset } from "@formkit/vue";
+import { RouterLink } from "vue-router";
 import { useHealthStore } from "@/stores/healths";
 import { storeToRefs } from "pinia";
 
@@ -126,8 +245,8 @@ const toast = inject("toast");
 onMounted(async () => {
   await getHealths();
 });
+
 const handleSubmit = async ({ password_confirm, ...values }) => {
-  console.log(values);
   try {
     const { data } = await AuthApi.register(values);
     toast.open({

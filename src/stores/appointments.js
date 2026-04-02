@@ -4,6 +4,7 @@ import AppointmentApi from "../api/AppointmentApi";
 import { convertToDDMMYYYY, convertToISO } from "@/helpers/date";
 import { useRouter } from "vue-router";
 import { useUserStore } from "./user";
+import Swal from "sweetalert2";
 
 
 export const useAppointmentsStore = defineStore("appointments", () => {
@@ -14,6 +15,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   const time = ref('');
   const toast = inject('toast');
   const router = useRouter();
+  const saving = ref(false);
   const maxAppointments = ref(false);
   const state = ref("Pendiente");
   const doctor = ref(null);
@@ -149,6 +151,8 @@ const setSelectedAppointment = (appointment) => {
       doctor: doctor.value || null,
     };
 
+    saving.value = true;
+
     if (appointmentID.value) {
       try {
         const { data } = await AppointmentApi.update(appointmentID.value, appointment);
@@ -158,7 +162,8 @@ const setSelectedAppointment = (appointment) => {
           message: error.response?.data?.msg || "Error al actualizar la cita",
           type: "error",
         });
-        return; // No redirigir si hubo error
+        saving.value = false;
+        return;
       }
     } else {
       try {
@@ -169,32 +174,51 @@ const setSelectedAppointment = (appointment) => {
           message: error.response?.data?.msg || "Error al crear la cita",
           type: "error",
         });
-        return; // No redirigir ni limpiar si hubo error (el usuario puede elegir otro horario)
+        saving.value = false;
+        return;
       }
     }
 
     clearAppointmentsData();
-    await user.getUserAppointments();
+    await user.getUserAppointments(user.user?._id);
+    saving.value = false;
     router.push({ name: "my-appointments" });
   };
 
-  const cancelAppointment=async(id)=>{
-    if(confirm("¿Deseas cancelar la cita?")) {
-      try {
-        const {data}= await AppointmentApi.delete(id)
-        toast.open({
-          message:data.msg,
-          type:'success'
-        })
-        user.userAppointments=user.userAppointments.filter((appointment)=>appointment._id!==id)
-      } catch (error) {
-        toast.open({
-          message:error.response.data.msg,
-          type:'error'
-        })
-      }
+  const cancelAppointment = async (id) => {
+    const result = await Swal.fire({
+      title: "¿Cancelar cita?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      buttonsStyling: false,
+      reverseButtons: true,
+      confirmButtonText: "Sí, cancelar cita",
+      cancelButtonText: "No, mantener",
+      customClass: {
+        container:       "!z-[99999]",
+        popup:           "rounded-2xl shadow-2xl",
+        title:           "text-lg font-bold text-gray-800",
+        htmlContainer:   "text-sm text-gray-500",
+        confirmButton:   "bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors",
+        cancelButton:    "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors",
+        actions:         "gap-3 mt-2",
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const { data } = await AppointmentApi.update(id, { state: "Cancelada" });
+      toast.open({ message: data.msg, type: "success" });
+      await user.getUserAppointments(user.user?._id);
+    } catch (error) {
+      toast.open({
+        message: error.response?.data?.msg || "Error al cancelar la cita",
+        type: "error",
+      });
     }
-  }
+  };
 
   const clearAppointmentsData = () => {
     appointmentID.value = '';
@@ -228,5 +252,6 @@ const setSelectedAppointment = (appointment) => {
     selectedCategory,
     setSelectedCategory,
     availabilityLoaded,
+    saving,
   };
 });

@@ -211,8 +211,8 @@
         </Column>
       </DataTable>
 
-      <!-- OverlayPanel de acciones -->
-      <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 160px">
+      <!-- Popover de acciones -->
+      <Popover ref="panel" appendTo="body" style="min-width: 160px">
         <ul class="py-1">
           <li
             class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer rounded"
@@ -240,7 +240,7 @@
             {{ activeRow?.active ? "Desactivar" : "Activar" }}
           </li>
         </ul>
-      </OverlayPanel>
+      </Popover>
     </template>
   </Card>
 
@@ -259,7 +259,7 @@ import InputText from "primevue/inputtext";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import Button from "primevue/button";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Skeleton from "primevue/skeleton";
 import Avatar from "primevue/avatar";
 import { computed, onMounted, ref } from "vue";

@@ -1,73 +1,88 @@
 <template>
-  <div class="bg-white p-5 space-y-3 rounded-lg border-black shadow-xl">
-    <p class="text-gray-500 font-black">
-      Fecha:
-      <span class="font-light">{{ displayDate(appointment.date) }}</span> Hora:
-      <span class="font-light">{{ appointment.time }} horas.</span>
-    </p>
-    <p class="text-lg font-black">Servicios solicitados en la cita</p>
-    <div v-for="service in appointment.services">
-      <p>
-        {{ service.name }}
-      </p>
-    </div>
-    <!-- Médico asignado -->
-    <div v-if="appointment.doctor" class="flex items-center gap-2 text-sm text-gray-600">
-      <i class="pi pi-user text-indigo-400 text-xs"></i>
-      <span>
-        <span class="font-semibold">{{ appointment.doctor.name }}</span>
-        <span class="text-gray-400"> — {{ appointment.doctor.specialty }}</span>
-      </span>
-    </div>
+  <div
+    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden
+           cursor-pointer active:scale-[0.98] transition-all duration-150 select-none"
+    @click="$emit('open')"
+  >
+    <!-- Barra de color según estado -->
+    <div class="h-1" :style="{ backgroundColor: stateColor }"></div>
 
-    <!-- Motivo de consulta -->
-    <div v-if="appointment.notes" class="text-sm text-gray-500 italic bg-gray-50 rounded p-2">
-      <span class="font-semibold not-italic text-gray-600">Motivo: </span>{{ appointment.notes }}
-    </div>
-
-    <p class="text-2xl font-black text-blue-500">
-      {{ appointment.state }}
-    </p>
-    <p class="hidden text-2xl font-black text-right">
-      Total a pagar:
-      <span class="text-blue-600">{{
-        formatCurrency(appointment.totalAmount)
-      }}</span>
-    </p>
-    <div class="flex gap-2 items-center">
-      <RouterLink
-        :to="{
-          name: 'edit-appointment-details',
-          params: {
-            id: appointment._id,
-          },
-        }"
-        class="bg-slate-600 rounded-lg p-3 text-white text-sm uppercase font-black flex-1 md:flex-none"
+    <div class="p-4 flex items-center gap-3">
+      <!-- Bloque de fecha con color de estado -->
+      <div
+        class="shrink-0 flex flex-col items-center justify-center w-12 h-12 rounded-xl text-white"
+        :style="{ backgroundColor: stateColor }"
       >
-        Editar cita
-      </RouterLink>
+        <span class="text-[10px] font-bold leading-none uppercase tracking-wide">{{ dayName }}</span>
+        <span class="text-xl font-black leading-tight">{{ dayNumber }}</span>
+      </div>
 
-      <button
-        class="bg-red-600 rounded-lg p-3 text-white text-sm uppercase font-black flex-1 md:flex-none"
-        @click="store.cancelAppointment(appointment._id)"
-      >
-        Cancelar cita
-      </button>
+      <!-- Info principal -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-sm font-bold text-gray-800 leading-snug truncate">
+            {{ appointment.services?.[0]?.name ?? 'Cita médica' }}
+          </p>
+          <span
+            class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold text-white whitespace-nowrap"
+            :style="{ backgroundColor: stateColor }"
+          >
+            {{ appointment.state }}
+          </span>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-0.5">
+          {{ monthYear }} · {{ appointment.time }} hrs.
+        </p>
+
+        <p v-if="appointment.doctor" class="text-xs text-gray-400 mt-0.5 truncate">
+          <i class="pi pi-user text-[10px] mr-1"></i>{{ appointment.doctor.name }}
+        </p>
+      </div>
+
+      <!-- Chevron indicador de detalle -->
+      <i class="pi pi-chevron-right text-gray-300 text-xs shrink-0"></i>
     </div>
   </div>
 </template>
 
 <script setup>
-import { formatCurrency } from "@/helpers";
-import { displayDate } from "@/helpers/date";
-import { RouterLink } from "vue-router";
-import { useAppointmentsStore } from "@/stores/appointments";
+import { computed } from 'vue'
 
-const store = useAppointmentsStore();
+defineEmits(['open'])
 
-defineProps({
-  appointment: {
-    type: Object,
-  },
-});
+const props = defineProps({
+  appointment: { type: Object }
+})
+
+const STATE_COLORS = {
+  'Pendiente':    '#3B82F6',
+  'Reprogramada': '#F97316',
+  'Cancelada':    '#EF4444',
+  'Completada':   '#22C55E',
+  'No asistio':   '#6B7280',
+}
+
+const stateColor = computed(() => STATE_COLORS[props.appointment?.state] ?? '#6B7280')
+
+const dateObj = computed(() => {
+  if (!props.appointment?.date) return null
+  return new Date(props.appointment.date)
+})
+
+const dayNumber = computed(() => {
+  if (!dateObj.value) return ''
+  return dateObj.value.getUTCDate()
+})
+
+const dayName = computed(() => {
+  if (!dateObj.value) return ''
+  return dateObj.value.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' })
+    .replace('.', '')
+})
+
+const monthYear = computed(() => {
+  if (!dateObj.value) return ''
+  return dateObj.value.toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+})
 </script>

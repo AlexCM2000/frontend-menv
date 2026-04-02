@@ -15,7 +15,7 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-3">
             <h3 class="m-0 text-lg font-semibold truncate">
-              {{ user?.name ?? "—" }}
+              {{ [user?.primerApellido, user?.segundoApellido, user?.nombres].filter(Boolean).join(' ') || '—' }}
             </h3>
 
             <div class="flex items-center gap-2 ml-2 flex-wrap">
@@ -209,18 +209,16 @@ function onEdit() {
 
 // derived values
 const initials = computed(() => {
-  const name = user.value?.name ?? user.value?.fullName ?? "";
-  if (!name) return "U";
-  return name
-    .split(" ")
-    .map((n) => (n ? n.charAt(0).toUpperCase() : ""))
-    .slice(0, 2)
-    .join("");
+  const u = user.value;
+  if (!u) return "U";
+  const a = u.primerApellido?.[0] ?? "";
+  const n = u.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "U";
 });
 
 // avatar bg selection
 const avatarBg = computed(() => {
-  const name = user.value?.name ?? "";
+  const name = [user.value?.primerApellido, user.value?.nombres].filter(Boolean).join(" ");
   const code = name
     .split("")
     .reduce((acc, ch) => acc + (ch?.charCodeAt?.(0) ?? 0), 0);

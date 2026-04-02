@@ -4,6 +4,7 @@
     modal
     :style="{ minWidth: '40vw' }"
     :breakpoints="{ '1199px': '60vw', '575px': '95vw' }"
+    @hide="currentCategory = null"
   >
     <template #header>
       <div class="font-semibold text-xl">

@@ -154,12 +154,14 @@
           <template #body="{ data }">
             <div class="flex items-center gap-3">
               <Avatar
-                :label="getInitials(data.name)"
+                :label="getInitials(data)"
                 shape="circle"
                 class="bg-indigo-100 text-indigo-700 font-semibold flex-shrink-0 text-sm"
               />
               <div class="min-w-0">
-                <p class="font-semibold text-sm text-gray-800 truncate">{{ data.name }}</p>
+                <p class="font-semibold text-sm text-gray-800 truncate">
+                  {{ [data.primerApellido, data.segundoApellido, data.nombres].filter(Boolean).join(' ') }}
+                </p>
                 <p class="text-xs text-gray-400 truncate">{{ data.email }}</p>
                 <p class="text-xs text-gray-300 font-mono mt-0.5">SUS: {{ data.susCode }}</p>
               </div>
@@ -229,8 +231,8 @@
         </Column>
       </DataTable>
 
-      <!-- OverlayPanel único fuera de la tabla -->
-      <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 160px">
+      <!-- Popover de acciones -->
+      <Popover ref="panel" appendTo="body" style="min-width: 160px">
         <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
         <ul class="pb-1">
           <li
@@ -248,7 +250,7 @@
             Editar
           </li>
         </ul>
-      </OverlayPanel>
+      </Popover>
     </template>
   </Card>
 
@@ -267,7 +269,7 @@ import DataTable from "primevue/datatable";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
@@ -337,8 +339,10 @@ const roleSeverity = (value) => {
   return "info";
 };
 
-function getInitials(name = "") {
-  return name.trim().split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+function getInitials(data) {
+  const a = data?.primerApellido?.[0] ?? "";
+  const n = data?.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "?";
 }
 
 function openPanel(event, data) {

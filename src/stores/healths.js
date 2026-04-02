@@ -8,7 +8,6 @@ export const useHealthStore = defineStore("health", () => {
   const getHealths = async () => {
     try {
       const { data } = await HealthApi.all();
-      console.log(data);
       healths.value = data.map((center) => ({
         value: center.codigo,
         label: center.name,

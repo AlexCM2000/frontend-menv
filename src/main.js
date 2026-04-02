@@ -2,6 +2,7 @@ import "./assets/main.css";
 
 import { createApp } from "vue";
 import PrimeVue from "primevue/config";
+import Tooltip from "primevue/tooltip";
 import Aura from "@primevue/themes/lara";
 import "primeicons/primeicons.css";
 import { createPinia } from "pinia";
@@ -33,6 +34,7 @@ app.use(PrimeVue, {
   },
 });
 
+app.directive("tooltip", Tooltip);
 app.provide("toast", $toast);
 
 app.use(createPinia());

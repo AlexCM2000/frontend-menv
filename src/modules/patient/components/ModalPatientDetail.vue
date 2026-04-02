@@ -15,7 +15,7 @@
         />
         <div>
           <p class="font-bold text-base text-gray-800 leading-tight">
-            {{ p.firstName }} {{ p.lastName }}
+            {{ [p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(' ') || '—' }}
           </p>
           <p class="text-xs text-gray-400">SUS: {{ p.susCode ?? "—" }}</p>
         </div>
@@ -100,9 +100,9 @@ const { closeModalDetail } = usePatientStore();
 const p = computed(() => currentPatientDetail.value ?? {});
 
 const initials = computed(() => {
-  const f = p.value.firstName?.[0] ?? "";
-  const l = p.value.lastName?.[0] ?? "";
-  return (f + l).toUpperCase() || "?";
+  const a = p.value.primerApellido?.[0] ?? "";
+  const n = p.value.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "?";
 });
 
 const hasEmergencyContact = computed(() =>
@@ -115,6 +115,6 @@ const formatDOB = (dob) => {
   if (!dob) return null;
   const d = new Date(dob);
   if (isNaN(d)) return dob;
-  return d.toLocaleDateString("es-BO", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString("es-BO", { timeZone: "UTC", day: "2-digit", month: "long", year: "numeric" });
 };
 </script>

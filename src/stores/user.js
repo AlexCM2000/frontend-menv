@@ -20,6 +20,7 @@ import { useRouter } from "vue-router";
     const appointmentState = ref('')
     const dateFrom = ref(null)
     const dateTo = ref(null)
+    const showHistory = ref(false) // false = activas, true = historial (últimos 90 días)
 
     //traer las citas del cliente logueado
     const getUserAppointments =async(id)=>{
@@ -29,6 +30,7 @@ import { useRouter } from "vue-router";
                 const {data} = await AppointmentApi.getUserAppointments({id:id},
                     {page:page.value,
                      page_size:page_size.value,
+                     history: showHistory.value,
                      ...((search.value ) && { search: search.value }),
                      ...(health.value && { health: health.value }),
                      ...(appointmentState.value && { state: appointmentState.value }),
@@ -74,6 +76,12 @@ import { useRouter } from "vue-router";
         page.value = 1
         await getUserAppointments(user.value._id)
     }
+
+    const setShowHistory = async (value) => {
+        showHistory.value = value
+        page.value = 1
+        await getUserAppointments(user.value._id)
+    }
     
    
 
@@ -93,9 +101,11 @@ import { useRouter } from "vue-router";
         }
     }
 
-    const getUserName = computed(() =>
-        user.value?.name ? user.value?.name : ''
-      );
+    const getUserName = computed(() => {
+        const u = user.value;
+        if (!u) return '';
+        return [u.primerApellido, u.segundoApellido, u.nombres].filter(Boolean).join(' ');
+      });
 
       
     const noAppointments =computed(()=>userAppointments.value.length === 0)
@@ -119,6 +129,8 @@ import { useRouter } from "vue-router";
         setAppointmentState,
         dateFrom,
         dateTo,
-        setDateFilter
+        setDateFilter,
+        showHistory,
+        setShowHistory,
     }
  })

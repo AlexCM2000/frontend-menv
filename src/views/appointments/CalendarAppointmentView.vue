@@ -53,10 +53,12 @@ const isMobile = () => window.innerWidth < 640
 const mapToEvents = (appointments) =>
   appointments.map((apt) => {
     const dateStr = apt.date ? apt.date.split('T')[0] : ''
+    // Padear hora a 2 dígitos: "8:30" → "08:30" (requerido por ISO 8601)
+    const paddedTime = apt.time ? apt.time.padStart(5, '0') : null
     return {
       id: apt._id,
       title: apt.services?.[0]?.name || 'Cita',
-      start: apt.time ? `${dateStr}T${apt.time}` : dateStr,
+      start: paddedTime ? `${dateStr}T${paddedTime}` : dateStr,
       backgroundColor: STATE_COLORS[apt.state] ?? '#6B7280',
       borderColor: STATE_COLORS[apt.state] ?? '#6B7280',
       textColor: '#ffffff',
@@ -78,10 +80,13 @@ const calendarOptions = {
     list: 'Lista',
   },
   height: 'auto',
-  events: (info, successCallback) => {
+  events: (info, successCallback, failureCallback) => {
     AppointmentApi.getCalendar(info.start.toISOString(), info.end.toISOString())
       .then(({ data }) => successCallback(mapToEvents(data)))
-      .catch(() => successCallback([]))
+      .catch((err) => {
+        console.error('Error al cargar citas del calendario:', err)
+        failureCallback(err)
+      })
   },
   eventClick: ({ event }) => {
     selectedAppointment.value = event.extendedProps
