@@ -16,7 +16,7 @@
         />
         <div>
           <p class="font-bold text-base text-gray-800 leading-tight">
-            {{ record?.patient?.firstName }} {{ record?.patient?.lastName }}
+            {{ [record?.patient?.primerApellido, record?.patient?.segundoApellido, record?.patient?.nombres].filter(Boolean).join(' ') || '—' }}
           </p>
           <p class="text-xs text-gray-400">SUS: {{ record?.patient?.susCode ?? "—" }}</p>
         </div>
@@ -29,12 +29,38 @@
       </div>
     </template>
 
-    <!-- Loader -->
-    <div v-if="loading" class="flex justify-center py-10">
-      <i class="pi pi-spin pi-spinner text-3xl text-gray-300" />
+    <!-- Skeleton loader -->
+    <div v-if="loading" class="space-y-6 py-2">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Skeleton v-for="n in 4" :key="n" height="2.5rem" class="rounded-lg" />
+      </div>
+      <div v-for="s in 3" :key="s" class="space-y-2">
+        <Skeleton width="40%" height="1rem" />
+        <Skeleton height="3rem" class="rounded-lg" />
+      </div>
     </div>
 
     <div v-else-if="record" class="space-y-6">
+
+      <!-- Resumen del paciente -->
+      <section class="bg-gray-50 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Fecha de nacimiento</p>
+          <p class="text-sm text-gray-700">{{ formatDOB(record.patient?.dateOfBirth) }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Género</p>
+          <p class="text-sm text-gray-700">{{ record.patient?.gender ?? '—' }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Teléfono</p>
+          <p class="text-sm text-gray-700">{{ record.patient?.contactInfo?.phone ?? '—' }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Creado</p>
+          <p class="text-sm text-gray-700">{{ formatDate(record.createdAt) }}</p>
+        </div>
+      </section>
 
       <!-- Citas médicas -->
       <section>
@@ -69,7 +95,7 @@
               <span v-if="d.doctor?.name" class="text-xs text-gray-500 ml-auto">Dr. {{ d.doctor.name }}</span>
             </div>
             <p class="text-sm text-gray-700">{{ d.description || "—" }}</p>
-            <p v-if="d.createdBy?.name" class="text-xs text-gray-400 mt-1">Registrado por: {{ d.createdBy.name }}</p>
+            <p v-if="d.createdBy" class="text-xs text-gray-400 mt-1">Registrado por: {{ [d.createdBy.primerApellido, d.createdBy.nombres].filter(Boolean).join(' ') }}</p>
           </div>
         </div>
         <EmptySection v-else label="Sin diagnósticos registrados" />
@@ -141,7 +167,7 @@
             <p class="text-gray-700">{{ o.note }}</p>
             <div class="flex items-center gap-3 mt-1">
               <span class="text-xs text-gray-400">{{ formatDate(o.date) }}</span>
-              <span v-if="o.createdBy?.name" class="text-xs text-gray-400">— {{ o.createdBy.name }}</span>
+              <span v-if="o.createdBy" class="text-xs text-gray-400">— {{ [o.createdBy.primerApellido, o.createdBy.nombres].filter(Boolean).join(' ') }}</span>
               <span v-if="o.doctor?.name" class="text-xs text-indigo-500 ml-auto">Dr. {{ o.doctor.name }}</span>
             </div>
           </div>
@@ -164,6 +190,7 @@ import Dialog from "primevue/dialog";
 import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
+import Skeleton from "primevue/skeleton";
 import { useRecordStore } from "../store/recordStore";
 import { getRecordById } from "../api/recordsApi";
 
@@ -208,16 +235,23 @@ watch(visibleDetail, (val) => {
 });
 
 const initials = computed(() => {
-  const f = record.value?.patient?.firstName?.[0] ?? "";
-  const l = record.value?.patient?.lastName?.[0] ?? "";
-  return (f + l).toUpperCase() || "?";
+  const a = record.value?.patient?.primerApellido?.[0] ?? "";
+  const n = record.value?.patient?.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "?";
 });
 
 const formatDate = (d) => {
   if (!d) return "—";
   const date = new Date(d);
   if (isNaN(date)) return d;
-  return date.toLocaleDateString("es-BO", { day: "2-digit", month: "short", year: "numeric" });
+  return date.toLocaleDateString("es-BO", { timeZone: "UTC", day: "2-digit", month: "short", year: "numeric" });
+};
+
+const formatDOB = (dob) => {
+  if (!dob) return "—";
+  const d = new Date(dob);
+  if (isNaN(d)) return dob;
+  return d.toLocaleDateString("es-BO", { timeZone: "UTC", day: "2-digit", month: "long", year: "numeric" });
 };
 
 const stateSeverity = (s) => {

@@ -9,6 +9,7 @@ const { user } = storeToRefs(userAuth);
 
 const isAdmin       = computed(() => user.value?.admin         === true);
 const isBranchMgr   = computed(() => user.value?.branchManager === true);
+const isDoctor      = computed(() => user.value?.doctor        === true);
 const isStaff       = computed(() => isAdmin.value || isBranchMgr.value);
 
 const collapsed  = ref(false); // sólo desktop
@@ -37,8 +38,12 @@ const navSections = computed(() => {
       id: "personas",
       title: "Personas",
       links: [
-        { name: "patients-list",      icon: "pi-users",          label: "Pacientes"        },
-        { name: "doctors-list",       icon: "pi-heart",          label: "Médicos"          },
+        ...(isStaff.value || isDoctor.value
+          ? [{ name: "patients-list", icon: "pi-users",  label: "Pacientes" }]
+          : []),
+        ...(isStaff.value
+          ? [{ name: "doctors-list", icon: "pi-heart",   label: "Médicos" }]
+          : []),
         ...(isStaff.value
           ? [{ name: "users", icon: "pi-user-edit", label: "Usuarios" }]
           : []),
@@ -60,14 +65,16 @@ const navSections = computed(() => {
 
 /* ─── Datos del usuario ────────────────────────────── */
 const roleLabel = computed(() => {
-  if (isAdmin.value)    return "Administrador";
+  if (isAdmin.value)     return "Administrador";
   if (isBranchMgr.value) return "Gestor";
+  if (isDoctor.value)    return "Médico";
   return "Usuario";
 });
 
 const roleBadgeClass = computed(() => {
-  if (isAdmin.value)    return "bg-blue-100 text-blue-700";
+  if (isAdmin.value)     return "bg-blue-100 text-blue-700";
   if (isBranchMgr.value) return "bg-violet-100 text-violet-700";
+  if (isDoctor.value)    return "bg-teal-100 text-teal-700";
   return "bg-gray-100 text-gray-600";
 });
 

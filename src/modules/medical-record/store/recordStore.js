@@ -1,11 +1,18 @@
 import { computed, inject, ref } from "vue";
-
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 import {
   archivedRecord,
+  unarchiveRecord,
   createHealthRecord,
   getRecords,
+  getRecordById,
+  updateRecordState,
+  addObservation,
+  addDiagnosis,
+  addMedication,
+  addTreatment,
+  addAllergy,
 } from "../api/recordsApi";
 
 export const useRecordStore = defineStore("health-records", () => {
@@ -15,16 +22,24 @@ export const useRecordStore = defineStore("health-records", () => {
   const page_size = ref(10);
   const page_first = computed(() => (page.value - 1) * page_size.value);
   const loading = ref(false);
+  const saving = ref(false);
+
+  // Modales
   const visibleForm = ref(false);
   const visibleDetail = ref(false);
+  const visibleSubdoc = ref(false);
+
   const toast = inject("toast");
   const currentRecord = ref(null);
   const currentRecordDetail = ref(null);
+  const subdocTarget = ref(null);
+  const subdocType = ref(null);
 
   // Filtros
   const search = ref(null);
   const state = ref(null);
   const health = ref(null);
+  const showArchived = ref(false);
 
   const setRecords = async () => {
     try {
@@ -35,20 +50,20 @@ export const useRecordStore = defineStore("health-records", () => {
         ...(search.value ? { search: search.value } : {}),
         ...(state.value ? { state: state.value } : {}),
         ...(health.value ? { health: health.value } : {}),
+        ...(showArchived.value ? { archived: "true" } : {}),
       };
       const data = await getRecords(params);
       records.value = data.results;
       totalRecords.value = data.count;
       page.value = data.page;
       page_size.value = data.page_size;
-      loading.value = false;
     } catch (error) {
-      loading.value = false;
       toast.open({
         message: error?.response?.data?.message ?? "Error al cargar historiales",
         type: "error",
       });
-      console.log(error);
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -76,146 +91,160 @@ export const useRecordStore = defineStore("health-records", () => {
     await setRecords();
   };
 
-  const resetFilters = async () => {
-    search.value = null;
-    state.value = null;
-    health.value = null;
+  const toggleShowArchived = async () => {
+    showArchived.value = !showArchived.value;
     page.value = 1;
     await setRecords();
   };
 
+  const resetFilters = async () => {
+    search.value = null;
+    state.value = null;
+    health.value = null;
+    showArchived.value = false;
+    page.value = 1;
+    await setRecords();
+  };
+
+  // ── Crear historial ──────────────────────────────
   const onCreateRecord = async (record) => {
     try {
-      const data = await createHealthRecord(record);
-      setRecords();
-      toast.open({
-        message: data.message,
-        type: "success",
-      });
+      saving.value = true;
+      await createHealthRecord(record);
+      await setRecords();
+      toast.open({ message: "Historial creado correctamente", type: "success" });
       closeModal();
-      return data;
     } catch (error) {
-      console.log(error);
-      toast.open({
-        message: error.response.data.message,
-        type: "error",
-      });
-      closeModal();
+      const msg = error?.response?.data?.message ?? "Error al crear historial";
+      toast.open({ message: msg, type: "error" });
+      if (error?.response?.data?.existingId) throw error;
+    } finally {
+      saving.value = false;
     }
   };
 
+  // ── Archivar ──────────────────────────────────────
   const onArchivedRecord = async (id) => {
+    const result = await Swal.fire({
+      title: "¿Archivar historial?",
+      text: "El historial quedará oculto de la lista. Podrás desarchivarlo después.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, archivar",
+      cancelButtonText: "Cancelar",
+      buttonsStyling: false,
+      customClass: {
+        popup: "rounded-xl shadow-md",
+        confirmButton: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition",
+        cancelButton: "bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition ml-2",
+      },
+    });
+    if (!result.isConfirmed) return;
     try {
-      Swal.fire({
-        title: "¿Estás seguro?",
-        text: "Archivará un historial médico",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, archivar",
-        cancelButtonText: "Cancelar",
-        buttonsStyling: false, // Desactivamos los estilos por defecto
-        customClass: {
-          popup: "rounded-xl shadow-md",
-          confirmButton:
-            "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition",
-          cancelButton:
-            "bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition ml-2",
-        },
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const response = await archivedRecord(id);
-          setRecords();
-          console.log(response);
-          toast.open({
-            message: response.message,
-            type: "success",
-          });
-        }
-      });
+      await archivedRecord(id);
+      await setRecords();
+      toast.open({ message: "Historial archivado", type: "success" });
     } catch (error) {
-      console.log(error);
-      toast.open({
-        message: error.response.data.message,
-        type: "error",
-      });
+      toast.open({ message: error?.response?.data?.message ?? "Error al archivar", type: "error" });
     }
   };
 
-  const onCurrentRecord = async (data) => {
-    currentRecord.value = data;
-    openModal();
+  // ── Desarchivar ───────────────────────────────────
+  const onUnarchiveRecord = async (id) => {
+    const result = await Swal.fire({
+      title: "¿Desarchivar historial?",
+      text: "El historial volverá a la lista principal.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, desarchivar",
+      cancelButtonText: "Cancelar",
+      buttonsStyling: false,
+      customClass: {
+        popup: "rounded-xl shadow-md",
+        confirmButton: "bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition",
+        cancelButton: "bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition ml-2",
+      },
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await unarchiveRecord(id);
+      await setRecords();
+      toast.open({ message: "Historial desarchivado", type: "success" });
+    } catch (error) {
+      toast.open({ message: error?.response?.data?.message ?? "Error al desarchivar", type: "error" });
+    }
   };
 
-  const onCurrentRecordDetail = async (data) => {
-    currentRecordDetail.value = data;
-    openModalDetail();
+  // ── Cambiar estado ────────────────────────────────
+  const onUpdateState = async (id, newState) => {
+    try {
+      await updateRecordState(id, newState);
+      const rec = records.value.find((r) => r._id === id);
+      if (rec) rec.state = newState;
+      toast.open({ message: `Estado cambiado a "${newState}"`, type: "success" });
+    } catch (error) {
+      toast.open({ message: error?.response?.data?.message ?? "Error al cambiar estado", type: "error" });
+    }
   };
 
-  const openModal = () => {
-    visibleForm.value = true;
+  // ── Agregar subdocumento clínico ──────────────────
+  const onAddSubdoc = async (payload) => {
+    if (!subdocTarget.value || !subdocType.value) return;
+    try {
+      saving.value = true;
+      const id = subdocTarget.value._id;
+      const apiMap = {
+        observation: addObservation,
+        diagnosis: addDiagnosis,
+        medication: addMedication,
+        treatment: addTreatment,
+        allergy: addAllergy,
+      };
+      const apiFn = apiMap[subdocType.value];
+      if (!apiFn) throw new Error("Tipo no válido");
+      await apiFn(id, payload);
+      toast.open({ message: "Entrada agregada al historial", type: "success" });
+      closeSubdocModal();
+      if (visibleDetail.value && currentRecordDetail.value?._id === id) {
+        currentRecordDetail.value = await getRecordById(id);
+      }
+    } catch (error) {
+      toast.open({ message: error?.response?.data?.message ?? "Error al agregar entrada", type: "error" });
+    } finally {
+      saving.value = false;
+    }
   };
 
-  const openModalDetail = () => {
-    visibleDetail.value = true;
+  // ── Control de modales ────────────────────────────
+  const onCurrentRecord = (data) => { currentRecord.value = data; openModal(); };
+  const onCurrentRecordDetail = (data) => { currentRecordDetail.value = data; openModalDetail(); };
+
+  const openSubdocModal = (record, type) => {
+    subdocTarget.value = record;
+    subdocType.value = type;
+    visibleSubdoc.value = true;
+  };
+  const closeSubdocModal = () => {
+    visibleSubdoc.value = false;
+    subdocTarget.value = null;
+    subdocType.value = null;
   };
 
-  const closeModalDetail = () => {
-    visibleDetail.value = false;
-  };
-
-  const closeModal = () => {
-    visibleForm.value = false;
-    currentRecord.value = null;
-  };
-
-  //   const onChangePatient = async (values) => {
-  //     console.log("editando 123", values);
-  //     try {
-  //       const data = await updatePatient(values._id, values);
-  //       setRecords();
-  //       toast.open({
-  //         message: data.message,
-  //         type: "success",
-  //       });
-  //       closeModal();
-  //       return data;
-  //     } catch (error) {
-  //       console.log(error);
-  //       toast.open({
-  //         message: error.response.data.message,
-  //         type: "error",
-  //       });
-  //       closeModal();
-  //     }
-  //   };
+  const openModal = () => { visibleForm.value = true; };
+  const closeModal = () => { visibleForm.value = false; currentRecord.value = null; };
+  const openModalDetail = () => { visibleDetail.value = true; };
+  const closeModalDetail = () => { visibleDetail.value = false; currentRecordDetail.value = null; };
 
   return {
-    setRecords,
-    records,
-    totalRecords,
-    page,
-    page_size,
-    page_first,
-    loading,
-    visibleForm,
-    openModal,
-    closeModal,
-    onCreateRecord,
-    onArchivedRecord,
-    onCurrentRecord,
-    currentRecord,
-    visibleDetail,
-    openModalDetail,
-    closeModalDetail,
-    onCurrentRecordDetail,
-    currentRecordDetail,
-    search,
-    state,
-    health,
-    onPage,
-    onSearch,
-    setStateFilter,
-    setHealthFilter,
-    resetFilters,
+    records, totalRecords, page, page_size, page_first, loading, saving,
+    search, state, health, showArchived,
+    visibleForm, visibleDetail, visibleSubdoc,
+    currentRecord, currentRecordDetail, subdocTarget, subdocType,
+    setRecords, onPage, onSearch, setStateFilter, setHealthFilter,
+    toggleShowArchived, resetFilters,
+    onCreateRecord, onArchivedRecord, onUnarchiveRecord, onUpdateState, onAddSubdoc,
+    onCurrentRecord, onCurrentRecordDetail,
+    openModal, closeModal, openModalDetail, closeModalDetail,
+    openSubdocModal, closeSubdocModal,
   };
 });

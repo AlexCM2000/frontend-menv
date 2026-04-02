@@ -182,7 +182,7 @@ router.beforeEach(async (to, _from, next) => {
     try {
       const { data } = await AuthApi.auth();
       console.log(data);
-      if (data.admin || data.branchManager) {
+      if (data.admin || data.branchManager || data.doctor) {
         next("/admin");
       } else {
         next();

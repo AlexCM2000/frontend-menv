@@ -96,7 +96,6 @@ export const usePatientStore = defineStore("patients", () => {
         message: error.response.data.message,
         type: "error",
       });
-      closeModal();
     }
   };
 
@@ -181,7 +180,6 @@ export const usePatientStore = defineStore("patients", () => {
         message: error.response.data.message,
         type: "error",
       });
-      closeModal();
     }
   };
 

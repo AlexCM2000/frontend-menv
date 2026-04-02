@@ -171,12 +171,14 @@
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                 <Avatar
-                  :label="getInitials(data?.user?.name)"
+                  :label="getInitials(data?.user)"
                   shape="circle"
                   class="bg-indigo-100 text-indigo-700 font-semibold flex-shrink-0 text-xs"
                 />
                 <div class="min-w-0">
-                  <p class="font-semibold text-sm text-gray-800 truncate">{{ data?.user?.name }}</p>
+                  <p class="font-semibold text-sm text-gray-800 truncate">
+                    {{ [data?.user?.primerApellido, data?.user?.segundoApellido, data?.user?.nombres].filter(Boolean).join(' ') || '—' }}
+                  </p>
                   <p class="text-xs text-gray-400 truncate">{{ data?.user?.email }}</p>
                 </div>
               </div>
@@ -241,8 +243,12 @@
           @created="getUserAppointments(user._id)"
         />
 
-        <!-- OverlayPanel -->
-        <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 170px">
+        <!-- Historial del paciente (flujo post-cita completada) -->
+        <ModalHealthRecordDetail />
+        <ModalAddSubdoc />
+
+        <!-- Popover -->
+        <Popover ref="panel" appendTo="body" style="min-width: 170px">
           <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">
             Cambiar estado
           </p>
@@ -259,7 +265,7 @@
               <i v-if="activeRow?.state === state" class="pi pi-check ml-auto text-xs text-gray-400" />
             </li>
           </ul>
-        </OverlayPanel>
+        </Popover>
       </template>
     </Card>
   </div>
@@ -280,13 +286,17 @@ import DatePicker from "primevue/datepicker";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
 import { inject, computed, onMounted, ref, watch } from "vue";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalAdminAppointment from "@/components/ModalAdminAppointment.vue";
+import { useRecordStore } from "@/modules/medical-record/store/recordStore";
+import { getRecordByAppointment, getRecordById } from "@/modules/medical-record/api/recordsApi";
+import ModalAddSubdoc from "@/modules/medical-record/components/ModalAddSubdoc.vue";
+import ModalHealthRecordDetail from "@/modules/medical-record/components/ModalHealthRecordDetail.vue";
 
 const toast = inject("toast");
 
@@ -344,10 +354,10 @@ const appointmentSeverity = (state) => {
   return "secondary";
 };
 
-function getInitials(name = "") {
-  const parts = name.trim().split(" ");
-  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  return name[0]?.toUpperCase() ?? "";
+function getInitials(user) {
+  const a = user?.primerApellido?.[0] ?? "";
+  const n = user?.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "?";
 }
 
 watch(selectedHealth, async (val) => {
@@ -390,6 +400,8 @@ function openPanel(event, data) {
   panel.value.toggle(event);
 }
 
+const recordStore = useRecordStore();
+
 const changeState = async (state) => {
   panel.value?.hide();
   if (!activeRow.value?._id) return;
@@ -397,9 +409,21 @@ const changeState = async (state) => {
     await AppointmentApi.update(activeRow.value._id, { state });
     activeRow.value.state = state;
     await getUserAppointments(user.value._id);
-    toast?.add({ severity: "success", summary: "Estado actualizado", detail: `Cita marcada como "${state}"`, life: 3000 });
+    toast?.open({ message: `Cita marcada como "${state}"`, type: "success" });
+
+    // Si se marca como Completada y el usuario es médico, abrir el historial del paciente
+    if (state === "Completada" && (user.value?.doctor || user.value?.admin || user.value?.branchManager)) {
+      try {
+        const { healthRecordId } = await getRecordByAppointment(activeRow.value._id);
+        const record = await getRecordById(healthRecordId);
+        recordStore.onCurrentRecordDetail(record);
+        toast?.open({ message: "Historial del paciente abierto. Puedes agregar diagnóstico u observaciones.", type: "info" });
+      } catch {
+        // Paciente sin historial o sin usuario vinculado, no bloquear el flujo
+      }
+    }
   } catch {
-    toast?.add({ severity: "error", summary: "Error", detail: "No se pudo actualizar el estado", life: 3000 });
+    toast?.open({ message: "No se pudo actualizar el estado de la cita", type: "error" });
   }
 };
 </script>

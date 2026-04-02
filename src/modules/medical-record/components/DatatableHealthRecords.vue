@@ -1,22 +1,40 @@
 <template>
   <Card class="m-3 sm:m-5">
     <template #title>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
         <p class="font-semibold text-lg flex-1">Historiales médicos</p>
-        <ExportMenu
-          endpoint="/export/health-records"
-          :params="exportParams"
-          filename="historiales_medicos"
-        />
-        <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
+        <div class="flex items-center gap-2">
+          <!-- Toggle archivados (solo staff) -->
+          <Button
+            v-if="isStaff"
+            :label="showArchived ? 'Ver activos' : 'Ver archivados'"
+            :icon="showArchived ? 'pi pi-list' : 'pi pi-inbox'"
+            :severity="showArchived ? 'secondary' : 'warn'"
+            size="small"
+            outlined
+            @click="toggleShowArchived"
+          />
+          <ExportMenu
+            v-if="isStaff"
+            endpoint="/export/health-records"
+            :params="exportParams"
+            filename="historiales_medicos"
+          />
+          <!-- Crear solo para staff, no para doctor -->
+          <Button
+            v-if="isStaff"
+            size="small"
+            icon="pi pi-plus"
+            label="Nuevo"
+            @click="openModal"
+          />
+        </div>
       </div>
     </template>
 
     <template #content>
       <!-- Filtros -->
       <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center">
-
-        <!-- Búsqueda: flex-1 en desktop -->
         <IconField class="w-full sm:flex-1">
           <InputIcon class="pi pi-search" />
           <InputText
@@ -27,7 +45,9 @@
           />
         </IconField>
 
+        <!-- Filtro estado solo si no estamos en archivados -->
         <Select
+          v-if="!showArchived"
           v-model="localState"
           :options="stateOptions"
           optionLabel="label"
@@ -65,12 +85,7 @@
         />
 
         <div class="flex gap-2">
-          <Button
-            label="Buscar"
-            icon="pi pi-search"
-            class="flex-1 sm:flex-none"
-            @click="onSearchHandler"
-          />
+          <Button label="Buscar" icon="pi pi-search" class="flex-1 sm:flex-none" @click="onSearchHandler" />
           <Button
             icon="pi pi-filter-slash"
             severity="secondary"
@@ -80,6 +95,12 @@
             @click="clearFilters"
           />
         </div>
+      </div>
+
+      <!-- Banner archivados -->
+      <div v-if="showArchived" class="flex items-center gap-2 mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+        <i class="pi pi-inbox" />
+        <span>Mostrando historiales archivados. Solo admin y supervisor pueden desarchívarlos.</span>
       </div>
 
       <!-- Skeleton loader -->
@@ -118,19 +139,17 @@
         scrollable
       >
         <Column style="min-width: 200px">
-          <template #header>
-            <p class="font-semibold text-sm">Paciente</p>
-          </template>
+          <template #header><p class="font-semibold text-sm">Paciente</p></template>
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <Avatar
-                :label="getInitials(data?.patient?.firstName, data?.patient?.lastName)"
+                :label="getInitials(data?.patient)"
                 shape="circle"
                 class="bg-teal-100 text-teal-700 font-semibold flex-shrink-0 text-xs"
               />
               <div>
                 <p class="font-semibold text-sm text-gray-800">
-                  {{ data?.patient?.firstName }} {{ data?.patient?.lastName }}
+                  {{ [data?.patient?.primerApellido, data?.patient?.segundoApellido, data?.patient?.nombres].filter(Boolean).join(' ') || '—' }}
                 </p>
                 <p class="text-xs text-gray-400">SUS: {{ data?.patient?.susCode }}</p>
               </div>
@@ -139,31 +158,44 @@
         </Column>
 
         <Column style="min-width: 110px">
-          <template #header>
-            <p class="font-semibold text-sm">Estado</p>
-          </template>
+          <template #header><p class="font-semibold text-sm">Estado</p></template>
           <template #body="{ data }">
             <Tag
+              v-if="!data?.archivedAt"
               :value="data?.state"
               :severity="stateSeverity(data?.state)"
               class="text-xs capitalize"
             />
+            <Tag v-else value="Archivado" severity="warn" class="text-xs" />
+          </template>
+        </Column>
+
+        <Column style="min-width: 140px" class="hidden md:table-cell">
+          <template #header><p class="font-semibold text-sm">Resumen</p></template>
+          <template #body="{ data }">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-600 rounded-full px-2 py-0.5">
+                <i class="pi pi-clipboard text-[10px]" /> {{ data?.diagnoses?.length ?? 0 }} diag.
+              </span>
+              <span class="inline-flex items-center gap-1 text-xs bg-green-50 text-green-600 rounded-full px-2 py-0.5">
+                <i class="pi pi-heart text-[10px]" /> {{ data?.medications?.length ?? 0 }} med.
+              </span>
+              <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-600 rounded-full px-2 py-0.5">
+                <i class="pi pi-calendar text-[10px]" /> {{ data?.medicalAppointments?.length ?? 0 }} citas
+              </span>
+            </div>
           </template>
         </Column>
 
         <Column style="min-width: 130px" class="hidden sm:table-cell">
-          <template #header>
-            <p class="font-semibold text-sm">Última actualización</p>
-          </template>
+          <template #header><p class="font-semibold text-sm">Última actualización</p></template>
           <template #body="{ data }">
             <p class="text-xs text-gray-400">{{ data?.updatedAt }}</p>
           </template>
         </Column>
 
         <Column style="min-width: 60px; text-align: center">
-          <template #header>
-            <p class="font-semibold text-sm">Acción</p>
-          </template>
+          <template #header><p class="font-semibold text-sm">Acción</p></template>
           <template #body="{ data }">
             <div class="flex justify-center">
               <Button
@@ -176,26 +208,90 @@
         </Column>
       </DataTable>
 
-      <!-- OverlayPanel único fuera de la tabla -->
-      <OverlayPanel ref="panel" appendTo="body" :showCloseIcon="false" style="min-width: 160px">
+      <!-- Popover de acciones -->
+      <Popover ref="panel" appendTo="body" style="min-width: 190px">
         <ul class="py-1">
+          <!-- Ver detalle -->
           <li
             class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer rounded text-blue-700"
             @click="viewDetail()"
           >
-            <i class="pi pi-eye text-sm"></i> Ver detalle
+            <i class="pi pi-eye text-sm" /> Ver detalle
           </li>
+
+          <!-- Acciones clínicas: solo si no está archivado -->
+          <template v-if="!activeRow?.archivedAt">
+            <!-- Agregar entrada (doctor, admin, branchManager) -->
+            <li
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-teal-50 cursor-pointer rounded text-teal-700"
+              @click="openAddSubdocMenu($event)"
+            >
+              <i class="pi pi-plus-circle text-sm" /> Agregar entrada
+              <i class="pi pi-chevron-right text-xs ml-auto" />
+            </li>
+
+            <!-- Cambiar estado (admin, branchManager, doctor) -->
+            <li
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded text-indigo-700"
+              @click="openStateMenu($event)"
+            >
+              <i class="pi pi-refresh text-sm" /> Cambiar estado
+              <i class="pi pi-chevron-right text-xs ml-auto" />
+            </li>
+
+            <!-- Archivar (solo staff) -->
+            <li
+              v-if="isStaff"
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-amber-50 cursor-pointer rounded text-amber-700"
+              @click="archiveRow()"
+            >
+              <i class="pi pi-inbox text-sm" /> Archivar
+            </li>
+          </template>
+
+          <!-- Desarchivar (solo staff y solo si está archivado) -->
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-amber-50 cursor-pointer rounded text-amber-700"
-            @click="archiveRow()"
+            v-if="isStaff && activeRow?.archivedAt"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-teal-50 cursor-pointer rounded text-teal-700"
+            @click="unarchiveRow()"
           >
-            <i class="pi pi-inbox text-sm"></i> Archivar
+            <i class="pi pi-upload text-sm" /> Desarchivar
           </li>
         </ul>
-      </OverlayPanel>
+      </Popover>
 
-      <!-- Modal detalle -->
+      <!-- Submenú: tipos de entrada clínica -->
+      <Popover ref="subdocPanel" appendTo="body" style="min-width: 180px">
+        <ul class="py-1">
+          <li v-for="opt in subdocOptions" :key="opt.type"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded"
+            @click="selectSubdocType(opt.type)"
+          >
+            <i :class="`pi ${opt.icon} text-sm text-gray-500`" />
+            {{ opt.label }}
+          </li>
+        </ul>
+      </Popover>
+
+      <!-- Submenú: cambiar estado -->
+      <Popover ref="statePanel" appendTo="body" style="min-width: 160px">
+        <ul class="py-1">
+          <li v-for="opt in stateOptions" :key="opt.value"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded"
+            :class="{ 'font-semibold': activeRow?.state === opt.value }"
+            @click="changeState(opt.value)"
+          >
+            <span class="inline-block w-2 h-2 rounded-full" :class="stateDotClass(opt.value)" />
+            {{ opt.label }}
+            <i v-if="activeRow?.state === opt.value" class="pi pi-check ml-auto text-xs text-gray-400" />
+          </li>
+        </ul>
+      </Popover>
+
+      <!-- Modales -->
       <ModalHealthRecordDetail />
+      <FormHealthRecord />
+      <ModalAddSubdoc />
     </template>
   </Card>
 </template>
@@ -211,7 +307,7 @@ import Select from "primevue/select";
 import InputText from "primevue/inputtext";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Skeleton from "primevue/skeleton";
 import Avatar from "primevue/avatar";
 import { computed, onMounted, ref } from "vue";
@@ -220,24 +316,23 @@ import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalHealthRecordDetail from "./ModalHealthRecordDetail.vue";
+import FormHealthRecord from "./FormHealthRecord.vue";
+import ModalAddSubdoc from "./ModalAddSubdoc.vue";
 
 const recordStore = useRecordStore();
-const { loading, records, totalRecords, page_first } = storeToRefs(recordStore);
 const {
-  setRecords,
-  openModal,
-  onArchivedRecord,
-  onPage,
-  onSearch,
-  setStateFilter,
-  setHealthFilter,
-  resetFilters,
-  onCurrentRecordDetail,
+  loading, records, totalRecords, page_first, showArchived,
+} = storeToRefs(recordStore);
+const {
+  setRecords, openModal, onArchivedRecord, onUnarchiveRecord,
+  onPage, onSearch, setStateFilter, setHealthFilter, resetFilters,
+  onCurrentRecordDetail, toggleShowArchived, onUpdateState, openSubdocModal,
 } = recordStore;
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
-const isAdmin = computed(() => user.value?.admin === true);
+const isAdmin    = computed(() => user.value?.admin === true);
+const isStaff    = computed(() => user.value?.admin === true || user.value?.branchManager === true);
 
 const exportParams = computed(() => ({
   ...(localSearch.value && { search: localSearch.value }),
@@ -250,34 +345,46 @@ const { healths } = storeToRefs(healthStore);
 const healthOptions = computed(() => healths.value ?? []);
 
 const stateOptions = [
-  { label: "Activo", value: "activo" },
+  { label: "Activo",         value: "activo" },
   { label: "En tratamiento", value: "en tratamiento" },
-  { label: "Cerrado", value: "cerrado" },
+  { label: "Cerrado",        value: "cerrado" },
+];
+
+const subdocOptions = [
+  { type: "observation", label: "Observación",    icon: "pi-comment" },
+  { type: "diagnosis",   label: "Diagnóstico",    icon: "pi-clipboard" },
+  { type: "medication",  label: "Medicación",     icon: "pi-heart" },
+  { type: "treatment",   label: "Tratamiento",    icon: "pi-star" },
+  { type: "allergy",     label: "Alergia",        icon: "pi-exclamation-triangle" },
 ];
 
 const stateSeverity = (state) => {
-  if (state === "activo") return "success";
-  if (state === "en tratamiento") return "warn";
-  if (state === "cerrado") return "secondary";
+  if (state === "activo")          return "success";
+  if (state === "en tratamiento")  return "warn";
+  if (state === "cerrado")         return "secondary";
   return "info";
 };
 
 const stateDotClass = (state) => {
-  if (state === "activo") return "bg-green-500";
+  if (state === "activo")         return "bg-green-500";
   if (state === "en tratamiento") return "bg-orange-400";
-  if (state === "cerrado") return "bg-gray-400";
+  if (state === "cerrado")        return "bg-gray-400";
   return "bg-blue-400";
 };
 
-function getInitials(first = "", last = "") {
-  return `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
+function getInitials(patient) {
+  const a = patient?.primerApellido?.[0] ?? "";
+  const n = patient?.nombres?.[0] ?? "";
+  return (a + n).toUpperCase() || "?";
 }
 
 const localSearch = ref("");
-const localState = ref(null);
+const localState  = ref(null);
 const localHealth = ref(null);
-const panel = ref(null);
-const activeRow = ref(null);
+const panel       = ref(null);
+const subdocPanel = ref(null);
+const statePanel  = ref(null);
+const activeRow   = ref(null);
 
 function openPanel(event, data) {
   activeRow.value = data;
@@ -294,6 +401,31 @@ const archiveRow = () => {
   onArchivedRecord(activeRow.value?._id);
 };
 
+const unarchiveRow = () => {
+  panel.value?.hide();
+  onUnarchiveRecord(activeRow.value?._id);
+};
+
+const openAddSubdocMenu = (event) => {
+  panel.value?.hide();
+  subdocPanel.value?.toggle(event);
+};
+
+const openStateMenu = (event) => {
+  panel.value?.hide();
+  statePanel.value?.toggle(event);
+};
+
+const selectSubdocType = (type) => {
+  subdocPanel.value?.hide();
+  openSubdocModal(activeRow.value, type);
+};
+
+const changeState = async (newState) => {
+  statePanel.value?.hide();
+  await onUpdateState(activeRow.value?._id, newState);
+};
+
 const onSearchHandler = async () => {
   await onSearch(localSearch.value?.trim() || null);
 };
@@ -308,7 +440,7 @@ const onHealthChange = async () => {
 
 const clearFilters = async () => {
   localSearch.value = "";
-  localState.value = null;
+  localState.value  = null;
   localHealth.value = null;
   await resetFilters();
 };

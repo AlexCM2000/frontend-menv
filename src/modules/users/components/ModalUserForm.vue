@@ -53,23 +53,53 @@
       incomplete-message="Revisa los campos marcados en rojo"
     >
       <div class="space-y-5">
-        <!-- Nombre completo -->
+        <!-- Nombres separados -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
-            Nombre completo <span class="text-red-500">*</span>
+            Datos personales
           </label>
-          <FormKit
-            type="text"
-            name="name"
-            placeholder="Ej. María García López"
-            validation="required|length:3"
-            :validation-messages="{
-              required: 'El nombre es obligatorio',
-              length: 'Mínimo 3 caracteres',
-            }"
-            input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-            messages-class="mt-1 text-xs text-red-500"
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Primer apellido <span class="text-red-500">*</span></label>
+              <FormKit
+                type="text"
+                name="primerApellido"
+                placeholder="Ej. Mamani"
+                validation="required|length:2"
+                :validation-messages="{
+                  required: 'El primer apellido es obligatorio',
+                  length: 'Mínimo 2 caracteres',
+                }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                messages-class="mt-1 text-xs text-red-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Segundo apellido <span class="text-gray-400">(opcional)</span></label>
+              <FormKit
+                type="text"
+                name="segundoApellido"
+                placeholder="Ej. Quispe"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                messages-class="mt-1 text-xs text-red-500"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-gray-500 mb-1">Nombres <span class="text-red-500">*</span></label>
+              <FormKit
+                type="text"
+                name="nombres"
+                placeholder="Ej. Juan Carlos"
+                validation="required|length:2"
+                :validation-messages="{
+                  required: 'Los nombres son obligatorios',
+                  length: 'Mínimo 2 caracteres',
+                }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                messages-class="mt-1 text-xs text-red-500"
+              />
+            </div>
+          </div>
         </div>
 
         <!-- Centro de salud -->
@@ -189,7 +219,54 @@
                 <p class="text-xs text-gray-400">Sucursal</p>
               </div>
             </label>
+
+            <!-- Médico -->
+            <label
+              class="flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition select-none"
+              :class="
+                formData.doctor
+                  ? 'border-teal-300 bg-teal-50'
+                  : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+              "
+            >
+              <FormKit
+                type="checkbox"
+                name="doctor"
+                outer-class="$reset"
+                wrapper-class="$reset"
+                inner-class="$reset"
+                input-class="w-4 h-4 rounded accent-teal-500 cursor-pointer"
+                label-class="$reset"
+              />
+              <div>
+                <p class="text-sm font-medium text-gray-700">Médico</p>
+                <p class="text-xs text-gray-400">Historial clínico</p>
+              </div>
+            </label>
           </div>
+        </div>
+
+        <!-- Perfil de doctor (solo si tiene rol médico) -->
+        <div v-if="formData.doctor">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            Perfil de médico vinculado
+          </label>
+          <div v-if="loadingDoctors" class="flex items-center gap-2 py-2 text-sm text-gray-400">
+            <i class="pi pi-spin pi-spinner text-xs" /> Cargando médicos...
+          </div>
+          <select
+            v-else
+            v-model="formData.doctorProfile"
+            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+          >
+            <option value="">Sin vincular</option>
+            <option v-for="d in doctorOptions" :key="d._id" :value="d._id">
+              {{ d.name }} — {{ d.specialty }}
+            </option>
+          </select>
+          <p class="text-xs text-gray-400 mt-1">
+            Vincula el usuario con un perfil de médico existente para registrar su firma clínica.
+          </p>
         </div>
       </div>
     </FormKit>
@@ -240,6 +317,7 @@ import { storeToRefs } from "pinia";
 import { useUserEditorStore } from "@/modules/users/store/useUserEditorStore";
 import { useUsersStore } from "@/modules/users/store/useUserStore";
 import { useHealthStore } from "@/stores/healths";
+import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
 
 const editor = useUserEditorStore();
 const usersStore = useUsersStore();
@@ -252,15 +330,32 @@ const formRef = ref(null);
 const visible = ref(false);
 const saving = ref(false);
 const loadingHealths = ref(false);
+const loadingDoctors = ref(false);
+const doctorOptions = ref([]);
 
 const formData = ref({
   _id: null,
-  name: "",
+  primerApellido: "",
+  segundoApellido: "",
+  nombres: "",
   verified: false,
   admin: false,
   branchManager: false,
+  doctor: false,
+  doctorProfile: "",
   health: null,
 });
+
+const loadDoctors = async () => {
+  try {
+    loadingDoctors.value = true;
+    doctorOptions.value = await getDoctorsForSelect();
+  } catch {
+    doctorOptions.value = [];
+  } finally {
+    loadingDoctors.value = false;
+  }
+};
 
 const healthOptions = computed(() =>
   Array.isArray(healths.value) ? healths.value : [],
@@ -281,10 +376,14 @@ watch(
         null;
       formData.value = {
         _id: usr._id ?? usr.id ?? null,
-        name: usr.name ?? "",
+        primerApellido: usr.primerApellido ?? "",
+        segundoApellido: usr.segundoApellido ?? "",
+        nombres: usr.nombres ?? "",
         verified: !!usr.verified,
         admin: !!usr.admin,
         branchManager: !!usr.branchManager,
+        doctor: !!usr.doctor,
+        doctorProfile: usr.doctorProfile?._id ?? usr.doctorProfile ?? "",
         health: healthValue,
       };
     }
@@ -312,6 +411,8 @@ async function open(passedUser = null) {
     loadingHealths.value = false;
   }
 
+  if (doctorOptions.value.length === 0) await loadDoctors();
+
   if (passedUser) {
     const hv =
       passedUser.health?.codigo ??
@@ -322,10 +423,14 @@ async function open(passedUser = null) {
 
     formData.value = {
       _id: passedUser._id ?? passedUser.id ?? null,
-      name: passedUser.name ?? "",
+      primerApellido: passedUser.primerApellido ?? "",
+      segundoApellido: passedUser.segundoApellido ?? "",
+      nombres: passedUser.nombres ?? "",
       verified: !!passedUser.verified,
       admin: !!passedUser.admin,
       branchManager: !!passedUser.branchManager,
+      doctor: !!passedUser.doctor,
+      doctorProfile: passedUser.doctorProfile?._id ?? passedUser.doctorProfile ?? "",
       health: hv,
     };
   } else if (!selectedUser.value) {
@@ -339,10 +444,14 @@ async function open(passedUser = null) {
 function resetForm() {
   formData.value = {
     _id: null,
-    name: "",
+    primerApellido: "",
+    segundoApellido: "",
+    nombres: "",
     verified: false,
     admin: false,
     branchManager: false,
+    doctor: false,
+    doctorProfile: "",
     health: null,
   };
   try {
@@ -367,10 +476,14 @@ const handleSubmit = async (values) => {
     if (!id) throw new Error("No se encontró el ID del usuario a actualizar.");
 
     const payload = {
-      name: values.name,
+      primerApellido: values.primerApellido,
+      segundoApellido: values.segundoApellido || "",
+      nombres: values.nombres,
       verified: !!values.verified,
       admin: !!values.admin,
       branchManager: !!values.branchManager,
+      doctor: !!values.doctor,
+      doctorProfile: formData.value.doctorProfile || null,
       health: values.health ?? null,
     };
 
@@ -392,8 +505,9 @@ onMounted(async () => {
     if (!Array.isArray(healths.value) || healths.value.length === 0) {
       await healthStore.getHealths();
     }
+    if (doctorOptions.value.length === 0) await loadDoctors();
   } catch (err) {
-    console.error("Error pre-cargando centros:", err);
+    console.error("Error pre-cargando datos:", err);
   }
 });
 
