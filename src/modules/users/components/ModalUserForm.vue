@@ -60,7 +60,7 @@
           </label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs text-gray-500 mb-1">Primer apellido <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Primer apellido <span class="text-red-500">*</span></label>
               <FormKit
                 type="text"
                 name="primerApellido"
@@ -70,22 +70,22 @@
                   required: 'El primer apellido es obligatorio',
                   length: 'Mínimo 2 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
             <div>
-              <label class="block text-xs text-gray-500 mb-1">Segundo apellido <span class="text-gray-400">(opcional)</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Segundo apellido <span class="text-gray-400">(opcional)</span></label>
               <FormKit
                 type="text"
                 name="segundoApellido"
                 placeholder="Ej. Quispe"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-xs text-gray-500 mb-1">Nombres <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombres <span class="text-red-500">*</span></label>
               <FormKit
                 type="text"
                 name="nombres"
@@ -95,8 +95,8 @@
                   required: 'Los nombres son obligatorios',
                   length: 'Mínimo 2 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
           </div>
@@ -129,8 +129,8 @@
               :validation-messages="{
                 required: 'Debe seleccionar un centro de atención',
               }"
-              input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition bg-white"
-              messages-class="mt-1 text-xs text-red-500"
+              input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+              messages-class="mt-1.5 text-xs text-red-500"
             />
             <p
               v-else
@@ -257,7 +257,7 @@
           <select
             v-else
             v-model="formData.doctorProfile"
-            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Sin vincular</option>
             <option v-for="d in doctorOptions" :key="d._id" :value="d._id">
@@ -290,7 +290,7 @@
           :class="
             isEdit
               ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400'
-              : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-400'
+              : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
           "
         >
           <i v-if="saving" class="pi pi-spin pi-spinner text-xs"></i>

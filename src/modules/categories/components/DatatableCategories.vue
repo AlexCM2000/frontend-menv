@@ -3,6 +3,11 @@
     <template #title>
       <div class="flex items-center gap-2">
         <p class="font-semibold text-lg flex-1">Lista de Categorías</p>
+        <ExportMenu
+          endpoint="/export/categories"
+          :params="exportParams"
+          filename="categorias"
+        />
         <Button size="small" icon="pi pi-plus" label="Nueva categoría" @click="openModal" />
       </div>
     </template>
@@ -67,11 +72,10 @@
           <template #header><Skeleton width="50%" height="1rem" /></template>
           <template #body><Skeleton width="55%" height="1.4rem" borderRadius="1rem" /></template>
         </Column>
-        <Column style="min-width: 80px">
+        <Column style="min-width: 60px">
           <template #header><Skeleton width="40%" height="1rem" /></template>
           <template #body>
-            <div class="flex gap-1 justify-center">
-              <Skeleton shape="circle" size="2rem" />
+            <div class="flex justify-center">
               <Skeleton shape="circle" size="2rem" />
             </div>
           </template>
@@ -125,30 +129,36 @@
           </template>
         </Column>
 
-        <Column style="min-width: 90px; text-align: center">
-          <template #header><p class="font-semibold text-sm">Acciones</p></template>
+        <Column style="min-width: 60px; text-align: center">
+          <template #header><p class="font-semibold text-sm">Acción</p></template>
           <template #body="{ data }">
-            <div class="flex justify-center gap-1">
+            <div class="flex justify-center">
               <Button
-                icon="pi pi-pencil"
-                size="small"
-                severity="info"
-                text
-                v-tooltip.top="'Editar'"
-                @click="onCurrentCategory(data)"
-              />
-              <Button
-                icon="pi pi-trash"
-                size="small"
-                severity="danger"
-                text
-                v-tooltip.top="'Eliminar'"
-                @click="confirmDelete(data)"
+                icon="pi pi-ellipsis-v"
+                class="p-button-text p-button-rounded p-button-sm"
+                @click="openPanel($event, data)"
               />
             </div>
           </template>
         </Column>
       </DataTable>
+
+      <Popover ref="panel" appendTo="body" style="min-width: 150px">
+        <ul class="py-1">
+          <li
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded"
+            @click="editCategory(activeRow)"
+          >
+            <i class="pi pi-pencil text-indigo-500 text-sm"></i> Editar
+          </li>
+          <li
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 text-red-600 cursor-pointer rounded"
+            @click="deleteCategory(activeRow)"
+          >
+            <i class="pi pi-trash text-sm"></i> Eliminar
+          </li>
+        </ul>
+      </Popover>
     </template>
   </Card>
 
@@ -156,8 +166,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
+import Swal from "sweetalert2";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -168,7 +179,9 @@ import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import Button from "primevue/button";
 import Skeleton from "primevue/skeleton";
+import Popover from "primevue/popover";
 import { useCategoryStore } from "../store/categoryStore";
+import ExportMenu from "@/components/ExportMenu.vue";
 import ModalCategoryForm from "./ModalCategoryForm.vue";
 
 const categoryStore = useCategoryStore();
@@ -177,6 +190,28 @@ const { fetchCategories, openModal, onCurrentCategory, onDeleteCategory } = cate
 
 const localSearch = ref("");
 const localActive = ref(null);
+const panel = ref(null);
+const activeRow = ref(null);
+
+function openPanel(event, data) {
+  activeRow.value = data;
+  panel.value.toggle(event);
+}
+
+const editCategory = (data) => {
+  panel.value?.hide();
+  onCurrentCategory(data);
+};
+
+const deleteCategory = (data) => {
+  panel.value?.hide();
+  confirmDelete(data);
+};
+
+const exportParams = computed(() => ({
+  ...(localSearch.value && { search: localSearch.value }),
+  ...(localActive.value && { active: localActive.value }),
+}));
 
 const activeOptions = [
   { label: "Activa", value: "true" },
@@ -202,9 +237,24 @@ const clearFilters = async () => {
 };
 
 const confirmDelete = (data) => {
-  if (confirm(`¿Deseas eliminar la categoría "${data.name}"?`)) {
-    onDeleteCategory(data._id);
-  }
+  Swal.fire({
+    title: "¿Eliminar categoría?",
+    html: `La categoría <strong>"${data.name}"</strong> será eliminada permanentemente.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+    buttonsStyling: false,
+    customClass: {
+      popup: "rounded-xl shadow-md",
+      confirmButton: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition",
+      cancelButton: "bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition ml-2",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      onDeleteCategory(data._id);
+    }
+  });
 };
 
 onMounted(async () => {

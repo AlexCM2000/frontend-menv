@@ -112,7 +112,7 @@
         <button
           type="button"
           :disabled="saving || !selectedPatient"
-          class="px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+          class="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
           @click="handleCreate"
         >
           <i v-if="saving" class="pi pi-spin pi-spinner text-xs"></i>

@@ -243,7 +243,7 @@
           @created="getUserAppointments(user._id)"
         />
 
-        <!-- Historial del paciente (flujo post-cita completada) -->
+        <!-- Historial del paciente -->
         <ModalHealthRecordDetail />
         <ModalAddSubdoc />
 
@@ -254,20 +254,50 @@
           </p>
           <ul class="pb-1">
             <li
-              v-for="state in ['Pendiente', 'Completada', 'Reprogramada', 'Cancelada', 'No asistio']"
-              :key="state"
+              v-for="s in ['Pendiente', 'Completada', 'Reprogramada', 'Cancelada', 'No asistio']"
+              :key="s"
               class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded transition-colors"
-              :class="{ 'font-semibold': activeRow?.state === state }"
-              @click="changeState(state)"
+              :class="{ 'font-semibold': activeRow?.state === s }"
+              @click="changeState(s)"
             >
-              <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(state)" />
-              {{ state }}
-              <i v-if="activeRow?.state === state" class="pi pi-check ml-auto text-xs text-gray-400" />
+              <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(s)" />
+              {{ s }}
+              <i v-if="activeRow?.state === s" class="pi pi-check ml-auto text-xs text-gray-400" />
             </li>
           </ul>
         </Popover>
       </template>
     </Card>
+
+    <!-- Recordatorio flotante: historial médico pendiente -->
+    <Transition name="reminder">
+      <div
+        v-if="completedReminder"
+        class="fixed bottom-6 right-6 z-50 bg-white border border-amber-200 shadow-xl rounded-2xl p-4 w-80 overflow-hidden"
+      >
+        <div class="absolute bottom-0 left-0 h-0.5 bg-amber-400 reminder-bar" />
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-clipboard text-amber-500" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-800 leading-tight">Recuerda actualizar el historial</p>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ completedReminder.patientName }}</p>
+            <button
+              class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors disabled:opacity-50"
+              :disabled="loadingReminder"
+              @click="openRecordFromReminder"
+            >
+              <i class="pi text-xs" :class="loadingReminder ? 'pi-spin pi-spinner' : 'pi-arrow-right'" />
+              {{ loadingReminder ? 'Abriendo...' : 'Ir al historial' }}
+            </button>
+          </div>
+          <button class="text-gray-300 hover:text-gray-500 transition-colors -mt-0.5" @click="completedReminder = null">
+            <i class="pi pi-times text-xs" />
+          </button>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -321,6 +351,9 @@ const dateRange = ref(null);
 const panel = ref(null);
 const activeRow = ref(null);
 const showNewModal = ref(false);
+const completedReminder = ref(null);
+const loadingReminder = ref(false);
+let reminderTimer = null;
 
 const exportParams = computed(() => ({
   ...(search.value        && { search:    search.value }),
@@ -405,25 +438,64 @@ const recordStore = useRecordStore();
 const changeState = async (state) => {
   panel.value?.hide();
   if (!activeRow.value?._id) return;
+
+  // Update optimista: cambio visual inmediato sin esperar al servidor
+  const snapshot = activeRow.value;
+  const prev = snapshot.state;
+  const idx = userAppointments.value.findIndex((a) => a._id === snapshot._id);
+  if (idx !== -1) userAppointments.value[idx].state = state;
+
   try {
-    await AppointmentApi.update(activeRow.value._id, { state });
-    activeRow.value.state = state;
-    await getUserAppointments(user.value._id);
+    await AppointmentApi.update(snapshot._id, { state });
     toast?.open({ message: `Cita marcada como "${state}"`, type: "success" });
 
-    // Si se marca como Completada y el usuario es médico, abrir el historial del paciente
+    // Recordatorio no bloqueante cuando se completa
     if (state === "Completada" && (user.value?.doctor || user.value?.admin || user.value?.branchManager)) {
-      try {
-        const { healthRecordId } = await getRecordByAppointment(activeRow.value._id);
-        const record = await getRecordById(healthRecordId);
-        recordStore.onCurrentRecordDetail(record);
-        toast?.open({ message: "Historial del paciente abierto. Puedes agregar diagnóstico u observaciones.", type: "info" });
-      } catch {
-        // Paciente sin historial o sin usuario vinculado, no bloquear el flujo
-      }
+      const u = snapshot.user;
+      const patientName = [u?.primerApellido, u?.segundoApellido, u?.nombres].filter(Boolean).join(" ") || "Paciente";
+      clearTimeout(reminderTimer);
+      completedReminder.value = { appointmentId: snapshot._id, patientName };
+      reminderTimer = setTimeout(() => { completedReminder.value = null; }, 12000);
     }
+
+    // Refetch silencioso en segundo plano
+    getUserAppointments(user.value._id);
   } catch {
+    // Revertir update optimista
+    if (idx !== -1) userAppointments.value[idx].state = prev;
     toast?.open({ message: "No se pudo actualizar el estado de la cita", type: "error" });
   }
 };
+
+const openRecordFromReminder = async () => {
+  if (!completedReminder.value?.appointmentId) return;
+  loadingReminder.value = true;
+  try {
+    const { healthRecordId } = await getRecordByAppointment(completedReminder.value.appointmentId);
+    const record = await getRecordById(healthRecordId);
+    recordStore.onCurrentRecordDetail(record);
+    completedReminder.value = null;
+  } catch {
+    toast?.open({ message: "El paciente no tiene historial médico registrado", type: "warning" });
+  } finally {
+    loadingReminder.value = false;
+  }
+};
 </script>
+
+<style scoped>
+/* Barra de progreso del recordatorio */
+@keyframes shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+.reminder-bar {
+  animation: shrink 12s linear forwards;
+}
+
+/* Transición de entrada/salida del recordatorio */
+.reminder-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.reminder-leave-active { transition: all 0.2s ease-in; }
+.reminder-enter-from  { opacity: 0; transform: translateY(1rem) scale(0.95); }
+.reminder-leave-to    { opacity: 0; transform: translateY(0.5rem) scale(0.97); }
+</style>

@@ -34,7 +34,7 @@
 
     <template #content>
       <!-- Filtros -->
-      <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center flex-wrap">
         <IconField class="w-full sm:flex-1">
           <InputIcon class="pi pi-search" />
           <InputText
@@ -54,7 +54,7 @@
           optionValue="value"
           placeholder="Estado"
           showClear
-          class="w-full sm:w-48"
+          class="w-full sm:w-44"
           @change="onStateChange"
         >
           <template #value="{ value }">
@@ -71,6 +71,20 @@
             </div>
           </template>
         </Select>
+
+        <!-- Rango de fechas (solo staff) -->
+        <DatePicker
+          v-if="isStaff"
+          v-model="localDateRange"
+          selectionMode="range"
+          :manualInput="false"
+          placeholder="Rango de fechas"
+          showButtonBar
+          showIcon
+          class="w-full sm:w-60"
+          dateFormat="dd/mm/yy"
+          @update:modelValue="onDateRangeChange"
+        />
 
         <Select
           v-if="isAdmin"
@@ -307,6 +321,7 @@ import Select from "primevue/select";
 import InputText from "primevue/inputtext";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
+import DatePicker from "primevue/datepicker";
 import Popover from "primevue/popover";
 import Skeleton from "primevue/skeleton";
 import Avatar from "primevue/avatar";
@@ -321,11 +336,11 @@ import ModalAddSubdoc from "./ModalAddSubdoc.vue";
 
 const recordStore = useRecordStore();
 const {
-  loading, records, totalRecords, page_first, showArchived,
+  loading, records, totalRecords, page_first, showArchived, dateFrom, dateTo,
 } = storeToRefs(recordStore);
 const {
   setRecords, openModal, onArchivedRecord, onUnarchiveRecord,
-  onPage, onSearch, setStateFilter, setHealthFilter, resetFilters,
+  onPage, onSearch, setStateFilter, setHealthFilter, setDateFilter, resetFilters,
   onCurrentRecordDetail, toggleShowArchived, onUpdateState, openSubdocModal,
 } = recordStore;
 
@@ -335,8 +350,10 @@ const isAdmin    = computed(() => user.value?.admin === true);
 const isStaff    = computed(() => user.value?.admin === true || user.value?.branchManager === true);
 
 const exportParams = computed(() => ({
-  ...(localSearch.value && { search: localSearch.value }),
-  ...(localState.value  && { state:  localState.value  }),
+  ...(localSearch.value && { search:     localSearch.value }),
+  ...(localState.value  && { state:      localState.value  }),
+  ...(dateFrom.value    && { date_from:  dateFrom.value    }),
+  ...(dateTo.value      && { date_to:    dateTo.value      }),
   ...(isAdmin.value && localHealth.value && { health: localHealth.value }),
 }));
 
@@ -378,9 +395,10 @@ function getInitials(patient) {
   return (a + n).toUpperCase() || "?";
 }
 
-const localSearch = ref("");
-const localState  = ref(null);
-const localHealth = ref(null);
+const localSearch    = ref("");
+const localState     = ref(null);
+const localHealth    = ref(null);
+const localDateRange = ref(null);
 const panel       = ref(null);
 const subdocPanel = ref(null);
 const statePanel  = ref(null);
@@ -438,10 +456,19 @@ const onHealthChange = async () => {
   await setHealthFilter(localHealth.value ?? null);
 };
 
+const onDateRangeChange = async (val) => {
+  if (val && val[0] && val[1]) {
+    await setDateFilter(val[0].toISOString(), val[1].toISOString());
+  } else if (!val) {
+    await setDateFilter(null, null);
+  }
+};
+
 const clearFilters = async () => {
-  localSearch.value = "";
-  localState.value  = null;
-  localHealth.value = null;
+  localSearch.value    = "";
+  localState.value     = null;
+  localHealth.value    = null;
+  localDateRange.value = null;
   await resetFilters();
 };
 

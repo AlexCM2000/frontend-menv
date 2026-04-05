@@ -34,8 +34,8 @@
             required: 'El nombre es obligatorio',
             length: 'El nombre es muy corto',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -43,8 +43,8 @@
           label="Icono"
           name="icon"
           :options="iconOptions"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <div class="md:col-span-2">
@@ -63,8 +63,8 @@
           label="Estado"
           name="active"
           :options="[{ label: 'Activa', value: true }, { label: 'Inactiva', value: false }]"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <!-- Preview del icono seleccionado -->
@@ -79,9 +79,10 @@
     <template #footer>
       <button
         @click="formRef?.node?.submit()"
-        class="w-full p-3 mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="px-5 py-2.5 text-sm font-semibold text-white rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        :class="currentCategory ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400' : 'bg-blue-600 hover:bg-blue-700'"
       >
-        Guardar
+        {{ currentCategory ? 'Guardar cambios' : 'Crear categoría' }}
       </button>
     </template>
   </Dialog>

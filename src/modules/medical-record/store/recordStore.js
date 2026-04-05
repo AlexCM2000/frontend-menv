@@ -40,6 +40,8 @@ export const useRecordStore = defineStore("health-records", () => {
   const state = ref(null);
   const health = ref(null);
   const showArchived = ref(false);
+  const dateFrom = ref(null);
+  const dateTo = ref(null);
 
   const setRecords = async () => {
     try {
@@ -51,6 +53,8 @@ export const useRecordStore = defineStore("health-records", () => {
         ...(state.value ? { state: state.value } : {}),
         ...(health.value ? { health: health.value } : {}),
         ...(showArchived.value ? { archived: "true" } : {}),
+        ...(dateFrom.value ? { date_from: dateFrom.value } : {}),
+        ...(dateTo.value ? { date_to: dateTo.value } : {}),
       };
       const data = await getRecords(params);
       records.value = data.results;
@@ -97,10 +101,19 @@ export const useRecordStore = defineStore("health-records", () => {
     await setRecords();
   };
 
+  const setDateFilter = async (from, to) => {
+    dateFrom.value = from ?? null;
+    dateTo.value = to ?? null;
+    page.value = 1;
+    await setRecords();
+  };
+
   const resetFilters = async () => {
     search.value = null;
     state.value = null;
     health.value = null;
+    dateFrom.value = null;
+    dateTo.value = null;
     showArchived.value = false;
     page.value = 1;
     await setRecords();
@@ -237,11 +250,11 @@ export const useRecordStore = defineStore("health-records", () => {
 
   return {
     records, totalRecords, page, page_size, page_first, loading, saving,
-    search, state, health, showArchived,
+    search, state, health, showArchived, dateFrom, dateTo,
     visibleForm, visibleDetail, visibleSubdoc,
     currentRecord, currentRecordDetail, subdocTarget, subdocType,
     setRecords, onPage, onSearch, setStateFilter, setHealthFilter,
-    toggleShowArchived, resetFilters,
+    setDateFilter, toggleShowArchived, resetFilters,
     onCreateRecord, onArchivedRecord, onUnarchiveRecord, onUpdateState, onAddSubdoc,
     onCurrentRecord, onCurrentRecordDetail,
     openModal, closeModal, openModalDetail, closeModalDetail,

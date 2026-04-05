@@ -127,7 +127,9 @@
                 <p class="font-semibold text-sm text-gray-800">
                   {{ [data?.primerApellido, data?.segundoApellido, data?.nombres].filter(Boolean).join(' ') }}
                 </p>
-                <p class="text-xs text-gray-400">{{ data?.contactInfo?.phone }}</p>
+                <p v-if="data?.contactInfo?.phone" class="text-xs text-gray-400 flex items-center gap-1">
+                  <i class="pi pi-phone text-xs"></i>{{ data.contactInfo.phone }}
+                </p>
               </div>
             </div>
           </template>

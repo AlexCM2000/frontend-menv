@@ -34,8 +34,8 @@
             required: 'El nombre es obligatorio',
             length: 'El nombre es muy corto',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -48,8 +48,8 @@
           :validation-messages="{
             required: 'La especialidad es obligatoria',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -62,8 +62,8 @@
             required: 'El número de licencia es obligatorio',
             length: 'El número de licencia es muy corto',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -75,8 +75,8 @@
           :validation-messages="{
             min: 'Los años de experiencia no pueden ser negativos',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -89,8 +89,8 @@
             required: 'El teléfono es obligatorio',
             length: 'Debe tener entre 7 y 8 dígitos',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -102,8 +102,8 @@
           :validation-messages="{
             email: 'Ingrese un correo electrónico válido',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <FormKit
@@ -111,8 +111,8 @@
           label="Dirección (opcional)"
           name="address"
           placeholder="Dirección del consultorio"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <!-- Admin: selector libre de centro de salud -->
@@ -127,13 +127,13 @@
           :validation-messages="{
             required: 'Debe seleccionar un centro de salud',
           }"
-          label-class="text-gray-700 font-medium"
-          input-class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          label-class="block mb-1.5 text-sm font-medium text-gray-700"
+          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
         <!-- BranchManager: muestra su propio centro bloqueado -->
         <div v-else>
-          <label class="block text-gray-700 font-medium mb-1 text-sm">Centro de salud</label>
+          <label class="block mb-1.5 text-sm font-medium text-gray-700">Centro de salud</label>
           <div class="flex items-center gap-2 w-full p-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm">
             <i class="pi pi-lock text-gray-400 text-xs"></i>
             <span>{{ branchManagerHealthName }}</span>
@@ -147,9 +147,10 @@
     <template #footer>
       <button
         @click="formRef?.node?.submit()"
-        class="w-full p-3 mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="px-5 py-2.5 text-sm font-semibold text-white rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        :class="currentDoctor ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400' : 'bg-blue-600 hover:bg-blue-700'"
       >
-        Guardar
+        {{ currentDoctor ? 'Guardar cambios' : 'Crear médico' }}
       </button>
     </template>
   </Dialog>

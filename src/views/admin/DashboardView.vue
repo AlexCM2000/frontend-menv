@@ -43,6 +43,20 @@
       </div>
     </div>
 
+    <!-- DatePicker rango personalizado (fila independiente) -->
+    <div v-if="range === 'custom'" class="flex justify-end">
+      <DatePicker
+        v-model="customDateRange"
+        selectionMode="range"
+        :manualInput="false"
+        showButtonBar
+        showIcon
+        dateFormat="dd/mm/yy"
+        placeholder="Fecha inicio – Fecha fin"
+        class="w-full sm:w-72 text-sm"
+      />
+    </div>
+
     <!-- KPI Cards -->
     <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       <div v-for="i in 5" :key="i" class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-3">
@@ -211,6 +225,7 @@ import Tag from "primevue/tag";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import SelectButton from "primevue/selectbutton";
+import DatePicker from "primevue/datepicker";
 import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import { getDashboardStats } from "@/api/dashboardApi";
@@ -246,6 +261,7 @@ const healthSelectOptions = computed(() =>
 
 // Estado
 const range = ref("month");
+const customDateRange = ref(null);
 const selectedHealth = ref(null);
 const loading = ref(false);
 const stats = ref({
@@ -260,26 +276,41 @@ const rangeOptions = [
   { label: "Hoy", value: "today" },
   { label: "Semana", value: "week" },
   { label: "Mes", value: "month" },
+  { label: "Personalizado", value: "custom" },
 ];
 
 const rangeLabel = computed(() => {
   if (range.value === "today") return "hoy";
   if (range.value === "week") return "esta semana";
+  if (range.value === "custom") {
+    const [from, to] = customDateRange.value ?? [];
+    if (from && to) {
+      const fmt = (d) => d.toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" });
+      return `${fmt(from)} – ${fmt(to)}`;
+    }
+    return "rango personalizado";
+  }
   return "este mes";
 });
 
 const trendLabel = computed(() => {
   if (range.value === "today") return "Horas del día";
   if (range.value === "week") return "Últimos 7 días";
+  if (range.value === "custom") return "Rango seleccionado";
   return "Últimos 30 días";
 });
 
 // Carga de datos
 const load = async () => {
+  if (range.value === "custom" && !(customDateRange.value?.[0] && customDateRange.value?.[1])) return;
   loading.value = true;
   try {
     const params = { range: range.value };
     if (isAdmin.value && selectedHealth.value) params.health = selectedHealth.value;
+    if (range.value === "custom" && customDateRange.value?.[0] && customDateRange.value?.[1]) {
+      params.date_from = customDateRange.value[0].toISOString();
+      params.date_to   = customDateRange.value[1].toISOString();
+    }
     stats.value = await getDashboardStats(params);
   } catch (e) {
     console.error(e);
@@ -288,7 +319,14 @@ const load = async () => {
   }
 };
 
-watch(range, load);
+watch(range, (val) => {
+  if (val !== "custom") customDateRange.value = null;
+  load();
+});
+
+watch(customDateRange, (val) => {
+  if (val && val[0] && val[1]) load();
+});
 
 onMounted(async () => {
   await userStore.getUser();
@@ -353,9 +391,27 @@ function buildDateRange(days) {
   return result;
 }
 
+function buildCustomRange(from, to) {
+  const result = [];
+  const current = new Date(from);
+  current.setHours(0, 0, 0, 0);
+  const end = new Date(to);
+  end.setHours(23, 59, 59, 999);
+  while (current <= end) {
+    result.push(current.toISOString().slice(0, 10));
+    current.setDate(current.getDate() + 1);
+  }
+  return result;
+}
+
 const lineData = computed(() => {
-  const days = range.value === "today" ? 1 : range.value === "week" ? 7 : 30;
-  const dates = buildDateRange(days);
+  let dates;
+  if (range.value === "custom" && customDateRange.value?.[0] && customDateRange.value?.[1]) {
+    dates = buildCustomRange(customDateRange.value[0], customDateRange.value[1]);
+  } else {
+    const days = range.value === "today" ? 1 : range.value === "week" ? 7 : 30;
+    dates = buildDateRange(days);
+  }
   const map = {};
   for (const e of stats.value.tendenciaPorDia ?? []) map[e._id] = e.count;
 

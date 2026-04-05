@@ -140,25 +140,26 @@ const router = createRouter({
         },
       ],
     },
+    // Login + Registro: vista combinada con panel deslizante (sin AuthLayout)
+    {
+      path: "/auth/iniciar-sesion",
+      name: "login",
+      component: () => import("../views/auth/AuthCombinedView.vue"),
+    },
+    {
+      path: "/auth/registro",
+      name: "register",
+      component: () => import("../views/auth/AuthCombinedView.vue"),
+    },
+    // Recuperación de contraseña y verificación: con AuthLayout
     {
       path: "/auth",
-      name: "auth",
       component: () => import("../views/auth/AuthLayout.vue"),
       children: [
-        {
-          path: "registro",
-          name: "register",
-          component: () => import("../views/auth/RegisterView.vue"),
-        },
         {
           path: "confirmar-cuenta/:token",
           name: "confirm-account",
           component: () => import("../views/auth/ConfirmAccountView.vue"),
-        },
-        {
-          path: "iniciar-sesion",
-          name: "login",
-          component: () => import("../views/auth/LoginView.vue"),
         },
         {
           path: "olvide-password",

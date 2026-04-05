@@ -72,8 +72,8 @@
                   required: 'El primer apellido es obligatorio',
                   length: 'Mínimo 2 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -86,8 +86,8 @@
                 type="text"
                 name="segundoApellido"
                 placeholder="Ej. Quispe"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -105,8 +105,8 @@
                   required: 'Los nombres son obligatorios',
                   length: 'Mínimo 2 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -120,8 +120,8 @@
                 name="dateOfBirth"
                 validation="required"
                 :validation-messages="{ required: 'La fecha de nacimiento es obligatoria' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -139,10 +139,10 @@
                 fieldset-class="$reset"
                 legend-class="$reset sr-only"
                 options-class="$reset flex gap-3 flex-wrap"
-                wrapper-class="$reset flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors select-none text-sm text-gray-600 has-[:checked]:border-teal-400 has-[:checked]:bg-teal-50 has-[:checked]:text-teal-700 has-[:checked]:font-medium"
-                input-class="$reset w-3.5 h-3.5 accent-teal-500 cursor-pointer"
+                wrapper-class="$reset flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors select-none text-sm text-gray-600 has-[:checked]:border-blue-400 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 has-[:checked]:font-medium"
+                input-class="$reset w-3.5 h-3.5 accent-blue-600 cursor-pointer"
                 label-class="$reset cursor-pointer"
-                messages-class="$reset mt-1 text-xs text-red-500"
+                messages-class="$reset mt-1.5 text-xs text-red-500"
               />
             </div>
           </div>
@@ -170,8 +170,8 @@
                 :options="[{ label: 'Seleccione un centro', value: '' }, ...healths]"
                 validation="required"
                 :validation-messages="{ required: 'Seleccione un centro de salud' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition bg-white"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -189,8 +189,8 @@
                   required: 'El código SUS es obligatorio',
                   length: 'Mínimo 3 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
           </div>
@@ -221,8 +221,8 @@
                   required: 'El correo es obligatorio',
                   email: 'Correo inválido',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -240,8 +240,8 @@
                   required: 'El número de celular es obligatorio',
                   length: 'Debe tener entre 7 y 8 dígitos',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -259,8 +259,8 @@
                   required: 'La dirección es obligatoria',
                   length: 'Entre 5 y 100 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
           </div>
@@ -292,8 +292,8 @@
                   matches: 'Solo letras y espacios',
                   length: 'Entre 3 y 50 caracteres',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -311,8 +311,8 @@
                   required: 'El teléfono del contacto es obligatorio',
                   length: 'Debe tener entre 7 y 8 dígitos',
                 }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
 
@@ -327,8 +327,8 @@
                 :options="[{ label: 'Seleccione una opción', value: '' }, ...RELATION_SHIP]"
                 validation="required"
                 :validation-messages="{ required: 'Seleccione una relación' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition bg-white"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                messages-class="mt-1.5 text-xs text-red-500"
               />
             </div>
           </div>
@@ -355,8 +355,8 @@
                 placeholder="Penicilina, Polvo, Mariscos..."
                 :validation="[['matches', /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s,]*$/]]"
                 :validation-messages="{ matches: 'Solo letras, espacios y comas' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition resize-none"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                messages-class="mt-1.5 text-xs text-red-500"
                 :input-attrs="{ rows: 3 }"
               />
             </div>
@@ -370,8 +370,8 @@
                 placeholder="Diabetes, Hipertensión, Asma..."
                 :validation="[['matches', /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s,]*$/]]"
                 :validation-messages="{ matches: 'Solo letras, espacios y comas' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition resize-none"
-                messages-class="mt-1 text-xs text-red-500"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                messages-class="mt-1.5 text-xs text-red-500"
                 :input-attrs="{ rows: 3 }"
               />
             </div>
@@ -397,7 +397,7 @@
           class="px-5 py-2.5 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-1 transition flex items-center gap-2"
           :class="currentPatient
             ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400'
-            : 'bg-teal-600 hover:bg-teal-700 focus:ring-teal-400'"
+            : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'"
         >
           <i class="pi text-xs" :class="currentPatient ? 'pi-check' : 'pi-plus'"></i>
           {{ currentPatient ? "Guardar cambios" : "Crear paciente" }}

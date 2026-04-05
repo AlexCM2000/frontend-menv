@@ -118,17 +118,11 @@
 
       <!-- ── ALERGIA ── -->
       <template v-else-if="subdocType === 'allergy'">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Sustancia <span class="text-red-500">*</span>
-            </label>
-            <InputText v-model="form.substance" placeholder="Ej. Penicilina" class="w-full" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha</label>
-            <DatePicker v-model="form.date" dateFormat="dd/mm/yy" class="w-full" showIcon />
-          </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            Sustancia <span class="text-red-500">*</span>
+          </label>
+          <InputText v-model="form.substance" placeholder="Ej. Penicilina" class="w-full" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">

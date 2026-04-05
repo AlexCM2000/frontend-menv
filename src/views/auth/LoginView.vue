@@ -1,84 +1,181 @@
 <template>
-  <div
-    class="bg-white shadow-2xl rounded-2xl p-12 max-w-lg w-auto transform transition duration-300 hover:scale-105 border border-transparent hover:border-gradient-to-r from-blue-400 to-purple-600"
-  >
-    <h1 class="text-5xl font-extrabold text-gray-800 text-center mt-3">
-      Iniciar Sesión
-    </h1>
-    <p class="text-xl text-gray-600 text-center mt-3">
-      Si tienes una cuenta en G.A.M.P.A. inicia sesión
-    </p>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-    <FormKit
-      id="loginForm"
-      type="form"
-      :actions="false"
-      @submit="handleSubmit"
-      incomplete-message="No se pudo enviar el formulario, revisa los campos"
-      class="space-y-8 mt-8"
-    >
-      <FormKit
-        type="email"
-        label="Email"
-        name="email"
-        placeholder="email de usuario"
-        validation="required|email"
-        :validation-messages="{
-          required: 'El email es obligatorio',
-          email: 'Email no válido',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full m-0 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300"
-      />
+    <!-- Cabecera de la tarjeta -->
+    <div class="px-8 pt-8 pb-6 border-b border-gray-100">
+      <div class="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center mb-4">
+        <i class="pi pi-sign-in text-indigo-600 text-lg"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Iniciar sesión</h2>
+      <p class="text-gray-500 text-sm mt-1">
+        Accede a tu cuenta del sistema de salud
+      </p>
+    </div>
 
-      <FormKit
-        type="password"
-        label="Contraseña"
-        name="password"
-        placeholder="Ingresa una contraseña"
-        validation="required"
-        :validation-messages="{
-          required: 'La contraseña es obligatoria',
-        }"
-        label-class="text-gray-700 font-medium"
-        input-class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300"
-      />
+    <!-- Cuerpo -->
+    <div class="px-8 py-7">
+      <!-- Alerta de error -->
+      <Transition name="fade-down">
+        <div
+          v-if="errorMsg"
+          class="mb-5 flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm"
+        >
+          <i class="pi pi-exclamation-circle text-red-400 flex-shrink-0 mt-0.5"></i>
+          <span>{{ errorMsg }}</span>
+        </div>
+      </Transition>
 
-      <FormKit
-        type="submit"
-        input-class="w-full p-4 mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:bg-gradient-to-l transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400"
+      <form @submit.prevent="handleSubmit" class="space-y-5" novalidate>
+        <!-- Correo electrónico -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            Correo electrónico <span class="text-red-500">*</span>
+          </label>
+          <InputText
+            v-model="form.email"
+            type="email"
+            placeholder="tu@correo.com"
+            autocomplete="email"
+            class="w-full"
+            :class="errors.email ? 'p-invalid' : ''"
+            @blur="validateEmail"
+          />
+          <p v-if="errors.email" class="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+            <i class="pi pi-exclamation-circle text-xs"></i>{{ errors.email }}
+          </p>
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-sm font-medium text-gray-700">
+              Contraseña <span class="text-red-500">*</span>
+            </label>
+            <RouterLink
+              :to="{ name: 'forgot-password' }"
+              class="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </RouterLink>
+          </div>
+          <div class="relative">
+            <InputText
+              v-model="form.password"
+              :type="showPwd ? 'text' : 'password'"
+              placeholder="Tu contraseña"
+              autocomplete="current-password"
+              class="w-full pr-10"
+              :class="errors.password ? 'p-invalid' : ''"
+              @blur="validatePassword"
+            />
+            <button
+              type="button"
+              @click="showPwd = !showPwd"
+              class="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              tabindex="-1"
+              :aria-label="showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i :class="showPwd ? 'pi pi-eye-slash' : 'pi pi-eye'" class="text-sm"></i>
+            </button>
+          </div>
+          <p v-if="errors.password" class="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+            <i class="pi pi-exclamation-circle text-xs"></i>{{ errors.password }}
+          </p>
+        </div>
+
+        <!-- Botón principal -->
+        <Button
+          type="submit"
+          label="Iniciar sesión"
+          icon="pi pi-sign-in"
+          :loading="loading"
+          class="w-full"
+          size="large"
+        />
+      </form>
+
+      <!-- Separador -->
+      <div class="my-6 flex items-center gap-3">
+        <div class="flex-1 h-px bg-gray-100"></div>
+        <span class="text-xs text-gray-400 whitespace-nowrap">¿No tienes cuenta?</span>
+        <div class="flex-1 h-px bg-gray-100"></div>
+      </div>
+
+      <!-- Botón registro secundario -->
+      <RouterLink
+        :to="{ name: 'register' }"
+        class="flex items-center justify-center gap-2 w-full py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
       >
-        Iniciar Sesión
-      </FormKit>
-    </FormKit>
+        <i class="pi pi-user-plus text-sm text-gray-400"></i>
+        Crear una cuenta nueva
+      </RouterLink>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
 import AuthApi from "@/api/AuthApi";
-import { inject } from "vue";
-import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user.js";
 
 const userStore = useUserStore();
 const { getUserAppointments } = userStore;
-
 const router = useRouter();
 
-const toast = inject("toast");
-const handleSubmit = async (values) => {
+const form = ref({ email: "", password: "" });
+const errors = ref({ email: "", password: "" });
+const errorMsg = ref("");
+const loading = ref(false);
+const showPwd = ref(false);
+
+const validateEmail = () => {
+  if (!form.value.email) {
+    errors.value.email = "El correo electrónico es obligatorio";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
+    errors.value.email = "Correo electrónico inválido";
+  } else {
+    errors.value.email = "";
+  }
+};
+
+const validatePassword = () => {
+  errors.value.password = form.value.password ? "" : "La contraseña es obligatoria";
+};
+
+const handleSubmit = async () => {
+  validateEmail();
+  validatePassword();
+  if (errors.value.email || errors.value.password) return;
+
+  loading.value = true;
+  errorMsg.value = "";
   try {
-    const {
-      data: { token },
-    } = await AuthApi.login(values);
+    const { data: { token } } = await AuthApi.login(form.value);
     localStorage.setItem("token", token);
     await getUserAppointments();
     router.push({ name: "my-appointments" });
   } catch (error) {
-    toast.open({
-      message: error?.response?.data?.msg,
-      type: "error",
-    });
+    errorMsg.value = error?.response?.data?.msg || "Credenciales incorrectas. Intenta nuevamente.";
+  } finally {
+    loading.value = false;
   }
 };
 </script>
+
+<style scoped>
+.fade-down-enter-active,
+.fade-down-leave-active {
+  transition: all 0.25s ease;
+}
+.fade-down-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.fade-down-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>

@@ -65,9 +65,9 @@
       <!-- Citas médicas -->
       <section>
         <SectionTitle icon="pi-calendar" label="Citas médicas" :count="record.medicalAppointments?.length" />
-        <div v-if="record.medicalAppointments?.length" class="space-y-2 mt-2">
+        <div v-if="sortedApts.length" class="space-y-2 mt-2">
           <div
-            v-for="apt in record.medicalAppointments"
+            v-for="apt in displayedApts"
             :key="apt._id"
             class="flex items-center gap-3 bg-gray-50 rounded-lg p-3 text-sm"
           >
@@ -76,6 +76,14 @@
             <span class="text-gray-400">{{ apt.time }}</span>
             <Tag :value="apt.state ?? apt.status" :severity="aptSeverity(apt.state ?? apt.status)" class="text-xs ml-auto" />
           </div>
+          <button
+            v-if="sortedApts.length > APT_PREVIEW"
+            type="button"
+            class="w-full text-xs text-blue-500 hover:text-blue-700 py-1.5 border border-dashed border-blue-200 rounded-lg hover:bg-blue-50 transition"
+            @click="showAllApts = !showAllApts"
+          >
+            {{ showAllApts ? 'Ver menos' : `Ver todas (${sortedApts.length})` }}
+          </button>
         </div>
         <EmptySection v-else label="Sin citas registradas" />
       </section>
@@ -216,6 +224,18 @@ const { visibleDetail, currentRecordDetail } = storeToRefs(recordStore);
 
 const loading = ref(false);
 const record = ref(null);
+const showAllApts = ref(false);
+const APT_PREVIEW = 5;
+
+const sortedApts = computed(() =>
+  [...(record.value?.medicalAppointments ?? [])].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )
+);
+
+const displayedApts = computed(() =>
+  showAllApts.value ? sortedApts.value : sortedApts.value.slice(0, APT_PREVIEW)
+);
 
 const loadDetail = async () => {
   if (!currentRecordDetail.value?._id) return;
@@ -231,7 +251,10 @@ const loadDetail = async () => {
 
 // Limpiar al cerrar
 watch(visibleDetail, (val) => {
-  if (!val) record.value = null;
+  if (!val) {
+    record.value = null;
+    showAllApts.value = false;
+  }
 });
 
 const initials = computed(() => {
