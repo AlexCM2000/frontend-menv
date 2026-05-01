@@ -134,6 +134,13 @@
           stripedRows
           scrollable
         >
+          <template #empty>
+            <div class="flex flex-col items-center justify-center py-12 gap-3">
+              <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+              <p class="text-sm text-gray-400">No se encontraron citas médicas</p>
+            </div>
+          </template>
+
           <!-- Servicio -->
           <Column style="min-width: 160px">
             <template #header><p class="font-semibold text-sm">Servicio</p></template>
@@ -165,21 +172,21 @@
             </template>
           </Column>
 
-          <!-- Paciente (solo admin y branchManager) -->
-          <Column v-if="user?.admin || user?.branchManager" style="min-width: 190px">
+          <!-- Paciente (admin, branchManager y médico) -->
+          <Column v-if="user?.admin || user?.branchManager || user?.doctor" style="min-width: 190px">
             <template #header><p class="font-semibold text-sm">Paciente</p></template>
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                 <Avatar
-                  :label="getInitials(data?.user)"
+                  :label="getInitials(data?.user || data?.patient)"
                   shape="circle"
                   class="bg-indigo-100 text-indigo-700 font-semibold flex-shrink-0 text-xs"
                 />
                 <div class="min-w-0">
                   <p class="font-semibold text-sm text-gray-800 truncate">
-                    {{ [data?.user?.primerApellido, data?.user?.segundoApellido, data?.user?.nombres].filter(Boolean).join(' ') || '—' }}
+                    {{ getPatientName(data) }}
                   </p>
-                  <p class="text-xs text-gray-400 truncate">{{ data?.user?.email }}</p>
+                  <p class="text-xs text-gray-400 truncate">{{ data?.user?.email ?? (data?.patient ? 'Sin cuenta de usuario' : '') }}</p>
                 </div>
               </div>
             </template>
@@ -243,18 +250,146 @@
           @created="getUserAppointments(user._id)"
         />
 
+        <!-- Modal Editar Cita (Bug 25) -->
+        <ModalEditAdminAppointment
+          v-model:visible="showEditModal"
+          :appointment="editAppointment"
+          @updated="getUserAppointments(user._id)"
+        />
+
+        <!-- Modal Reprogramar Cita -->
+        <Dialog
+          v-model:visible="showRescheduleModal"
+          modal
+          header="Reprogramar cita"
+          :style="{ width: '30rem' }"
+          :breakpoints="{ '640px': '95vw' }"
+        >
+          <div class="space-y-4 pt-1">
+            <p class="text-sm text-gray-500">Selecciona la nueva fecha y hora. Se notificará por correo al paciente y al médico.</p>
+
+            <div>
+              <label class="block text-gray-700 font-medium text-sm mb-1">Nueva fecha <span class="text-red-500">*</span></label>
+              <DatePicker
+                v-model="rescheduleForm.date"
+                :minDate="tomorrow"
+                dateFormat="dd/mm/yy"
+                placeholder="Seleccione una fecha"
+                showIcon
+                class="w-full"
+                @update:modelValue="onRescheduleDateChange"
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-medium text-sm mb-1">Nueva hora <span class="text-red-500">*</span></label>
+              <Select
+                v-model="rescheduleForm.time"
+                :options="rescheduleTimeSlots"
+                :disabled="!rescheduleForm.date || loadingRescheduleSlots"
+                :placeholder="!rescheduleForm.date ? 'Seleccione primero una fecha' : loadingRescheduleSlots ? 'Cargando horarios...' : 'Seleccione una hora'"
+                :optionDisabled="(opt) => rescheduleOccupied.includes(opt)"
+                class="w-full"
+              >
+                <template #option="{ option }">
+                  <div class="flex items-center justify-between w-full gap-3">
+                    <div class="flex items-center gap-2">
+                      <i
+                        class="pi text-xs"
+                        :class="rescheduleOccupied.includes(option)
+                          ? 'pi-lock text-red-400'
+                          : 'pi-clock text-green-500'"
+                      />
+                      <span
+                        :class="rescheduleOccupied.includes(option)
+                          ? 'line-through text-gray-400'
+                          : 'text-gray-800'"
+                      >
+                        {{ option }}
+                      </span>
+                    </div>
+                    <span
+                      class="text-[11px] font-medium px-1.5 py-0.5 rounded-full"
+                      :class="rescheduleOccupied.includes(option)
+                        ? 'bg-red-50 text-red-400'
+                        : 'bg-green-50 text-green-600'"
+                    >
+                      {{ rescheduleOccupied.includes(option) ? 'Ocupado' : 'Disponible' }}
+                    </span>
+                  </div>
+                </template>
+              </Select>
+              <!-- Leyenda -->
+              <div v-if="rescheduleForm.date && !loadingRescheduleSlots" class="flex items-center gap-4 mt-1.5">
+                <span class="flex items-center gap-1 text-xs text-green-600">
+                  <i class="pi pi-clock text-[10px]" /> Disponible
+                </span>
+                <span class="flex items-center gap-1 text-xs text-red-400">
+                  <i class="pi pi-lock text-[10px]" /> Ocupado (no seleccionable)
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-medium text-sm mb-1">
+                Motivo de reprogramación <span class="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <textarea
+                v-model="rescheduleForm.notes"
+                rows="2"
+                maxlength="300"
+                placeholder="Razón del cambio..."
+                class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              />
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="flex gap-2 justify-end pt-2">
+              <Button label="Cancelar" severity="secondary" outlined @click="showRescheduleModal = false" />
+              <Button label="Confirmar reprogramación" icon="pi pi-calendar" severity="warn" :loading="rescheduling" @click="confirmReschedule" />
+            </div>
+          </template>
+        </Dialog>
+
         <!-- Historial del paciente -->
         <ModalHealthRecordDetail />
         <ModalAddSubdoc />
 
         <!-- Popover -->
-        <Popover ref="panel" appendTo="body" style="min-width: 170px">
-          <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">
+        <Popover ref="panel" appendTo="body" style="min-width: 185px">
+          <!-- Acciones -->
+          <div class="border-b border-gray-100 pb-1 mb-1">
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+              @click="openEditModal(activeRow)"
+            >
+              <i class="pi pi-pencil text-xs text-blue-500" />
+              Editar cita
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+              @click="openRescheduleModal"
+            >
+              <i class="pi pi-calendar text-xs text-orange-500" />
+              Reprogramar
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+              @click="onPrintReceipt(activeRow)"
+            >
+              <i class="pi pi-print text-xs text-teal-600" />
+              Imprimir comprobante
+            </button>
+          </div>
+
+          <!-- Cambio rápido de estado (excepto Reprogramada) -->
+          <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-1 pb-1 font-semibold">
             Cambiar estado
           </p>
           <ul class="pb-1">
             <li
-              v-for="s in ['Pendiente', 'Completada', 'Reprogramada', 'Cancelada', 'No asistio']"
+              v-for="s in ['Pendiente', 'Completada', 'Cancelada', 'No asistio']"
               :key="s"
               class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded transition-colors"
               :class="{ 'font-semibold': activeRow?.state === s }"
@@ -303,7 +438,7 @@
 
 <script setup>
 import AppointmentApi from "@/api/AppointmentApi";
-import { formatDate } from "@/helpers/date";
+import { formatDate, convertToDDMMYYYY } from "@/helpers/date";
 import { useHealthStore } from "@/stores/healths";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
@@ -316,6 +451,7 @@ import DatePicker from "primevue/datepicker";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
+import Dialog from "primevue/dialog";
 import Popover from "primevue/popover";
 import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
@@ -323,6 +459,8 @@ import Tag from "primevue/tag";
 import { inject, computed, onMounted, ref, watch } from "vue";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalAdminAppointment from "@/components/ModalAdminAppointment.vue";
+import ModalEditAdminAppointment from "@/components/ModalEditAdminAppointment.vue";
+import { printReceipt } from "@/composables/usePrintReceipt";
 import { useRecordStore } from "@/modules/medical-record/store/recordStore";
 import { getRecordByAppointment, getRecordById } from "@/modules/medical-record/api/recordsApi";
 import ModalAddSubdoc from "@/modules/medical-record/components/ModalAddSubdoc.vue";
@@ -354,6 +492,124 @@ const showNewModal = ref(false);
 const completedReminder = ref(null);
 const loadingReminder = ref(false);
 let reminderTimer = null;
+
+// ── Editar cita (Bug 25) ─────────────────────────────────────────────────────
+const showEditModal = ref(false);
+const editAppointment = ref(null);
+
+const openEditModal = (data) => {
+  panel.value?.hide();
+  editAppointment.value = data;
+  showEditModal.value = true;
+};
+
+const onPrintReceipt = (data) => {
+  panel.value?.hide();
+  printReceipt(data);
+};
+
+// ── Reprogramar cita ─────────────────────────────────────────────────────────
+const showRescheduleModal = ref(false);
+const rescheduleForm = ref({ date: null, time: null, notes: "" });
+const rescheduling = ref(false);
+const loadingRescheduleSlots = ref(false);
+const rescheduleOccupied = ref([]);
+
+const tomorrow = computed(() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d;
+});
+
+// Slots fijos del horario (sin slots extra fuera de rango)
+const rescheduleTimeSlots = computed(() => {
+  const slots = [];
+  const addSlots = (startH, startM, endH, endM) => {
+    for (let h = startH; h <= endH; h++) {
+      const minStart = h === startH ? startM : 0;
+      const minEnd = h === endH ? endM : 59;
+      for (let m = minStart; m <= minEnd; m += 20) {
+        slots.push(`${h}:${String(m).padStart(2, "0")}`);
+      }
+    }
+  };
+  addSlots(8, 30, 12, 30);
+  addSlots(14, 30, 18, 0);
+  return slots;
+});
+
+const onRescheduleDateChange = async (newDate) => {
+  rescheduleForm.value.time = null;
+  rescheduleOccupied.value = [];
+  if (!newDate || !activeRow.value) return;
+  loadingRescheduleSlots.value = true;
+  try {
+    const category = activeRow.value.services?.[0]?.category ?? null;
+    const excludeId = activeRow.value._id;
+    // El backend espera dd/MM/yyyy
+    const formattedDate = convertToDDMMYYYY(newDate.toISOString());
+    const { data } = await AppointmentApi.getAvailability(formattedDate, category, excludeId);
+    const appts = data.appointments ?? [];
+    const doctors = data.doctors ?? [];
+    const apptDoctor = activeRow.value.doctor?._id ?? activeRow.value.doctor ?? null;
+
+    rescheduleOccupied.value = rescheduleTimeSlots.value.filter((slot) => {
+      const atSlot = appts.filter((a) => a.time === slot);
+      // Si hay médicos en la categoría: ocupado cuando todos están tomados
+      if (doctors.length > 0 && atSlot.length >= doctors.length) return true;
+      // Si la cita tiene médico asignado: ocupado si ese médico ya tiene ese slot
+      if (apptDoctor) {
+        return atSlot.some(
+          (a) => (a.doctor?.toString() ?? String(a.doctor)) === apptDoctor.toString()
+        );
+      }
+      return false;
+    });
+  } catch (e) {
+    console.error("Error al cargar disponibilidad:", e);
+    rescheduleOccupied.value = [];
+  } finally {
+    loadingRescheduleSlots.value = false;
+  }
+};
+
+const openRescheduleModal = () => {
+  panel.value?.hide();
+  rescheduleForm.value = { date: null, time: null, notes: activeRow.value?.notes ?? "" };
+  rescheduleOccupied.value = [];
+  showRescheduleModal.value = true;
+};
+
+const confirmReschedule = async () => {
+  if (!rescheduleForm.value.date || !rescheduleForm.value.time) {
+    toast?.open({ message: "Selecciona la nueva fecha y hora", type: "warning" });
+    return;
+  }
+  rescheduling.value = true;
+  const snapshot = activeRow.value;
+  const prev = snapshot.state;
+  const idx = userAppointments.value.findIndex((a) => a._id === snapshot._id);
+  if (idx !== -1) userAppointments.value[idx].state = "Reprogramada";
+  try {
+    await AppointmentApi.update(snapshot._id, {
+      state: "Reprogramada",
+      date: rescheduleForm.value.date.toISOString(),
+      time: rescheduleForm.value.time,
+      notes: rescheduleForm.value.notes,
+    });
+    toast?.open({ message: "Cita reprogramada correctamente", type: "success" });
+    showRescheduleModal.value = false;
+    getUserAppointments(user.value._id);
+  } catch (err) {
+    if (idx !== -1) userAppointments.value[idx].state = prev;
+    toast?.open({
+      message: err.response?.data?.msg || "No se pudo reprogramar la cita",
+      type: "error",
+    });
+  } finally {
+    rescheduling.value = false;
+  }
+};
 
 const exportParams = computed(() => ({
   ...(search.value        && { search:    search.value }),
@@ -387,10 +643,15 @@ const appointmentSeverity = (state) => {
   return "secondary";
 };
 
-function getInitials(user) {
-  const a = user?.primerApellido?.[0] ?? "";
-  const n = user?.nombres?.[0] ?? "";
+function getInitials(src) {
+  const a = src?.primerApellido?.[0] ?? "";
+  const n = src?.nombres?.[0] ?? "";
   return (a + n).toUpperCase() || "?";
+}
+
+function getPatientName(data) {
+  const src = data?.user || data?.patient;
+  return [src?.primerApellido, src?.segundoApellido, src?.nombres].filter(Boolean).join(" ") || "—";
 }
 
 watch(selectedHealth, async (val) => {
@@ -451,8 +712,8 @@ const changeState = async (state) => {
 
     // Recordatorio no bloqueante cuando se completa
     if (state === "Completada" && (user.value?.doctor || user.value?.admin || user.value?.branchManager)) {
-      const u = snapshot.user;
-      const patientName = [u?.primerApellido, u?.segundoApellido, u?.nombres].filter(Boolean).join(" ") || "Paciente";
+      const src = snapshot.user || snapshot.patient;
+      const patientName = [src?.primerApellido, src?.segundoApellido, src?.nombres].filter(Boolean).join(" ") || "Paciente";
       clearTimeout(reminderTimer);
       completedReminder.value = { appointmentId: snapshot._id, patientName };
       reminderTimer = setTimeout(() => { completedReminder.value = null; }, 12000);

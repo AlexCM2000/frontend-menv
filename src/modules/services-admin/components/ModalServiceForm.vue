@@ -52,20 +52,6 @@
           input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
 
-        <FormKit
-          type="number"
-          label="Precio (Bs.)"
-          name="price"
-          placeholder="0"
-          validation="required|min:0"
-          :validation-messages="{
-            required: 'El precio es obligatorio',
-            min: 'El precio no puede ser negativo',
-          }"
-          label-class="block mb-1.5 text-sm font-medium text-gray-700"
-          input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-        />
-
       </div>
     </FormKit>
 
@@ -93,7 +79,7 @@ const { visibleForm, currentService, availableCategories } = storeToRefs(store);
 const { onCreateService, onUpdateService } = store;
 
 const formRef = ref(null);
-const formData = ref({ name: "", category: "", price: 0 });
+const formData = ref({ name: "", category: "" });
 
 const categoryOptions = computed(() =>
   availableCategories.value.map((c) => ({ label: c.name, value: c.name }))
@@ -104,10 +90,9 @@ watch(currentService, (newVal) => {
     formData.value = {
       name: newVal.name ?? "",
       category: newVal.category ?? "",
-      price: newVal.price ?? 0,
     };
   } else {
-    formData.value = { name: "", category: "", price: 0 };
+    formData.value = { name: "", category: "" };
   }
 });
 
@@ -115,13 +100,12 @@ const handleSubmit = async (values) => {
   const payload = {
     name: values.name,
     category: values.category,
-    price: Number(values.price),
   };
   if (currentService.value) {
     await onUpdateService(payload);
   } else {
     await onCreateService(payload);
   }
-  formData.value = { name: "", category: "", price: 0 };
+  formData.value = { name: "", category: "" };
 };
 </script>

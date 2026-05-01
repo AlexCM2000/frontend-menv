@@ -17,10 +17,7 @@ export const displayDate = (date) => {
 export const convertToDDMMYYYY=(isoDate)=>
 {
     const newDate = new Date(isoDate)
-    const formattedDate=format(newDate, "dd/MM/yyyy")
-    console.log(formattedDate)
-    //date-fns
-    return formattedDate
+    return format(newDate, "dd/MM/yyyy")
 }
 
 export const formatDate=(dateString)=> {

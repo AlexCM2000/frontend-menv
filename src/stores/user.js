@@ -101,6 +101,17 @@ import { useRouter } from "vue-router";
         }
     }
 
+    const updateProfile = async (profileData) => {
+        const { data } = await AuthApi.updateProfile(profileData)
+        user.value = data.user
+        return data
+    }
+
+    const changePassword = async (passwords) => {
+        const { data } = await AuthApi.changePassword(passwords)
+        return data
+    }
+
     const getUserName = computed(() => {
         const u = user.value;
         if (!u) return '';
@@ -132,5 +143,7 @@ import { useRouter } from "vue-router";
         setDateFilter,
         showHistory,
         setShowHistory,
+        updateProfile,
+        changePassword,
     }
  })

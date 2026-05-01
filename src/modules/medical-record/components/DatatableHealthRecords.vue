@@ -2,7 +2,12 @@
   <Card class="m-3 sm:m-5">
     <template #title>
       <div class="flex items-center gap-2 flex-wrap">
-        <p class="font-semibold text-lg flex-1">Historiales médicos</p>
+        <div class="flex-1">
+          <p class="font-bold text-base text-gray-800">Historiales médicos</p>
+          <p class="text-xs font-normal text-gray-400 mt-0.5">
+            {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+          </p>
+        </div>
         <div class="flex items-center gap-2">
           <!-- Toggle archivados (solo staff) -->
           <Button
@@ -152,6 +157,13 @@
         stripedRows
         scrollable
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+            <p class="text-sm text-gray-400">No se encontraron historiales médicos</p>
+          </div>
+        </template>
+
         <Column style="min-width: 200px">
           <template #header><p class="font-semibold text-sm">Paciente</p></template>
           <template #body="{ data }">
@@ -198,6 +210,15 @@
                 <i class="pi pi-calendar text-[10px]" /> {{ data?.medicalAppointments?.length ?? 0 }} citas
               </span>
             </div>
+          </template>
+        </Column>
+
+        <!-- Sucursal: visible para admin y médico -->
+        <Column v-if="showHealthCol" style="min-width: 140px" class="hidden md:table-cell">
+          <template #header><p class="font-semibold text-sm">Sucursal</p></template>
+          <template #body="{ data }">
+            <p class="text-sm text-gray-600">{{ data?.patient?.healthCenter?.name ?? "—" }}</p>
+            <p v-if="data?.patient?.healthCenter?.codigo" class="text-xs text-gray-400">Cód. {{ data.patient.healthCenter.codigo }}</p>
           </template>
         </Column>
 
@@ -347,7 +368,10 @@ const {
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const isAdmin    = computed(() => user.value?.admin === true);
+const isDoctor   = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
 const isStaff    = computed(() => user.value?.admin === true || user.value?.branchManager === true);
+// Mostrar columna de sucursal: admin (ve todos los centros) y médico (quiere ver a qué centro pertenece el paciente)
+const showHealthCol = computed(() => isAdmin.value || isDoctor.value);
 
 const exportParams = computed(() => ({
   ...(localSearch.value && { search:     localSearch.value }),

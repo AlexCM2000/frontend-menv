@@ -64,11 +64,6 @@
         </div>
       </div>
 
-      <!-- Total -->
-      <div v-if="appointment?.totalAmount" class="flex flex-col gap-1">
-        <span class="text-xs text-gray-400 uppercase tracking-wide font-semibold">Total</span>
-        <p class="text-gray-700 text-sm font-semibold">{{ formatCurrency(appointment.totalAmount) }}</p>
-      </div>
     </div>
 
     <template #footer>
@@ -78,7 +73,6 @@
 </template>
 
 <script setup>
-import { formatCurrency } from '@/helpers'
 import { formatDate } from '@/helpers/date'
 import { computed } from 'vue'
 import Button from 'primevue/button'

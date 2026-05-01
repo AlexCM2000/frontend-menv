@@ -2,7 +2,12 @@
   <Card class="m-3 sm:m-5">
     <template #title>
       <div class="flex items-center gap-2">
-        <p class="font-semibold text-lg flex-1">Lista de Servicios</p>
+        <div class="flex-1">
+          <p class="font-bold text-base text-gray-800">Lista de Servicios</p>
+          <p class="text-xs font-normal text-gray-400 mt-0.5">
+            {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+          </p>
+        </div>
         <ExportMenu
           endpoint="/export/services"
           :params="exportParams"
@@ -64,10 +69,6 @@
           <template #header><Skeleton width="60%" height="1rem" /></template>
           <template #body><Skeleton width="65%" height="0.9rem" /></template>
         </Column>
-        <Column style="min-width: 100px">
-          <template #header><Skeleton width="50%" height="1rem" /></template>
-          <template #body><Skeleton width="50%" height="0.9rem" /></template>
-        </Column>
         <Column style="min-width: 60px">
           <template #header><Skeleton width="40%" height="1rem" /></template>
           <template #body>
@@ -94,6 +95,13 @@
         scrollable
         scrollHeight="flex"
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+            <p class="text-sm text-gray-400">No se encontraron servicios</p>
+          </div>
+        </template>
+
         <Column style="min-width: 180px">
           <template #header><p class="font-semibold text-sm">Nombre</p></template>
           <template #body="{ data }">
@@ -105,13 +113,6 @@
           <template #header><p class="font-semibold text-sm">Categoría</p></template>
           <template #body="{ data }">
             <p class="text-sm text-gray-600">{{ data.category }}</p>
-          </template>
-        </Column>
-
-        <Column style="min-width: 100px">
-          <template #header><p class="font-semibold text-sm">Precio</p></template>
-          <template #body="{ data }">
-            <p class="text-sm text-gray-700 font-medium">{{ formatCurrency(data.price) }}</p>
           </template>
         </Column>
 
@@ -168,7 +169,6 @@ import Popover from "primevue/popover";
 import { useServicesAdminStore } from "../store/servicesAdminStore";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalServiceForm from "./ModalServiceForm.vue";
-import { formatCurrency } from "@/helpers";
 
 const store = useServicesAdminStore();
 const { loading, services, totalRecords, page_first, page_size, availableCategories } = storeToRefs(store);

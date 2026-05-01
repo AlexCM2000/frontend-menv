@@ -47,7 +47,8 @@
 
         <div v-else class="max-w-sm">
           <select
-            v-model="appointments.doctor"
+            :value="appointments.doctor"
+            @change="onDoctorChange"
             class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-700
                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                    bg-white appearance-none"
@@ -232,6 +233,13 @@ const getTimeClass = (hour) => {
   if (isDisabled) return 'bg-gray-50 text-gray-200 cursor-not-allowed'
   return 'bg-white border border-gray-200 text-gray-700 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'
 }
+
+// Al cambiar médico, limpiar el horario seleccionado para evitar el error 11000
+const onDoctorChange = (e) => {
+  const newDoctor = e.target.value || null;
+  appointments.doctor = newDoctor;
+  appointments.time = "";
+};
 
 onMounted(async () => {
   try {

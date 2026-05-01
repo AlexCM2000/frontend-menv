@@ -190,12 +190,14 @@ export const useRecordStore = defineStore("health-records", () => {
 
   // ── Cambiar estado ────────────────────────────────
   const onUpdateState = async (id, newState) => {
+    const rec = records.value.find((r) => r._id === id);
+    const oldState = rec?.state;
+    if (rec) rec.state = newState;
     try {
       await updateRecordState(id, newState);
-      const rec = records.value.find((r) => r._id === id);
-      if (rec) rec.state = newState;
       toast.open({ message: `Estado cambiado a "${newState}"`, type: "success" });
     } catch (error) {
+      if (rec) rec.state = oldState;
       toast.open({ message: error?.response?.data?.message ?? "Error al cambiar estado", type: "error" });
     }
   };

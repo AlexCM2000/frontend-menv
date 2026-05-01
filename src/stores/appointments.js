@@ -26,32 +26,20 @@ export const useAppointmentsStore = defineStore("appointments", () => {
 
   const user = useUserStore();
 
+  // Genera slots de horario sin exceder el límite de cada turno
+  const buildSlots = (startH, startM, endH, endM) => {
+    for (let h = startH; h <= endH; h++) {
+      const minStart = h === startH ? startM : 0;
+      const minEnd   = h === endH   ? endM   : 59;
+      for (let m = minStart; m <= minEnd; m += 20) {
+        hours.value.push(`${h}:${String(m).padStart(2, '0')}`);
+      }
+    }
+  };
+
   onMounted(() => {
-    // Primer intervalo: de 8:30 a 12:30
-    const firstStartHour = 8; // Hora de inicio
-    const firstEndHour = 12;   // Hora de fin
-  
-    for (let hour = firstStartHour; hour <= firstEndHour; hour++) {
-      // Manejar los minutos específicos para la primera hora
-      const startMinutes = hour === firstStartHour ? 30 : 0; // Comienza en 30 para 8:30
-      for (let minutes = startMinutes; minutes < 60; minutes += 20) {
-        const formattedHour = `${hour}:${minutes.toString().padStart(2, '0')}`;
-        hours.value.push(formattedHour);
-      }
-    }
-  
-    // Segundo intervalo: de 2:30 a 6:00
-    const secondStartHour = 14; // Hora de inicio
-    const secondEndHour = 18;    // Hora de fin
-  
-    for (let hour = secondStartHour; hour <= secondEndHour; hour++) {
-      // Manejar los minutos específicos para la segunda hora
-      const startMinutes = hour === secondStartHour ? 30 : 0; // Comienza en 30 para 2:30
-      for (let minutes = startMinutes; minutes < 60; minutes += 20) {
-        const formattedHour = `${hour}:${minutes.toString().padStart(2, '0')}`;
-        hours.value.push(formattedHour);
-      }
-    }
+    buildSlots(8, 30, 12, 30);   // 8:30 – 12:30
+    buildSlots(14, 30, 18, 0);   // 14:30 – 18:00
   });
   
 watch(() => date.value, async () => {
@@ -112,10 +100,6 @@ const setSelectedAppointment = (appointment) => {
 
   const noServicesSelected=computed(()=>services.value.length===0)
 
-  const totalAmount = computed(()=>{
-    return services.value.reduce((total, service)=> total + service.price, 0)
-  })
-
   const isValidReservation =computed(()=>{
     return services.value.length && date.value.length && time?.value?.length
   })
@@ -145,7 +129,6 @@ const setSelectedAppointment = (appointment) => {
       services: services.value.map((service) => service._id),
       date: convertToISO(date.value),
       time: time.value,
-      totalAmount: totalAmount.value,
       notes: notes.value || "",
       state: state.value,
       doctor: doctor.value || null,
@@ -241,7 +224,6 @@ const setSelectedAppointment = (appointment) => {
     clearAppointmentsData,
     cancelAppointment,
     services,
-    totalAmount,
     disableTime,
     date,
     hours,

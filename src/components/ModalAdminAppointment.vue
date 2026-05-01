@@ -11,79 +11,78 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-      <!-- Usuario / Paciente -->
+      <!-- Paciente -->
       <div class="md:col-span-2">
         <label class="block text-gray-700 font-medium text-sm mb-1">Paciente <span class="text-red-500">*</span></label>
         <Select
-          v-model="form.targetUserId"
-          :options="userOptions"
+          v-model="form.targetPatientId"
+          :options="patientOptions"
           optionLabel="label"
           optionValue="value"
           placeholder="Seleccione un paciente"
           filter
-          filterPlaceholder="Buscar por nombre o email..."
+          filterPlaceholder="Buscar por nombre o código SUS..."
           class="w-full"
-          :loading="loadingUsers"
+          :loading="loadingPatients"
         />
-        <p v-if="errors.targetUserId" class="text-red-500 text-xs mt-1">{{ errors.targetUserId }}</p>
+        <p v-if="errors.targetPatientId" class="text-red-500 text-xs mt-1">{{ errors.targetPatientId }}</p>
+      </div>
+
+      <!-- Categoría -->
+      <div>
+        <label class="block text-gray-700 font-medium text-sm mb-1">Categoría / Especialidad <span class="text-red-500">*</span></label>
+        <Select
+          v-model="form.category"
+          :options="categoryOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione una categoría"
+          class="w-full"
+          :loading="loadingCategories"
+          @change="onCategoryChange"
+        />
+        <p v-if="errors.category" class="text-red-500 text-xs mt-1">{{ errors.category }}</p>
       </div>
 
       <!-- Servicio -->
-      <div class="md:col-span-2">
+      <div>
         <label class="block text-gray-700 font-medium text-sm mb-1">Servicio <span class="text-red-500">*</span></label>
         <Select
           v-model="form.serviceId"
-          :options="serviceOptions"
+          :options="filteredServiceOptions"
           optionLabel="label"
           optionValue="value"
-          placeholder="Seleccione un servicio"
-          filter
-          filterPlaceholder="Buscar servicio..."
+          :placeholder="!form.category ? 'Seleccione primero una categoría' : filteredServiceOptions.length === 0 ? 'Sin servicios en esta categoría' : 'Seleccione un servicio'"
+          :disabled="!form.category || filteredServiceOptions.length === 0"
           class="w-full"
           :loading="loadingServices"
         />
         <p v-if="errors.serviceId" class="text-red-500 text-xs mt-1">{{ errors.serviceId }}</p>
+        <p v-if="form.category && !loadingServices && filteredServiceOptions.length === 0" class="text-amber-600 text-xs mt-1">
+          No hay servicios disponibles para esta categoría.
+        </p>
       </div>
 
-      <!-- Fecha -->
+      <!-- Médico -->
       <div>
-        <label class="block text-gray-700 font-medium text-sm mb-1">Fecha <span class="text-red-500">*</span></label>
-        <DatePicker
-          v-model="form.date"
-          :minDate="tomorrow"
-          dateFormat="dd/mm/yy"
-          placeholder="Seleccione una fecha"
-          showIcon
-          class="w-full"
-        />
-        <p v-if="errors.date" class="text-red-500 text-xs mt-1">{{ errors.date }}</p>
-      </div>
-
-      <!-- Hora -->
-      <div>
-        <label class="block text-gray-700 font-medium text-sm mb-1">Hora <span class="text-red-500">*</span></label>
-        <Select
-          v-model="form.time"
-          :options="timeSlots"
-          placeholder="Seleccione una hora"
-          class="w-full"
-        />
-        <p v-if="errors.time" class="text-red-500 text-xs mt-1">{{ errors.time }}</p>
-      </div>
-
-      <!-- Médico (opcional) -->
-      <div>
-        <label class="block text-gray-700 font-medium text-sm mb-1">Médico <span class="text-gray-400 font-normal">(opcional)</span></label>
+        <label class="block text-gray-700 font-medium text-sm mb-1">
+          Médico
+          <span v-if="isBranchManager" class="text-red-500">*</span>
+          <span v-else class="text-gray-400 font-normal">(opcional)</span>
+        </label>
         <Select
           v-model="form.doctor"
           :options="doctorOptions"
           optionLabel="label"
           optionValue="value"
-          placeholder="Sin preferencia"
-          showClear
+          :placeholder="!form.category ? 'Seleccione primero una categoría' : 'Seleccione un médico'"
+          :showClear="!isBranchManager"
+          :disabled="!form.category || loadingDoctors"
           class="w-full"
           :loading="loadingDoctors"
+          @change="onDoctorChange"
         />
+        <p v-if="errors.doctor" class="text-red-500 text-xs mt-1">{{ errors.doctor }}</p>
       </div>
 
       <!-- Estado -->
@@ -96,6 +95,63 @@
           optionValue="value"
           class="w-full"
         />
+      </div>
+
+      <!-- Fecha -->
+      <div>
+        <label class="block text-gray-700 font-medium text-sm mb-1">Fecha <span class="text-red-500">*</span></label>
+        <DatePicker
+          v-model="form.date"
+          :minDate="tomorrow"
+          dateFormat="dd/mm/yy"
+          placeholder="Seleccione una fecha"
+          showIcon
+          class="w-full"
+          @update:modelValue="onDateChange"
+        />
+        <p v-if="errors.date" class="text-red-500 text-xs mt-1">{{ errors.date }}</p>
+      </div>
+
+      <!-- Hora -->
+      <div>
+        <label class="block text-gray-700 font-medium text-sm mb-1">Hora <span class="text-red-500">*</span></label>
+        <Select
+          v-model="form.time"
+          :options="timeSlots"
+          :disabled="!form.date || loadingSlots"
+          :placeholder="!form.date ? 'Seleccione primero una fecha' : loadingSlots ? 'Cargando horarios...' : 'Seleccione una hora'"
+          :optionDisabled="(opt) => occupiedSlots.includes(opt)"
+          class="w-full"
+        >
+          <template #option="{ option }">
+            <div class="flex items-center justify-between w-full gap-3">
+              <div class="flex items-center gap-2">
+                <i
+                  class="pi text-xs"
+                  :class="occupiedSlots.includes(option) ? 'pi-lock text-red-400' : 'pi-clock text-green-500'"
+                />
+                <span :class="occupiedSlots.includes(option) ? 'line-through text-gray-400' : 'text-gray-800'">
+                  {{ option }}
+                </span>
+              </div>
+              <span
+                class="text-[11px] font-medium px-1.5 py-0.5 rounded-full"
+                :class="occupiedSlots.includes(option) ? 'bg-red-50 text-red-400' : 'bg-green-50 text-green-600'"
+              >
+                {{ occupiedSlots.includes(option) ? 'Ocupado' : 'Disponible' }}
+              </span>
+            </div>
+          </template>
+        </Select>
+        <div v-if="form.date && !loadingSlots" class="flex items-center gap-4 mt-1.5">
+          <span class="flex items-center gap-1 text-xs text-green-600">
+            <i class="pi pi-clock text-[10px]" /> Disponible
+          </span>
+          <span class="flex items-center gap-1 text-xs text-red-400">
+            <i class="pi pi-lock text-[10px]" /> Ocupado (no seleccionable)
+          </span>
+        </div>
+        <p v-if="errors.time" class="text-red-500 text-xs mt-1">{{ errors.time }}</p>
       </div>
 
       <!-- Motivo de consulta -->
@@ -117,7 +173,7 @@
     <template #footer>
       <div class="flex gap-2 justify-end pt-2">
         <Button label="Cancelar" severity="secondary" outlined @click="visible = false" />
-        <Button label="Crear cita" icon="pi pi-check" :loading="submitting" @click="submit" />
+        <Button label="Crear cita" icon="pi pi-check" :loading="submitting" :disabled="submitting" @click="submit" />
       </div>
     </template>
   </Dialog>
@@ -131,15 +187,24 @@ import Button from "primevue/button";
 import DatePicker from "primevue/datepicker";
 import api from "@/lib/axios";
 import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
+import AppointmentApi from "@/api/AppointmentApi";
+import { convertToDDMMYYYY } from "@/helpers/date";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
 
 const emit = defineEmits(["created"]);
 
 const visible = defineModel("visible", { default: false });
 const toast = inject("toast");
 
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+const isBranchManager = computed(() => user.value?.branchManager === true && !user.value?.admin);
+
 // ── Estado del formulario ────────────────────────────────────────────────────
 const form = ref({
-  targetUserId: null,
+  targetPatientId: null,
+  category: null,
   serviceId: null,
   date: null,
   time: null,
@@ -151,13 +216,25 @@ const form = ref({
 const errors = ref({});
 const submitting = ref(false);
 
+// ── Disponibilidad de horarios ───────────────────────────────────────────────
+const loadingSlots = ref(false);
+const occupiedSlots = ref([]);
+
 // ── Opciones de listas ───────────────────────────────────────────────────────
-const userOptions = ref([]);
-const serviceOptions = ref([]);
+const patientOptions = ref([]);
+const allServiceOptions = ref([]);
+const categoryOptions = ref([]);
 const doctorOptions = ref([]);
-const loadingUsers = ref(false);
+const loadingPatients = ref(false);
 const loadingServices = ref(false);
+const loadingCategories = ref(false);
 const loadingDoctors = ref(false);
+
+// Servicios filtrados según la categoría seleccionada
+const filteredServiceOptions = computed(() => {
+  if (!form.value.category) return [];
+  return allServiceOptions.value.filter((s) => s.category === form.value.category);
+});
 
 const stateOptions = [
   { label: "Pendiente",    value: "Pendiente" },
@@ -167,66 +244,121 @@ const stateOptions = [
   { label: "No asistio",   value: "No asistio" },
 ];
 
-// Mañana como fecha mínima
 const tomorrow = computed(() => {
   const d = new Date();
   d.setDate(d.getDate() + 1);
   return d;
 });
 
-// ── Slots de hora (igual que appointments store) ─────────────────────────────
+// Slots fijos del horario
 const timeSlots = computed(() => {
   const slots = [];
-  const addSlots = (startH, startM, endH) => {
+  const addSlots = (startH, startM, endH, endM) => {
     for (let h = startH; h <= endH; h++) {
       const minStart = h === startH ? startM : 0;
-      for (let m = minStart; m < 60; m += 20) {
-        if (h === endH && m > 0) break;
+      const minEnd   = h === endH   ? endM   : 59;
+      for (let m = minStart; m <= minEnd; m += 20) {
         slots.push(`${h}:${String(m).padStart(2, "0")}`);
       }
     }
   };
-  addSlots(8, 30, 12);
-  addSlots(14, 30, 18);
+  addSlots(8, 30, 12, 30);
+  addSlots(14, 30, 18, 0);
   return slots;
 });
 
-// ── Carga de datos ───────────────────────────────────────────────────────────
-const loadUsers = async () => {
-  loadingUsers.value = true;
+// ── Carga de disponibilidad al cambiar fecha o médico ───────────────────────
+const fetchAvailability = async () => {
+  if (!form.value.date || !form.value.category) {
+    occupiedSlots.value = [];
+    return;
+  }
+  loadingSlots.value = true;
+  form.value.time = null;
   try {
-    const { data } = await api.get("usersList", { params: { page: 1, page_size: 200 } });
-    userOptions.value = (data.results ?? []).map((u) => ({
-      value: u._id,
-      label: `${u.name} — ${u.email}`,
+    // El backend espera dd/MM/yyyy
+    const formattedDate = convertToDDMMYYYY(form.value.date.toISOString());
+    const { data } = await AppointmentApi.getAvailability(formattedDate, form.value.category);
+    const appts = data.appointments ?? [];
+    const doctors = data.doctors ?? [];
+    const selectedDoc = form.value.doctor;
+    occupiedSlots.value = timeSlots.value.filter((slot) => {
+      const atSlot = appts.filter((a) => a.time === slot);
+      // Todos los médicos de la categoría están ocupados en este slot
+      if (doctors.length > 0 && atSlot.length >= doctors.length) return true;
+      // El médico seleccionado ya tiene cita en este slot
+      if (selectedDoc) {
+        return atSlot.some((a) => (a.doctor?.toString() ?? String(a.doctor)) === selectedDoc.toString());
+      }
+      return false;
+    });
+  } catch (e) {
+    console.error("Error al cargar disponibilidad:", e);
+    occupiedSlots.value = [];
+  } finally {
+    loadingSlots.value = false;
+  }
+};
+
+const onDateChange = async () => {
+  await fetchAvailability();
+};
+
+const onDoctorChange = async () => {
+  if (form.value.date) await fetchAvailability();
+};
+
+const onCategoryChange = () => {
+  form.value.serviceId = null;
+  form.value.doctor = null;
+  form.value.time = null;
+  occupiedSlots.value = [];
+  loadDoctors(form.value.category);
+  if (form.value.date) fetchAvailability();
+};
+
+// ── Carga de datos ───────────────────────────────────────────────────────────
+const loadPatients = async () => {
+  loadingPatients.value = true;
+  try {
+    const { data } = await api.get("patient", { params: { page: 1, page_size: 200 } });
+    patientOptions.value = (data.results ?? []).map((p) => ({
+      value: p._id,
+      label: `${[p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(' ')} — SUS: ${p.susCode}`,
     }));
   } catch (e) {
     console.error(e);
   } finally {
-    loadingUsers.value = false;
+    loadingPatients.value = false;
   }
 };
 
 const loadServices = async () => {
   loadingServices.value = true;
+  loadingCategories.value = true;
   try {
     const { data } = await api.get("services");
-    serviceOptions.value = (data ?? []).map((s) => ({
+    allServiceOptions.value = (data ?? []).map((s) => ({
       value: s._id,
-      label: `${s.name} (${s.category}) — Bs. ${s.price}`,
-      price: s.price,
+      label: s.name,
+      category: s.category,
     }));
+    // Categorías únicas
+    const cats = [...new Set((data ?? []).map((s) => s.category).filter(Boolean))];
+    categoryOptions.value = cats.map((c) => ({ label: c, value: c }));
   } catch (e) {
     console.error(e);
   } finally {
     loadingServices.value = false;
+    loadingCategories.value = false;
   }
 };
 
-const loadDoctors = async () => {
+const loadDoctors = async (specialty = null) => {
   loadingDoctors.value = true;
   try {
-    const docs = await getDoctorsForSelect();
+    const params = specialty ? { specialty } : {};
+    const docs = await getDoctorsForSelect(params);
     doctorOptions.value = docs.map((d) => ({
       value: d._id,
       label: `${d.name} — ${d.specialty}`,
@@ -241,10 +373,12 @@ const loadDoctors = async () => {
 // ── Validación ───────────────────────────────────────────────────────────────
 const validate = () => {
   const e = {};
-  if (!form.value.targetUserId) e.targetUserId = "Seleccione un paciente";
-  if (!form.value.serviceId)    e.serviceId    = "Seleccione un servicio";
-  if (!form.value.date)         e.date         = "Seleccione una fecha";
-  if (!form.value.time)         e.time         = "Seleccione una hora";
+  if (!form.value.targetPatientId) e.targetPatientId = "Seleccione un paciente";
+  if (!form.value.category)        e.category        = "Seleccione una categoría";
+  if (!form.value.serviceId)       e.serviceId       = "Seleccione un servicio";
+  if (!form.value.date)            e.date            = "Seleccione una fecha";
+  if (!form.value.time)            e.time            = "Seleccione una hora";
+  if (isBranchManager.value && !form.value.doctor) e.doctor = "Seleccione un médico";
   errors.value = e;
   return Object.keys(e).length === 0;
 };
@@ -252,17 +386,13 @@ const validate = () => {
 // ── Submit ───────────────────────────────────────────────────────────────────
 const submit = async () => {
   if (!validate()) return;
-
-  const selectedService = serviceOptions.value.find(
-    (s) => s.value === form.value.serviceId
-  );
+  if (submitting.value) return;
 
   const payload = {
-    targetUserId: form.value.targetUserId,
+    targetPatientId: form.value.targetPatientId,
     services: [form.value.serviceId],
     date: form.value.date.toISOString(),
     time: form.value.time,
-    totalAmount: selectedService?.price ?? 0,
     state: form.value.state,
     doctor: form.value.doctor || null,
     notes: form.value.notes || "",
@@ -277,7 +407,7 @@ const submit = async () => {
     emit("created");
   } catch (err) {
     toast.open({
-      message: err.response?.data?.message || "Error al crear la cita",
+      message: err.response?.data?.msg || err.response?.data?.message || "Error al crear la cita",
       type: "error",
     });
   } finally {
@@ -286,11 +416,12 @@ const submit = async () => {
 };
 
 const resetForm = () => {
-  form.value = { targetUserId: null, serviceId: null, date: null, time: null, doctor: null, state: "Pendiente", notes: "" };
+  form.value = { targetPatientId: null, category: null, serviceId: null, date: null, time: null, doctor: null, state: "Pendiente", notes: "" };
   errors.value = {};
+  occupiedSlots.value = [];
 };
 
 onMounted(async () => {
-  await Promise.all([loadUsers(), loadServices(), loadDoctors()]);
+  await Promise.all([loadPatients(), loadServices()]);
 });
 </script>

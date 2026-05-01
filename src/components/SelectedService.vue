@@ -5,9 +5,6 @@
     <div>
       <p class="text-2xl font-extrabold text-gray-500">{{ service.name }}</p>
 
-      <p class="hidden text-3xl font-black text-blue-500">
-        {{ formatCurrency(service.price) }}
-      </p>
     </div>
     <button
       type="button"
@@ -20,7 +17,6 @@
 </template>
 
 <script setup>
-import { formatCurrency } from "@/helpers";
 import { useAppointmentsStore } from "@/stores/appointments";
 
 const appointments = useAppointmentsStore();

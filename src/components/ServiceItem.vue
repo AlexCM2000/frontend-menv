@@ -21,17 +21,10 @@
     >
       {{ service.name }}
     </p>
-    <p
-      class="text-base font-black"
-      :class="isServiceSelected(service._id) ? 'text-blue-100' : 'text-blue-600'"
-    >
-      {{ formatCurrency(service.price) }}
-    </p>
   </div>
 </template>
 
 <script setup>
-import { formatCurrency } from '@/helpers'
 import { useAppointmentsStore } from '@/stores/appointments'
 
 const { onServiceSelected, isServiceSelected } = useAppointmentsStore()

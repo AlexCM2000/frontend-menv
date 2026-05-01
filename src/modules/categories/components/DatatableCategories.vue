@@ -2,7 +2,12 @@
   <Card class="m-3 sm:m-5">
     <template #title>
       <div class="flex items-center gap-2">
-        <p class="font-semibold text-lg flex-1">Lista de Categorías</p>
+        <div class="flex-1">
+          <p class="font-bold text-base text-gray-800">Lista de Categorías</p>
+          <p class="text-xs font-normal text-gray-400 mt-0.5">
+            {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+          </p>
+        </div>
         <ExportMenu
           endpoint="/export/categories"
           :params="exportParams"
@@ -91,6 +96,13 @@
         scrollable
         scrollHeight="flex"
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+            <p class="text-sm text-gray-400">No se encontraron categorías</p>
+          </div>
+        </template>
+
         <Column style="min-width: 60px; text-align: center">
           <template #header><p class="font-semibold text-sm">Icono</p></template>
           <template #body="{ data }">
@@ -185,7 +197,7 @@ import ExportMenu from "@/components/ExportMenu.vue";
 import ModalCategoryForm from "./ModalCategoryForm.vue";
 
 const categoryStore = useCategoryStore();
-const { loading, categories } = storeToRefs(categoryStore);
+const { loading, categories, totalRecords } = storeToRefs(categoryStore);
 const { fetchCategories, openModal, onCurrentCategory, onDeleteCategory } = categoryStore;
 
 const localSearch = ref("");

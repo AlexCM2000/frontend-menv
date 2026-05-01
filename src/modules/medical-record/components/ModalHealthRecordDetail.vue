@@ -58,7 +58,7 @@
         </div>
         <div>
           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">Creado</p>
-          <p class="text-sm text-gray-700">{{ formatDate(record.createdAt) }}</p>
+          <p class="text-sm text-gray-700">{{ formatTimestamp(record.createdAt) }}</p>
         </div>
       </section>
 
@@ -268,6 +268,14 @@ const formatDate = (d) => {
   const date = new Date(d);
   if (isNaN(date)) return d;
   return date.toLocaleDateString("es-BO", { timeZone: "UTC", day: "2-digit", month: "short", year: "numeric" });
+};
+
+// Para timestamps reales (createdAt, updatedAt) que deben mostrarse en hora Bolivia (UTC-4)
+const formatTimestamp = (d) => {
+  if (!d) return "—";
+  const date = new Date(d);
+  if (isNaN(date)) return d;
+  return date.toLocaleDateString("es-BO", { timeZone: "America/La_Paz", day: "2-digit", month: "short", year: "numeric" });
 };
 
 const formatDOB = (dob) => {

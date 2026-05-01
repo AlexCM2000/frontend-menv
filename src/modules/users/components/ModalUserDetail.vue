@@ -15,7 +15,11 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-3">
             <h3 class="m-0 text-lg font-semibold truncate">
-              {{ [user?.primerApellido, user?.segundoApellido, user?.nombres].filter(Boolean).join(' ') || '—' }}
+              {{
+                [user?.primerApellido, user?.segundoApellido, user?.nombres]
+                  .filter(Boolean)
+                  .join(" ") || "—"
+              }}
             </h3>
 
             <div class="flex items-center gap-2 ml-2 flex-wrap">
@@ -153,12 +157,6 @@
     <!-- Footer -->
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button
-          label="Editar"
-          icon="pi pi-pencil"
-          class="p-button-warning"
-          @click="onEdit"
-        />
         <Button label="Cerrar" class="p-button-text" @click="close" />
       </div>
     </template>
@@ -218,7 +216,9 @@ const initials = computed(() => {
 
 // avatar bg selection
 const avatarBg = computed(() => {
-  const name = [user.value?.primerApellido, user.value?.nombres].filter(Boolean).join(" ");
+  const name = [user.value?.primerApellido, user.value?.nombres]
+    .filter(Boolean)
+    .join(" ");
   const code = name
     .split("")
     .reduce((acc, ch) => acc + (ch?.charCodeAt?.(0) ?? 0), 0);

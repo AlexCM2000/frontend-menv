@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div v-else :class="isDoctor ? 'grid grid-cols-2 sm:grid-cols-2 gap-3' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3'">
       <KpiCard
         icon="pi-calendar-clock"
         icon-color="bg-blue-100 text-blue-600"
@@ -81,7 +81,9 @@
         :label="'Citas · ' + rangeLabel"
         sub="en el período"
       />
+      <!-- Solo admin/branchManager -->
       <KpiCard
+        v-if="!isDoctor"
         icon="pi-users"
         icon-color="bg-teal-100 text-teal-600"
         :value="stats.kpis.pacientes"
@@ -89,14 +91,15 @@
         sub="registrados"
       />
       <KpiCard
+        v-if="!isDoctor"
         icon="pi-user"
         icon-color="bg-purple-100 text-purple-600"
         :value="stats.kpis.medicosActivos"
         label="Médicos activos"
         sub="disponibles"
       />
-      <!-- Tasa de asistencia -->
-      <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex flex-col gap-1">
+      <!-- Tasa de asistencia (solo admin/branchManager) -->
+      <div v-if="!isDoctor" class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex flex-col gap-1">
         <div class="flex items-center gap-2">
           <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
             :class="tasaColor.bg">
@@ -165,8 +168,8 @@
         <Chart v-else type="bar" :data="barData" :options="barOptions" class="max-h-72" />
       </div>
 
-      <!-- Top médicos -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+      <!-- Top médicos (solo admin/branchManager) -->
+      <div v-if="!isDoctor" class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
         <p class="font-semibold text-sm text-gray-700 mb-3 flex items-center gap-2">
           <i class="pi pi-star text-amber-400"></i> Top 5 médicos
         </p>
@@ -254,6 +257,7 @@ const { user } = storeToRefs(userStore);
 const { healths } = storeToRefs(healthStore);
 
 const isAdmin = computed(() => user.value?.admin === true);
+const isDoctor = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
 
 const healthSelectOptions = computed(() =>
   (healths.value ?? []).map((h) => ({ label: h.label, value: h.id }))

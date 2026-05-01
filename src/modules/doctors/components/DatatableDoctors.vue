@@ -2,20 +2,36 @@
   <Card class="m-3 sm:m-5">
     <template #title>
       <div class="flex items-center gap-2">
-        <p class="font-semibold text-lg flex-1">Lista de Médicos</p>
+        <div class="flex-1">
+          <p class="font-bold text-base text-gray-800">
+            Lista de perfiles médicos
+          </p>
+          <p class="text-xs font-normal text-gray-400 mt-0.5">
+            {{ totalRecords }} registro{{
+              totalRecords !== 1 ? "s" : ""
+            }}
+            encontrado{{ totalRecords !== 1 ? "s" : "" }}
+          </p>
+        </div>
         <ExportMenu
           endpoint="/export/doctors"
           :params="exportParams"
           filename="medicos"
         />
-        <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
+        <Button
+          size="small"
+          icon="pi pi-plus"
+          label="Nuevo"
+          @click="openModal"
+        />
       </div>
     </template>
 
     <template #content>
       <!-- Filtros -->
-      <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center flex-wrap">
-
+      <div
+        class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center flex-wrap"
+      >
         <IconField class="w-full sm:flex-1">
           <InputIcon class="pi pi-search" />
           <InputText
@@ -97,11 +113,15 @@
         </Column>
         <Column style="min-width: 80px">
           <template #header><Skeleton width="50%" height="1rem" /></template>
-          <template #body><Skeleton width="55%" height="1.4rem" borderRadius="1rem" /></template>
+          <template #body
+            ><Skeleton width="55%" height="1.4rem" borderRadius="1rem"
+          /></template>
         </Column>
         <Column style="min-width: 60px">
           <template #header><Skeleton width="40%" height="1rem" /></template>
-          <template #body><Skeleton shape="circle" size="2rem" class="mx-auto" /></template>
+          <template #body
+            ><Skeleton shape="circle" size="2rem" class="mx-auto"
+          /></template>
         </Column>
       </DataTable>
 
@@ -121,6 +141,17 @@
         scrollable
         scrollHeight="flex"
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img
+              src="/img/undraw_no_data.svg"
+              alt="Sin datos"
+              class="w-44 opacity-60"
+            />
+            <p class="text-sm text-gray-400">No se encontraron médicos</p>
+          </div>
+        </template>
+
         <!-- Médico -->
         <Column style="min-width: 200px">
           <template #header>
@@ -135,7 +166,9 @@
                 size="normal"
               />
               <div>
-                <p class="font-semibold text-sm text-gray-800">{{ data?.name }}</p>
+                <p class="font-semibold text-sm text-gray-800">
+                  {{ data?.name }}
+                </p>
                 <p class="text-xs text-gray-400">{{ data?.licenseNumber }}</p>
               </div>
             </div>
@@ -171,12 +204,18 @@
             <p class="font-semibold text-sm">Teléfono</p>
           </template>
           <template #body="{ data }">
-            <p class="text-sm text-gray-500">{{ data?.contactInfo?.phone ?? "—" }}</p>
+            <p class="text-sm text-gray-500">
+              {{ data?.contactInfo?.phone ?? "—" }}
+            </p>
           </template>
         </Column>
 
         <!-- Centro de salud (solo admin) -->
-        <Column v-if="isAdmin" style="min-width: 150px" class="hidden lg:table-cell">
+        <Column
+          v-if="isAdmin"
+          style="min-width: 150px"
+          class="hidden lg:table-cell"
+        >
           <template #header>
             <p class="font-semibold text-sm">Centro de salud</p>
           </template>
@@ -233,9 +272,11 @@
           </li>
           <li
             class="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer rounded"
-            :class="activeRow?.active
-              ? 'hover:bg-red-50 text-red-600'
-              : 'hover:bg-green-50 text-green-600'"
+            :class="
+              activeRow?.active
+                ? 'hover:bg-red-50 text-red-600'
+                : 'hover:bg-green-50 text-green-600'
+            "
             @click="toggleStatus(activeRow)"
           >
             <i
@@ -297,9 +338,9 @@ const { user } = storeToRefs(userStore);
 const isAdmin = computed(() => user.value?.admin === true);
 
 const exportParams = computed(() => ({
-  ...(localSearch.value    && { search:    localSearch.value    }),
+  ...(localSearch.value && { search: localSearch.value }),
   ...(localSpecialty.value && { specialty: localSpecialty.value }),
-  ...(localActive.value    && { active:    localActive.value    }),
+  ...(localActive.value && { active: localActive.value }),
   ...(isAdmin.value && localHealth.value && { health: localHealth.value }),
 }));
 
@@ -379,7 +420,10 @@ onMounted(async () => {
   await setDoctors();
   try {
     const { data } = await CategoryApi.getAll({ active: true });
-    specialtyOptions.value = data.map((c) => ({ label: c.name, value: c.name }));
+    specialtyOptions.value = data.map((c) => ({
+      label: c.name,
+      value: c.name,
+    }));
   } catch {
     specialtyOptions.value = [];
   }

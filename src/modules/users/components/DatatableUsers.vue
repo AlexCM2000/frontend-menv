@@ -148,6 +148,13 @@
         stripedRows
         scrollable
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+            <p class="text-sm text-gray-400">No se encontraron usuarios</p>
+          </div>
+        </template>
+
         <!-- Usuario -->
         <Column style="min-width: 220px">
           <template #header><p class="font-semibold text-sm">Usuario</p></template>
@@ -195,6 +202,12 @@
               v-else-if="data.branchManager"
               value="Gerente"
               severity="warn"
+              class="text-xs"
+            />
+            <Tag
+              v-else-if="data.doctor"
+              value="Médico"
+              severity="success"
               class="text-xs"
             />
             <Tag v-else value="Usuario" severity="info" class="text-xs" />
@@ -319,6 +332,7 @@ const skeletonRows = Array(5).fill({});
 const roleOptions = [
   { label: "Admin", value: "admin" },
   { label: "Gerente", value: "branchManager" },
+  { label: "Médico", value: "doctor" },
   { label: "Usuario", value: "user" },
 ];
 
@@ -330,12 +344,14 @@ const verifiedOptions = [
 const roleLabel = (value) => {
   if (value === "admin") return "Admin";
   if (value === "branchManager") return "Gerente";
+  if (value === "doctor") return "Médico";
   return "Usuario";
 };
 
 const roleSeverity = (value) => {
   if (value === "admin") return "danger";
   if (value === "branchManager") return "warn";
+  if (value === "doctor") return "success";
   return "info";
 };
 

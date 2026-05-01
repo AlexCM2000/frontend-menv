@@ -30,18 +30,33 @@ export const useUserEditorStore = defineStore("userEditor", () => {
     }
   };
 
+  // Crear (POST)
+  const createUser = async (payload) => {
+    try {
+      saving.value = true;
+      errors.value = null;
+      const { data } = await UsersApi.create(payload);
+      selectedUser.value = data.user ?? data;
+      return data;
+    } catch (error) {
+      console.error("createUser error:", error);
+      errors.value = error.response?.data ?? error;
+      throw error;
+    } finally {
+      saving.value = false;
+    }
+  };
+
   // Actualizar (PATCH)
   const updateUser = async (id, payload) => {
     try {
       saving.value = true;
       errors.value = null;
       const { data } = await UsersApi.update(id, payload);
-      // actualizar selectedUser con la respuesta
-      selectedUser.value = data;
+      selectedUser.value = data.user ?? data;
       return data;
     } catch (error) {
       console.error("updateUser error:", error);
-      // si backend devuelve validaciones, guardarlas
       errors.value = error.response?.data ?? error;
       throw error;
     } finally {
@@ -83,6 +98,7 @@ export const useUserEditorStore = defineStore("userEditor", () => {
     deleting,
     errors,
     loadUser,
+    createUser,
     updateUser,
     deleteUser,
     resetEditor,

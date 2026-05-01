@@ -88,7 +88,15 @@
 
     <template #footer>
       <!-- Sin acciones disponibles -->
-      <div v-if="!canEdit" class="flex justify-end">
+      <div v-if="!canEdit" class="flex justify-between gap-2 w-full">
+        <Button
+          label="Ver comprobante"
+          icon="pi pi-qrcode"
+          severity="secondary"
+          size="small"
+          outlined
+          @click="showVoucher = true"
+        />
         <Button
           label="Cerrar"
           severity="secondary"
@@ -100,11 +108,13 @@
       <!-- Con acciones disponibles (Pendiente o Reprogramada) -->
       <div v-else class="flex flex-col sm:flex-row gap-2 w-full">
         <Button
-          label="Cerrar"
+          label="Comprobante"
+          icon="pi pi-qrcode"
           severity="secondary"
-          @click="visible = false"
+          outlined
           size="small"
           class="sm:flex-none"
+          @click="showVoucher = true"
         />
         <div class="flex gap-2 flex-1">
           <Button
@@ -131,6 +141,12 @@
       </div>
     </template>
   </Dialog>
+
+  <!-- Comprobante digital -->
+  <AppointmentVoucher
+    v-model:visible="showVoucher"
+    :appointment="appointment"
+  />
 </template>
 
 <script setup>
@@ -140,6 +156,7 @@ import { useAppointmentsStore } from '@/stores/appointments'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { RouterLink } from 'vue-router'
+import AppointmentVoucher from '@/components/AppointmentVoucher.vue'
 
 const props = defineProps({
   appointment: { type: Object, default: null }
@@ -149,6 +166,7 @@ const visible = defineModel('visible', { default: false })
 
 const store = useAppointmentsStore()
 const cancelling = ref(false)
+const showVoucher = ref(false)
 
 const STATE_COLORS = {
   'Pendiente':    '#3B82F6',

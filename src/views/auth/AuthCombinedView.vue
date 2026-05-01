@@ -13,7 +13,7 @@
         </div>
         <div>
           <p class="font-bold text-gray-900 text-base leading-tight">
-            MQV Salud
+            SIGMED-PA
           </p>
           <p class="text-xs text-gray-400">G.A.M.P.A. — La Paz, Bolivia</p>
         </div>
@@ -557,7 +557,7 @@
               <button @click="setMode(false)" class="toggle-btn">
                 Iniciar sesión
               </button>
-              <span class="toggle-brand">MQV Salud · G.A.M.P.A.</span>
+              <span class="toggle-brand">SIGMED-PA · G.A.M.P.A.</span>
             </div>
 
             <!-- Panel derecho: se muestra cuando el login está activo (estado inicial) -->
@@ -570,7 +570,7 @@
               <button @click="setMode(true)" class="toggle-btn">
                 Registrarse
               </button>
-              <span class="toggle-brand">MQV Salud · G.A.M.P.A.</span>
+              <span class="toggle-brand">SIGMED-PA · G.A.M.P.A.</span>
             </div>
           </div>
         </div>

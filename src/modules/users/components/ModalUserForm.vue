@@ -65,10 +65,11 @@
                 type="text"
                 name="primerApellido"
                 placeholder="Ej. Mamani"
-                validation="required|length:2"
+                validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'El primer apellido es obligatorio',
                   length: 'Mínimo 2 caracteres',
+                  matches: 'Solo letras y espacios',
                 }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
@@ -80,6 +81,8 @@
                 type="text"
                 name="segundoApellido"
                 placeholder="Ej. Quispe"
+                validation="matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]*$/"
+                :validation-messages="{ matches: 'Solo letras y espacios' }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
               />
@@ -90,10 +93,60 @@
                 type="text"
                 name="nombres"
                 placeholder="Ej. Juan Carlos"
-                validation="required|length:2"
+                validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'Los nombres son obligatorios',
                   length: 'Mínimo 2 caracteres',
+                  matches: 'Solo letras y espacios',
+                }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
+              />
+            </div>
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Correo electrónico <span class="text-red-500">*</span></label>
+              <FormKit
+                type="email"
+                name="email"
+                placeholder="Ej. juan@correo.com"
+                validation="required|email"
+                :validation-messages="{
+                  required: 'El correo es obligatorio',
+                  email: 'Correo no válido',
+                }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
+              />
+            </div>
+            <!-- Código SUS -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Código SUS <span class="text-red-500">*</span></label>
+              <FormKit
+                type="text"
+                name="susCode"
+                placeholder="Ej. SUS-001"
+                validation="required"
+                :validation-messages="{ required: 'El código SUS es obligatorio' }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                messages-class="mt-1.5 text-xs text-red-500"
+              />
+            </div>
+            <!-- Contraseña -->
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Contraseña
+                <span v-if="!isEdit" class="text-red-500">*</span>
+                <span v-else class="text-gray-400">(dejar en blanco para no cambiar)</span>
+              </label>
+              <FormKit
+                type="password"
+                name="password"
+                placeholder="Mínimo 8 caracteres"
+                :validation="isEdit ? '' : 'required|length:8'"
+                :validation-messages="{
+                  required: 'La contraseña es obligatoria',
+                  length: 'Mínimo 8 caracteres',
                 }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
@@ -117,28 +170,43 @@
           </div>
 
           <template v-else>
-            <FormKit
-              v-if="healthOptions.length"
-              type="select"
-              name="health"
-              :options="[
-                { label: 'Seleccione un centro', value: '' },
-                ...healthOptions,
-              ]"
-              validation="required"
-              :validation-messages="{
-                required: 'Debe seleccionar un centro de atención',
-              }"
-              input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
-              messages-class="mt-1.5 text-xs text-red-500"
-            />
-            <p
-              v-else
-              class="text-xs text-red-500 flex items-center gap-1.5 py-2"
+            <!-- BranchManager: campo de solo lectura, no puede cambiar el centro -->
+            <div
+              v-if="isAuthBranchManager"
+              class="flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-600"
             >
-              <i class="pi pi-exclamation-circle"></i>
-              No hay centros de salud disponibles.
+              <i class="pi pi-lock text-xs text-gray-400" />
+              {{ branchManagerHealthName ?? 'Centro asignado' }}
+            </div>
+            <p v-if="isAuthBranchManager" class="mt-1 text-xs text-gray-400">
+              Centro asignado automáticamente a tu sucursal.
             </p>
+
+            <!-- Admin: select normal -->
+            <template v-else>
+              <FormKit
+                v-if="healthOptions.length"
+                type="select"
+                name="health"
+                :options="[
+                  { label: 'Seleccione un centro', value: '' },
+                  ...healthOptions,
+                ]"
+                validation="required"
+                :validation-messages="{
+                  required: 'Debe seleccionar un centro de atención',
+                }"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                messages-class="mt-1.5 text-xs text-red-500"
+              />
+              <p
+                v-else
+                class="text-xs text-red-500 flex items-center gap-1.5 py-2"
+              >
+                <i class="pi pi-exclamation-circle"></i>
+                No hay centros de salud disponibles.
+              </p>
+            </template>
           </template>
         </div>
 
@@ -172,8 +240,9 @@
               </div>
             </label>
 
-            <!-- Administrador -->
+            <!-- Administrador (solo visible para admins) -->
             <label
+              v-if="isAuthAdmin"
               class="flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition select-none"
               :class="
                 formData.admin
@@ -196,8 +265,9 @@
               </div>
             </label>
 
-            <!-- Gerente -->
+            <!-- Gerente (solo visible para admins) -->
             <label
+              v-if="isAuthAdmin"
               class="flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition select-none"
               :class="
                 formData.branchManager
@@ -249,7 +319,7 @@
         <!-- Perfil de doctor (solo si tiene rol médico) -->
         <div v-if="formData.doctor">
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
-            Perfil de médico vinculado
+            Perfil de médico vinculado <span class="text-red-500">*</span>
           </label>
           <div v-if="loadingDoctors" class="flex items-center gap-2 py-2 text-sm text-gray-400">
             <i class="pi pi-spin pi-spinner text-xs" /> Cargando médicos...
@@ -264,7 +334,10 @@
               {{ d.name }} — {{ d.specialty }}
             </option>
           </select>
-          <p class="text-xs text-gray-400 mt-1">
+          <p v-if="formData.doctor && !formData.doctorProfile" class="text-xs text-red-500 mt-1">
+            Debes seleccionar un perfil de médico.
+          </p>
+          <p v-else class="text-xs text-gray-400 mt-1">
             Vincula el usuario con un perfil de médico existente para registrar su firma clínica.
           </p>
         </div>
@@ -309,7 +382,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed, onMounted, inject } from "vue";
 import Dialog from "primevue/dialog";
 import { FormKit } from "@formkit/vue";
 import { storeToRefs } from "pinia";
@@ -317,11 +390,20 @@ import { storeToRefs } from "pinia";
 import { useUserEditorStore } from "@/modules/users/store/useUserEditorStore";
 import { useUsersStore } from "@/modules/users/store/useUserStore";
 import { useHealthStore } from "@/stores/healths";
+import { useUserStore } from "@/stores/user";
 import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
+
+const toast = inject("toast");
 
 const editor = useUserEditorStore();
 const usersStore = useUsersStore();
 const healthStore = useHealthStore();
+const authStore = useUserStore();
+const { user: authUser } = storeToRefs(authStore);
+
+// Solo admin puro puede asignar otros roles de alto nivel; branchManager tiene restricciones
+const isAuthAdmin = computed(() => authUser.value?.admin === true);
+const isAuthBranchManager = computed(() => authUser.value?.branchManager === true && !authUser.value?.admin);
 
 const { selectedUser } = storeToRefs(editor);
 const { healths } = storeToRefs(healthStore);
@@ -338,6 +420,9 @@ const formData = ref({
   primerApellido: "",
   segundoApellido: "",
   nombres: "",
+  email: "",
+  susCode: "",
+  password: "",
   verified: false,
   admin: false,
   branchManager: false,
@@ -363,7 +448,7 @@ const healthOptions = computed(() =>
 
 const isEdit = computed(() => !!formData.value?._id);
 
-// Cuando el store selectedUser cambia, rellenar el formulario
+// Cuando el store selectedUser cambia, rellenar el formulario (modo edición)
 watch(
   selectedUser,
   (usr) => {
@@ -379,6 +464,9 @@ watch(
         primerApellido: usr.primerApellido ?? "",
         segundoApellido: usr.segundoApellido ?? "",
         nombres: usr.nombres ?? "",
+        email: usr.email ?? "",
+        susCode: usr.susCode ?? "",
+        password: "", // nunca se pre-rellena la contraseña
         verified: !!usr.verified,
         admin: !!usr.admin,
         branchManager: !!usr.branchManager,
@@ -397,6 +485,22 @@ watch(visible, (val) => {
     editor.resetEditor();
     resetForm();
   }
+});
+
+// Devuelve el codigo numérico del centro del branchManager autenticado
+const getBranchManagerHealthCode = () => {
+  if (!isAuthBranchManager.value || !authUser.value?.health) return null;
+  const healthId = (authUser.value.health?._id ?? authUser.value.health)?.toString();
+  const center = healths.value.find((h) => h.id?.toString() === healthId);
+  return center?.value ?? null;
+};
+
+// Nombre del centro del branchManager para mostrar en campo de solo lectura
+const branchManagerHealthName = computed(() => {
+  if (!isAuthBranchManager.value || !authUser.value?.health) return null;
+  const healthId = (authUser.value.health?._id ?? authUser.value.health)?.toString();
+  const center = healths.value.find((h) => h.id?.toString() === healthId);
+  return center?.label ?? null;
 });
 
 async function open(passedUser = null) {
@@ -426,6 +530,9 @@ async function open(passedUser = null) {
       primerApellido: passedUser.primerApellido ?? "",
       segundoApellido: passedUser.segundoApellido ?? "",
       nombres: passedUser.nombres ?? "",
+      email: passedUser.email ?? "",
+      susCode: passedUser.susCode ?? "",
+      password: "",
       verified: !!passedUser.verified,
       admin: !!passedUser.admin,
       branchManager: !!passedUser.branchManager,
@@ -435,6 +542,11 @@ async function open(passedUser = null) {
     };
   } else if (!selectedUser.value) {
     resetForm();
+    // Para branchManager: auto-cargar su centro de salud en creación
+    if (isAuthBranchManager.value) {
+      const code = getBranchManagerHealthCode();
+      if (code !== null) formData.value.health = code;
+    }
   }
 
   visible.value = true;
@@ -447,6 +559,9 @@ function resetForm() {
     primerApellido: "",
     segundoApellido: "",
     nombres: "",
+    email: "",
+    susCode: "",
+    password: "",
     verified: false,
     admin: false,
     branchManager: false,
@@ -471,30 +586,59 @@ const handleSubmit = async (values) => {
   try {
     saving.value = true;
 
-    const id =
-      formData.value._id ?? selectedUser.value?._id ?? selectedUser.value?.id;
-    if (!id) throw new Error("No se encontró el ID del usuario a actualizar.");
+    const id = formData.value._id ?? selectedUser.value?._id ?? selectedUser.value?.id;
 
     const payload = {
       primerApellido: values.primerApellido,
       segundoApellido: values.segundoApellido || "",
       nombres: values.nombres,
+      email: values.email,
+      susCode: values.susCode,
       verified: !!values.verified,
-      admin: !!values.admin,
-      branchManager: !!values.branchManager,
+      admin: isAuthAdmin.value ? !!values.admin : undefined,
+      branchManager: isAuthAdmin.value ? !!values.branchManager : undefined,
       doctor: !!values.doctor,
       doctorProfile: formData.value.doctorProfile || null,
-      health: values.health ?? null,
+      health: isAuthBranchManager.value
+        ? (getBranchManagerHealthCode() ?? values.health ?? null)
+        : (values.health ?? null),
     };
+    // Eliminar keys undefined para no enviarlos al backend
+    Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
 
-    await editor.updateUser(id, payload);
+    // Solo incluir password si se ingresó algo
+    if (values.password && values.password.trim() !== "") {
+      payload.password = values.password;
+    }
+
+    // Si tiene rol médico, debe tener perfil vinculado
+    if (values.doctor && !payload.doctorProfile) {
+      toast.open({ message: "Debes vincular un perfil de médico existente cuando el rol Médico está activo.", type: "warning" });
+      return;
+    }
+
+    if (id) {
+      // Modo edición
+      await editor.updateUser(id, payload);
+      toast.open({ message: "Los cambios fueron guardados.", type: "success" });
+    } else {
+      // Modo creación — password es requerida (FormKit ya valida, doble seguridad)
+      if (!payload.password) {
+        toast.open({ message: "La contraseña es obligatoria para crear un usuario.", type: "error" });
+        return;
+      }
+      await editor.createUser(payload);
+      toast.open({ message: "El usuario fue creado correctamente.", type: "success" });
+    }
+
     await usersStore.fetchUsers();
-
     visible.value = false;
     editor.resetEditor();
     resetForm();
   } catch (err) {
     console.error("Error al guardar usuario:", err);
+    const msg = err.response?.data?.message ?? err.message ?? "Error al guardar el usuario.";
+    toast.open({ message: msg, type: "error" });
   } finally {
     saving.value = false;
   }

@@ -2,13 +2,19 @@
   <Card class="m-3 sm:m-5">
     <template #title>
       <div class="flex items-center gap-2">
-        <p class="font-semibold text-lg flex-1">Lista de Pacientes</p>
+        <div class="flex-1">
+          <p class="font-bold text-base text-gray-800">Lista de Pacientes</p>
+          <p class="text-xs font-normal text-gray-400 mt-0.5">
+            {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+          </p>
+        </div>
         <ExportMenu
+          v-if="isStaff"
           endpoint="/export/patients"
           :params="exportParams"
           filename="pacientes"
         />
-        <Button size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
+        <Button v-if="isStaff" size="small" icon="pi pi-plus" label="Nuevo" @click="openModal" />
       </div>
     </template>
 
@@ -111,6 +117,13 @@
         scrollable
         scrollHeight="flex"
       >
+        <template #empty>
+          <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
+            <p class="text-sm text-gray-400">No se encontraron pacientes</p>
+          </div>
+        </template>
+
         <Column style="min-width: 180px">
           <template #header>
             <p class="font-semibold text-sm">Paciente</p>
@@ -212,12 +225,14 @@
             <i class="pi pi-eye text-gray-500 text-sm"></i> Ver
           </li>
           <li
+            v-if="isStaff"
             class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded"
             @click="editPatient(activeRow)"
           >
             <i class="pi pi-pencil text-indigo-500 text-sm"></i> Editar
           </li>
           <li
+            v-if="isStaff"
             class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 cursor-pointer rounded text-red-600"
             @click="onDeletePatient(activeRow?._id)"
           >
@@ -273,6 +288,7 @@ const {
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const isAdmin = computed(() => user.value?.admin === true);
+const isStaff = computed(() => user.value?.admin === true || user.value?.branchManager === true);
 
 const exportParams = computed(() => ({
   ...(localSearch.value && { search: localSearch.value }),

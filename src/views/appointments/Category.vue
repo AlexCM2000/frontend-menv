@@ -40,7 +40,7 @@ import Skeleton from "primevue/skeleton";
 
 const router = useRouter();
 const { getServices } = useServicesStore();
-const { maxAppointments, services } = storeToRefs(useAppointmentsStore());
+const { maxAppointments, services, date, time } = storeToRefs(useAppointmentsStore());
 const { setSelectedCategory } = useAppointmentsStore();
 
 const categories = ref([]);
@@ -60,6 +60,8 @@ onMounted(async () => {
 const onSelectCategory = async (categoryName) => {
   services.value = [];
   maxAppointments.value = false;
+  date.value = "";
+  time.value = "";
   setSelectedCategory(categoryName);
   await getServices(categoryName);
   router.push({ name: "service-item" });

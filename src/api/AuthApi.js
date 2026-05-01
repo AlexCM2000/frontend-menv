@@ -21,6 +21,11 @@ export default{
     },
    updatePassword(token,data){
         return api.post(`auth/forgot-password/${token}`, data)
-    }
-   
+    },
+    updateProfile(data){
+        return api.put("auth/user/profile", data)
+    },
+    changePassword(data){
+        return api.put("auth/user/change-password", data)
+    },
 }

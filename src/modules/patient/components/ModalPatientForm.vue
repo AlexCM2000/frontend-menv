@@ -67,10 +67,11 @@
                 type="text"
                 name="primerApellido"
                 placeholder="Ej. Mamani"
-                validation="required|length:2"
+                validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'El primer apellido es obligatorio',
                   length: 'Mínimo 2 caracteres',
+                  matches: 'Solo letras y espacios',
                 }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
@@ -86,6 +87,8 @@
                 type="text"
                 name="segundoApellido"
                 placeholder="Ej. Quispe"
+                validation="matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]*$/"
+                :validation-messages="{ matches: 'Solo letras y espacios' }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
               />
@@ -100,10 +103,11 @@
                 type="text"
                 name="nombres"
                 placeholder="Ej. Juan Carlos"
-                validation="required|length:2"
+                validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'Los nombres son obligatorios',
                   length: 'Mínimo 2 caracteres',
+                  matches: 'Solo letras y espacios',
                 }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
@@ -118,8 +122,19 @@
               <FormKit
                 type="date"
                 name="dateOfBirth"
-                validation="required"
-                :validation-messages="{ required: 'La fecha de nacimiento es obligatoria' }"
+                :validation="[['required'], ['notFuture']]"
+                :validation-rules="{
+                  notFuture: ({ value }) => {
+                    if (!value) return true;
+                    const [y, m, d] = value.split('-').map(Number);
+                    return new Date(y, m - 1, d) <= new Date();
+                  }
+                }"
+                :validation-messages="{
+                  required: 'La fecha de nacimiento es obligatoria',
+                  notFuture: 'La fecha de nacimiento no puede ser una fecha futura',
+                }"
+                :input-attrs="{ max: todayIso }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 messages-class="mt-1.5 text-xs text-red-500"
               />
@@ -168,11 +183,15 @@
                 type="select"
                 name="healthCenter"
                 :options="[{ label: 'Seleccione un centro', value: '' }, ...healths]"
-                validation="required"
+                :validation="isBranchManager ? '' : 'required'"
                 :validation-messages="{ required: 'Seleccione un centro de salud' }"
-                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                :disabled="isBranchManager"
+                input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 messages-class="mt-1.5 text-xs text-red-500"
               />
+              <p v-if="isBranchManager" class="mt-1 text-xs text-gray-400">
+                <i class="pi pi-lock text-xs mr-1"></i>Centro asignado automáticamente a tu sucursal.
+              </p>
             </div>
 
             <!-- Código SUS -->
@@ -210,15 +229,14 @@
             <!-- Email -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                Correo electrónico <span class="text-red-500">*</span>
+                Correo electrónico <span class="text-gray-400 text-xs font-normal">(opcional)</span>
               </label>
               <FormKit
                 type="email"
                 name="email"
                 placeholder="correo@ejemplo.com"
-                validation="required|email"
+                validation="email"
                 :validation-messages="{
-                  required: 'El correo es obligatorio',
                   email: 'Correo inválido',
                 }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -394,13 +412,15 @@
         <button
           type="button"
           @click="formRef?.node?.submit()"
-          class="px-5 py-2.5 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-1 transition flex items-center gap-2"
+          :disabled="submitting"
+          class="px-5 py-2.5 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-1 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           :class="currentPatient
             ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400'
             : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'"
         >
-          <i class="pi text-xs" :class="currentPatient ? 'pi-check' : 'pi-plus'"></i>
-          {{ currentPatient ? "Guardar cambios" : "Crear paciente" }}
+          <i v-if="submitting" class="pi pi-spin pi-spinner text-xs"></i>
+          <i v-else class="pi text-xs" :class="currentPatient ? 'pi-check' : 'pi-plus'"></i>
+          {{ submitting ? "Guardando..." : currentPatient ? "Guardar cambios" : "Crear paciente" }}
         </button>
       </div>
     </template>
@@ -413,14 +433,31 @@ import Dialog from "primevue/dialog";
 import { usePatientStore } from "../store/patientStore";
 import { FormKit } from "@formkit/vue";
 import { useHealthStore } from "@/stores/healths";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { RELATION_SHIP } from "@/modules/patient/helpers/Dictionary";
+import { useUserStore } from "@/stores/user";
 
 const healthStore = useHealthStore();
 const { getHealths } = healthStore;
 const { healths } = storeToRefs(healthStore);
 
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+const isBranchManager = computed(() => user.value?.branchManager === true && !user.value?.admin);
+const todayIso = computed(() => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+});
+const branchHealthCode = computed(() => {
+  if (!isBranchManager.value || !user.value?.health) return null;
+  // user.value.health puede ser ObjectId string o un objeto poblado
+  const healthId = (user.value.health?._id ?? user.value.health)?.toString();
+  const center = healths.value.find(h => h.id?.toString() === healthId);
+  return center?.value ?? null;
+});
+
 const formRef = ref(null);
+const submitting = ref(false);
 
 const patientStore = usePatientStore();
 const { visibleForm, currentPatient } = storeToRefs(patientStore);
@@ -454,11 +491,29 @@ watch(currentPatient, (newVal) => {
       susCode: newVal.susCode ?? "",
     };
   } else {
-    formData.value = {};
+    formData.value = isBranchManager.value && branchHealthCode.value != null
+      ? { healthCenter: branchHealthCode.value }
+      : {};
+  }
+});
+
+// Cuando el modal abre para un nuevo paciente (visibleForm true, sin currentPatient)
+watch(visibleForm, (isVisible) => {
+  if (isVisible && !currentPatient.value && isBranchManager.value && branchHealthCode.value != null) {
+    formData.value = { ...formData.value, healthCenter: branchHealthCode.value };
+  }
+});
+
+// Si healths carga después de que el modal ya está abierto, pre-poblar el campo
+watch(branchHealthCode, (code) => {
+  if (code && isBranchManager.value && visibleForm.value && !currentPatient.value) {
+    formData.value = { ...formData.value, healthCenter: code };
   }
 });
 
 const handleSubmit = async (values) => {
+  if (submitting.value) return;
+  submitting.value = true;
   const payload = {
     primerApellido: values.primerApellido,
     segundoApellido: values.segundoApellido || "",
@@ -467,7 +522,9 @@ const handleSubmit = async (values) => {
     gender: values.gender,
     email: values.email,
     susCode: values.susCode,
-    healthCenter: values.healthCenter,
+    healthCenter: isBranchManager.value && branchHealthCode.value != null
+      ? branchHealthCode.value
+      : values.healthCenter,
     allergies: values.allergies
       ? values.allergies.split(",").map((s) => s.trim()).filter(Boolean)
       : [],
@@ -495,6 +552,8 @@ const handleSubmit = async (values) => {
     formData.value = {};
   } catch {
     // El store ya muestra el toast de error; no limpiar ni cerrar el modal
+  } finally {
+    submitting.value = false;
   }
 };
 

@@ -19,7 +19,7 @@
             <i class="pi pi-heart text-white text-xl"></i>
           </div>
           <div>
-            <p class="text-white font-bold text-lg leading-tight">MQV Salud</p>
+            <p class="text-white font-bold text-lg leading-tight">SIGMED-PA</p>
             <p class="text-indigo-300 text-xs">Sistema de gestión médica</p>
           </div>
         </div>
@@ -66,7 +66,7 @@
           <i class="pi pi-heart text-white text-sm"></i>
         </div>
         <div>
-          <p class="text-white font-semibold text-sm leading-tight">MQV Salud</p>
+          <p class="text-white font-semibold text-sm leading-tight">SIGMED-PA</p>
           <p class="text-indigo-200 text-xs">G.A.M.P.A. — La Paz, Bolivia</p>
         </div>
       </div>
