@@ -26,6 +26,7 @@ function dashes(n = 40) {
 
 export async function printReceipt(appointment) {
   const qrText = `SIGMED-PA-${appointment._id}`;
+  const logoUrl = `${window.location.origin}/img/empresa/SIGMED-PA_icono_oscuro_512.png`;
   const qrDataUrl = await QRCode.toDataURL(qrText, {
     width: 200,
     margin: 1,
@@ -117,6 +118,9 @@ export async function printReceipt(appointment) {
   <div class="ticket">
 
     <!-- Encabezado -->
+    <div class="c" style="margin-bottom:1.5mm">
+      <img src="${logoUrl}" style="width:12mm;height:12mm;display:inline-block;" alt="SIGMED-PA">
+    </div>
     <div class="c b big">SIGMED-PA</div>
     <div class="c sm">COMPROBANTE DE CITA MEDICA</div>
     <div class="sep c">${dashes(36)}</div>

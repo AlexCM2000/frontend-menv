@@ -23,7 +23,10 @@
 
         <div class="relative z-10 flex items-start justify-between">
           <div>
-            <p class="text-white/70 text-[10px] font-semibold uppercase tracking-widest">SIGMED-PA</p>
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <img src="/img/empresa/SIGMED-PA_icono_claro.svg" class="w-4 h-4" alt="" />
+              <p class="text-white/70 text-[10px] font-semibold uppercase tracking-widest">SIGMED-PA</p>
+            </div>
             <h2 class="text-white text-lg font-extrabold leading-tight mt-0.5">
               Comprobante de Cita
             </h2>

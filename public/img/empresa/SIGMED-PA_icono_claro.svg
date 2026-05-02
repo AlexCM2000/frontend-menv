@@ -1,0 +1,27 @@
+<svg id="logo-icon-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 80" width="76" height="80" data-om-id="699ba234:83"><style>@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&amp;family=DM+Sans:wght@400;500&amp;display=swap');</style>
+        <defs data-om-id="699ba234:84">
+          <linearGradient id="gBIL" x1="0" y1="0" x2="68" y2="76" gradientUnits="userSpaceOnUse" data-om-id="699ba234:85">
+            <stop offset="0%" stop-color="#1A56D6" data-om-id="699ba234:86"></stop>
+            <stop offset="55%" stop-color="#0B1F5C" data-om-id="699ba234:87"></stop>
+            <stop offset="100%" stop-color="#071550" data-om-id="699ba234:88"></stop>
+          </linearGradient>
+          <filter id="shBIL" x="-25%" y="-15%" width="150%" height="140%" data-om-id="699ba234:89">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1A56D6" flood-opacity="0.3" data-om-id="699ba234:90"></feDropShadow>
+          </filter>
+          <clipPath id="scBIL" data-om-id="699ba234:91">
+            <path d="M38 3 L67 14 L67 41 C67 59 54 71 38 75 C22 71 9 59 9 41 L9 14 Z" data-om-id="699ba234:92"></path>
+          </clipPath>
+        </defs>
+        <path d="M38 3 L67 14 L67 41 C67 59 54 71 38 75 C22 71 9 59 9 41 L9 14 Z" fill="url(#gBIL)" filter="url(#shBIL)" data-om-id="699ba234:93"></path>
+        <path d="M38 7 L64 17 L64 41 C64 57 52 68 38 72 C24 68 12 57 12 41 L12 17 Z" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="1" data-om-id="699ba234:94"></path>
+        <rect x="36" y="15" width="4" height="46" rx="2" fill="white" opacity="0.92" clip-path="url(#scBIL)" data-om-id="699ba234:95"></rect>
+        <path d="M38 16 C30 13 24 16 22 20 C26 18 32 18 38 19 C44 18 50 18 54 20 C52 16 46 13 38 16 Z" fill="white" opacity="0.75" data-om-id="699ba234:96"></path>
+        <path d="M36 23 C30 25 26 29 30 33 C34 37 30 41 26 43 C22 45 24 51 30 53" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" stroke-linecap="round" data-om-id="699ba234:97"></path>
+        <path d="M40 23 C46 25 50 29 46 33 C42 37 46 41 50 43 C54 45 52 51 46 53" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" stroke-linecap="round" data-om-id="699ba234:98"></path>
+        <circle cx="38" cy="33" r="3.5" fill="rgba(41,182,216,0.9)" data-om-id="699ba234:99"></circle>
+        <circle cx="38" cy="33" r="2" fill="white" opacity="0.9" data-om-id="699ba234:100"></circle>
+        <circle cx="38" cy="58" r="4.5" fill="none" stroke="white" stroke-opacity="0.4" stroke-width="0.8" data-om-id="699ba234:101"></circle>
+        <line x1="38" y1="54" x2="38" y2="62" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:102"></line>
+        <line x1="34.1" y1="56" x2="41.9" y2="60" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:103"></line>
+        <line x1="34.1" y1="60" x2="41.9" y2="56" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:104"></line>
+      </svg>

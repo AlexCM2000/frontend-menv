@@ -15,9 +15,7 @@
       <div class="relative z-10 flex flex-col h-full p-10">
         <!-- Logo -->
         <div class="flex items-center gap-3 mb-14">
-          <div class="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
-            <i class="pi pi-heart text-white text-xl"></i>
-          </div>
+          <img src="/img/empresa/SIGMED-PA_icono_claro.svg" class="w-12 h-12 shrink-0" alt="SIGMED-PA" />
           <div>
             <p class="text-white font-bold text-lg leading-tight">SIGMED-PA</p>
             <p class="text-indigo-300 text-xs">Sistema de gestión médica</p>
@@ -62,9 +60,7 @@
     <main class="flex-1 flex flex-col min-h-screen bg-slate-50 overflow-y-auto">
       <!-- Header móvil (oculto en desktop) -->
       <div class="lg:hidden flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-indigo-700 to-teal-600 shadow-sm">
-        <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-          <i class="pi pi-heart text-white text-sm"></i>
-        </div>
+        <img src="/img/empresa/SIGMED-PA_icono_claro.svg" class="w-9 h-9" alt="SIGMED-PA" />
         <div>
           <p class="text-white font-semibold text-sm leading-tight">SIGMED-PA</p>
           <p class="text-indigo-200 text-xs">G.A.M.P.A. — La Paz, Bolivia</p>

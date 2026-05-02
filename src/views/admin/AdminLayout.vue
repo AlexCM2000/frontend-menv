@@ -87,11 +87,12 @@ const roleLabel = computed(() => {
   return "Usuario";
 });
 
+/* Badges adaptados al tema oscuro del sidebar */
 const roleBadgeClass = computed(() => {
-  if (isAdmin.value) return "bg-blue-100 text-blue-700";
-  if (isBranchMgr.value) return "bg-violet-100 text-violet-700";
-  if (isDoctor.value) return "bg-teal-100 text-teal-700";
-  return "bg-gray-100 text-gray-600";
+  if (isAdmin.value) return "bg-sky-500/20 text-sky-300";
+  if (isBranchMgr.value) return "bg-violet-500/20 text-violet-300";
+  if (isDoctor.value) return "bg-teal-500/20 text-teal-300";
+  return "bg-slate-600/60 text-slate-300";
 });
 
 function getInitials(name = "") {
@@ -110,40 +111,42 @@ onMounted(() => userAuth.getUser());
     <Transition name="t-fade">
       <div
         v-if="mobileOpen"
-        class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+        class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
         @click="mobileOpen = false"
       />
     </Transition>
 
     <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
     <aside
-      class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-100 shadow-lg transition-all duration-300 ease-in-out overflow-hidden"
+      class="sidebar fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/[0.07] shadow-2xl transition-all duration-300 ease-in-out overflow-hidden"
       :class="[
         collapsed ? 'w-[68px]' : 'w-64',
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
-      <!-- Logo -->
+      <!-- ── Logo ────────────────────────────────────── -->
       <div
-        class="flex items-center gap-3 h-16 px-4 border-b border-gray-100 shrink-0"
+        class="flex items-center gap-3 h-16 px-4 border-b border-white/[0.07] shrink-0"
         :class="collapsed && 'justify-center px-2'"
       >
-        <span
-          class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-200"
-        >
-          <i class="pi pi-heart text-white text-sm"></i>
-        </span>
+        <img
+          src="/img/empresa/SIGMED-PA_icono_claro.svg"
+          class="w-9 h-9 shrink-0"
+          alt="SIGMED-PA"
+        />
         <div v-show="!collapsed" class="overflow-hidden whitespace-nowrap">
-          <p class="font-bold text-gray-800 text-sm leading-none">SIGMED-PA</p>
-          <p class="text-[11px] text-gray-400 mt-0.5 leading-none">
+          <p class="font-bold text-white text-sm leading-none tracking-wide">
+            SIGMED-PA
+          </p>
+          <p class="text-[11px] text-slate-500 mt-0.5 leading-none">
             Sistema médico
           </p>
         </div>
       </div>
 
-      <!-- Navegación -->
+      <!-- ── Navegación ──────────────────────────────── -->
       <nav
-        class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-0.5"
+        class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-0.5 nav-scroll"
       >
         <template v-for="(section, si) in navSections" :key="section.id">
           <!-- Título de sección -->
@@ -153,26 +156,26 @@ onMounted(() => userAuth.getUser());
             :class="si === 0 ? 'pt-1' : 'pt-4'"
           >
             <p
-              class="text-[10px] font-bold uppercase tracking-widest text-gray-400"
+              class="text-[10px] font-bold uppercase tracking-widest text-slate-400"
             >
               {{ section.title }}
             </p>
           </div>
-          <div v-else class="my-2 mx-1 border-t border-gray-100" />
+          <div v-else class="my-2 mx-1 border-t border-white/[0.07]" />
 
           <!-- Link individual -->
           <RouterLink
             v-for="link in section.links"
             :key="link.name"
             :to="{ name: link.name }"
-            class="flex items-center gap-3 rounded-xl text-sm font-medium text-gray-500 border-l-[3px] border-transparent hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all duration-150 group"
-            active-class="!bg-blue-50 !text-blue-700 !border-blue-500 font-semibold"
+            class="nav-link flex items-center gap-3 rounded-lg text-sm font-medium text-slate-400 border-l-[3px] border-transparent transition-all duration-150 group"
+            active-class="!bg-sky-400/10 !text-sky-300 !border-sky-400 font-semibold"
             :class="collapsed ? 'justify-center py-3 px-0 mx-1' : 'py-2.5 px-3'"
             v-tooltip.right="collapsed ? link.label : null"
             @click="mobileOpen = false"
           >
             <i
-              class="pi text-[17px] shrink-0 transition-transform duration-150 group-hover:scale-110"
+              class="pi text-[17px] shrink-0 transition-transform duration-150 group-hover:scale-105"
               :class="link.icon"
             ></i>
             <span
@@ -186,21 +189,19 @@ onMounted(() => userAuth.getUser());
       </nav>
 
       <!-- ── Perfil de usuario ──────────────────────── -->
-      <div class="border-t border-gray-100 p-3 shrink-0">
+      <div class="border-t border-white/[0.07] p-3 shrink-0">
         <!-- Expandido -->
         <div
           v-show="!collapsed"
-          class="flex items-center gap-3 rounded-xl px-2 py-2"
+          class="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-white/[0.04]"
         >
           <div
-            class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shrink-0 select-none"
+            class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0 select-none shadow-sm"
           >
             {{ getInitials(getUserName) }}
           </div>
           <div class="flex-1 min-w-0">
-            <p
-              class="text-sm font-semibold text-gray-800 truncate leading-tight"
-            >
+            <p class="text-sm font-semibold text-white truncate leading-tight">
               {{ getUserName }}
             </p>
             <span
@@ -213,13 +214,13 @@ onMounted(() => userAuth.getUser());
           <RouterLink
             :to="{ name: 'admin-profile' }"
             v-tooltip.top="'Mi perfil'"
-            class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 transition shrink-0"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white/10 hover:text-white transition-all shrink-0"
           >
             <i class="pi pi-user-edit text-sm"></i>
           </RouterLink>
           <button
             v-tooltip.top="'Cerrar sesión'"
-            class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-500 transition shrink-0"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-red-500/15 hover:text-red-400 transition-all shrink-0"
             @click="userAuth.logout"
           >
             <i class="pi pi-sign-out text-sm"></i>
@@ -229,7 +230,7 @@ onMounted(() => userAuth.getUser());
         <!-- Colapsado -->
         <div v-show="collapsed" class="flex flex-col items-center gap-2 py-1">
           <div
-            class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm select-none"
+            class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm select-none shadow-sm"
             v-tooltip.right="getUserName"
           >
             {{ getInitials(getUserName) }}
@@ -237,13 +238,13 @@ onMounted(() => userAuth.getUser());
           <RouterLink
             :to="{ name: 'admin-profile' }"
             v-tooltip.right="'Mi perfil'"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 transition"
+            class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-white/10 hover:text-white transition-all"
           >
             <i class="pi pi-user-edit text-sm"></i>
           </RouterLink>
           <button
             v-tooltip.right="'Cerrar sesión'"
-            class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-500 transition"
+            class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-red-500/15 hover:text-red-400 transition-all"
             @click="userAuth.logout"
           >
             <i class="pi pi-sign-out text-sm"></i>
@@ -251,17 +252,24 @@ onMounted(() => userAuth.getUser());
         </div>
       </div>
 
-      <!-- ── Toggle colapsar (solo desktop) ─────────── -->
-      <button
-        class="hidden lg:flex absolute -right-3 top-[72px] w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center shadow-sm hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 text-gray-400 transition-all z-10"
-        @click="collapsed = !collapsed"
-      >
-        <i
-          class="pi text-[10px] transition-transform duration-300"
-          :class="collapsed ? 'pi-chevron-right' : 'pi-chevron-left'"
-        ></i>
-      </button>
     </aside>
+
+    <!-- ── Toggle colapsar (solo desktop) ─────────── -->
+    <!-- Fuera del <aside> para evitar el recorte de overflow-hidden -->
+    <button
+      class="sidebar-toggle hidden lg:flex fixed top-[72px] z-[51] w-7 h-7 rounded-full bg-white border border-slate-200 items-center justify-center text-slate-400 hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600"
+      :style="{
+        left: collapsed ? '54px' : '242px',
+        transition: 'left 0.3s ease-in-out, background-color 0.15s, border-color 0.15s, color 0.15s',
+      }"
+      v-tooltip.right="collapsed ? 'Expandir panel' : 'Contraer panel'"
+      @click="collapsed = !collapsed"
+    >
+      <i
+        class="pi text-[11px]"
+        :class="collapsed ? 'pi-chevron-right' : 'pi-chevron-left'"
+      ></i>
+    </button>
 
     <!-- ═══════════════ ÁREA DE CONTENIDO ═══════════ -->
     <div
@@ -280,17 +288,17 @@ onMounted(() => userAuth.getUser());
         </button>
 
         <div class="flex items-center gap-2">
-          <span
-            class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm"
-          >
-            <i class="pi pi-heart text-white text-xs"></i>
-          </span>
-          <span class="font-bold text-blue-700 text-sm">SIGMED-PA</span>
+          <img
+            src="/img/empresa/SIGMED-PA_icono_oscuro.svg"
+            class="w-7 h-7 rounded-lg"
+            alt="SIGMED-PA"
+          />
+          <span class="font-bold text-slate-800 text-sm">SIGMED-PA</span>
         </div>
 
         <div class="ml-auto flex items-center gap-2">
           <div
-            class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-xs select-none"
+            class="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs select-none"
           >
             {{ getInitials(getUserName) }}
           </div>
@@ -321,5 +329,40 @@ onMounted(() => userAuth.getUser());
 .t-fade-enter-from,
 .t-fade-leave-to {
   opacity: 0;
+}
+
+/* Fondo sidebar azul-gris oscuro neutro */
+.sidebar {
+  background-color: #1e293b;
+}
+
+/* Scrollbar sutil en el área de navegación */
+.nav-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.nav-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nav-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.nav-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Botón de colapsar/expandir */
+.sidebar-toggle {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.sidebar-toggle:hover {
+  box-shadow: 0 3px 12px rgba(56, 189, 248, 0.2), 0 0 0 1px rgba(56, 189, 248, 0.15);
+}
+
+/* Hover de los links de navegación en tema oscuro */
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  border-left-color: rgba(255, 255, 255, 0.15);
 }
 </style>

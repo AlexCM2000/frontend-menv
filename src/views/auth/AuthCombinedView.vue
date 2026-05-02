@@ -6,11 +6,7 @@
     <div class="lg:hidden w-full max-w-sm px-4">
       <!-- Brand -->
       <div class="flex justify-center items-center gap-3 mb-7">
-        <div
-          class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
-        >
-          <i class="pi pi-heart text-white text-xl"></i>
-        </div>
+        <img src="/img/empresa/SIGMED-PA_icono_oscuro.svg" class="w-12 h-12" alt="SIGMED-PA" />
         <div>
           <p class="font-bold text-gray-900 text-base leading-tight">
             SIGMED-PA
@@ -547,7 +543,7 @@
             <!-- Panel izquierdo: se muestra cuando el registro está activo -->
             <div class="toggle-panel toggle-left">
               <div class="toggle-icon">
-                <i class="pi pi-heart text-white text-2xl"></i>
+                <img src="/img/empresa/SIGMED-PA_icono_claro.svg" class="w-16 h-16" alt="SIGMED-PA">
               </div>
               <h1>¡Bienvenido<br />de vuelta!</h1>
               <p>
@@ -563,7 +559,7 @@
             <!-- Panel derecho: se muestra cuando el login está activo (estado inicial) -->
             <div class="toggle-panel toggle-right">
               <div class="toggle-icon">
-                <i class="pi pi-heart text-white text-2xl"></i>
+                <img src="/img/empresa/SIGMED-PA_icono_claro.svg" class="w-16 h-16" alt="SIGMED-PA">
               </div>
               <h1>¡Hola,<br />bienvenido!</h1>
               <p>Regístrate y comienza a gestionar tu información de salud</p>

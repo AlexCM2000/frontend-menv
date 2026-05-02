@@ -7,11 +7,11 @@
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
         <!-- Logo -->
         <div class="flex items-center gap-2 mr-4">
-          <span
-            class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm"
-          >
-            <i class="pi pi-heart text-white text-xs"></i>
-          </span>
+          <img
+            src="/img/empresa/SIGMED-PA_icono_oscuro.svg"
+            class="w-8 h-8 rounded-xl"
+            alt="SIGMED-PA"
+          />
           <span class="font-bold text-blue-700 text-sm hidden sm:inline"
             >SIGMED-PA</span
           >

@@ -1,0 +1,43 @@
+<svg id="logo-text-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="420" height="80" data-om-id="699ba234:11"><style>@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&amp;family=DM+Sans:wght@400;500&amp;display=swap');</style>
+        <defs data-om-id="699ba234:12">
+          <linearGradient id="gBTL" x1="0" y1="0" x2="68" y2="76" gradientUnits="userSpaceOnUse" data-om-id="699ba234:13">
+            <stop offset="0%" stop-color="#1A56D6" data-om-id="699ba234:14"></stop>
+            <stop offset="55%" stop-color="#0B1F5C" data-om-id="699ba234:15"></stop>
+            <stop offset="100%" stop-color="#071550" data-om-id="699ba234:16"></stop>
+          </linearGradient>
+          <filter id="shBTL" x="-25%" y="-15%" width="150%" height="140%" data-om-id="699ba234:17">
+            <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#1A56D6" flood-opacity="0.28" data-om-id="699ba234:18"></feDropShadow>
+          </filter>
+          <clipPath id="scBTL" data-om-id="699ba234:19">
+            <path d="M34 2 L63 13 L63 40 C63 58 50 70 34 74 C18 70 5 58 5 40 L5 13 Z" data-om-id="699ba234:20"></path>
+          </clipPath>
+        </defs>
+        <!-- Escudo -->
+        <g transform="translate(0,2)" data-om-id="699ba234:21">
+          <path d="M34 2 L63 13 L63 40 C63 58 50 70 34 74 C18 70 5 58 5 40 L5 13 Z" fill="url(#gBTL)" filter="url(#shBTL)" data-om-id="699ba234:22"></path>
+          <path d="M34 5.5 L60 15.5 L60 40 C60 56 48 67.5 34 71 C20 67.5 8 56 8 40 L8 15.5 Z" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="1" data-om-id="699ba234:23"></path>
+          <!-- Vara -->
+          <rect x="32" y="14" width="4" height="46" rx="2" fill="white" opacity="0.92" clip-path="url(#scBTL)" data-om-id="699ba234:24"></rect>
+          <!-- Alas -->
+          <path d="M34 15 C26 12 20 15 18 19 C22 17 28 17 34 18 C40 17 46 17 50 19 C48 15 42 12 34 15 Z" fill="white" opacity="0.75" data-om-id="699ba234:25"></path>
+          <!-- Serpiente izq -->
+          <path d="M32 22 C26 24 22 28 26 32 C30 36 26 40 22 42 C18 44 20 50 26 52" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" stroke-linecap="round" data-om-id="699ba234:26"></path>
+          <!-- Serpiente der -->
+          <path d="M36 22 C42 24 46 28 42 32 C38 36 42 40 46 42 C50 44 48 50 42 52" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" stroke-linecap="round" data-om-id="699ba234:27"></path>
+          <!-- Nudo -->
+          <circle cx="34" cy="32" r="3.5" fill="rgba(41,182,216,0.9)" data-om-id="699ba234:28"></circle>
+          <circle cx="34" cy="32" r="2" fill="white" opacity="0.9" data-om-id="699ba234:29"></circle>
+          <!-- Estrella base -->
+          <circle cx="34" cy="57" r="4.5" fill="none" stroke="white" stroke-opacity="0.4" stroke-width="0.8" data-om-id="699ba234:30"></circle>
+          <line x1="34" y1="53" x2="34" y2="61" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:31"></line>
+          <line x1="30.1" y1="55" x2="37.9" y2="59" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:32"></line>
+          <line x1="30.1" y1="59" x2="37.9" y2="55" stroke="white" stroke-opacity="0.5" stroke-width="1.2" data-om-id="699ba234:33"></line>
+        </g>
+        <!-- Texto -->
+        <text x="84" y="42" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="30" letter-spacing="1" fill="#0B1F5C" data-om-id="699ba234:34">SIGMED</text>
+        <text x="249" y="42" font-family="Space Grotesk, sans-serif" font-weight="300" font-size="26" letter-spacing="1" fill="#1A56D6" data-om-id="699ba234:35">-PA</text>
+        <!-- Líneas + subtexto -->
+        <line x1="84" y1="53" x2="103" y2="53" stroke="#1A56D6" stroke-opacity="0.4" stroke-width="1" data-om-id="699ba234:36"></line>
+        <text x="109" y="57" font-family="DM Sans, sans-serif" font-weight="400" font-size="9" letter-spacing="2.5" fill="rgba(10,28,92,0.4)" text-transform="uppercase" data-om-id="699ba234:37">RED DE SALUD · MUNICIPAL</text>
+        <line x1="308" y1="53" x2="327" y2="53" stroke="#1A56D6" stroke-opacity="0.4" stroke-width="1" data-om-id="699ba234:38"></line>
+      </svg>
