@@ -723,8 +723,9 @@ const handleRegister = async () => {
       serverError: "",
     });
   } catch (err) {
-    register.serverError =
-      err?.response?.data?.msg || "Error al registrar. Intenta nuevamente.";
+    const msg = err?.response?.data?.msg || "Error al registrar. Intenta nuevamente.";
+    register.serverError = msg;
+    toast.open({ message: msg, type: "error" });
   } finally {
     register.loading = false;
   }
