@@ -206,8 +206,10 @@
           <template #body="{ data }">
             <div class="flex justify-center">
               <Button
-                icon="pi pi-ellipsis-v"
-                class="p-button-text p-button-rounded p-button-sm"
+                icon="pi pi-ellipsis-h"
+                text
+                rounded
+                size="small"
                 @click="openPanel($event, data)"
               />
             </div>
@@ -217,23 +219,25 @@
 
       <!-- Popover de acciones -->
       <Popover ref="panel" appendTo="body" style="min-width: 160px">
-        <ul class="py-1">
+        <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
+        <ul class="pb-1">
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded-lg"
             @click="viewPatient(activeRow)"
           >
             <i class="pi pi-eye text-gray-500 text-sm"></i> Ver
           </li>
           <li
             v-if="isStaff"
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded-lg"
             @click="editPatient(activeRow)"
           >
             <i class="pi pi-pencil text-indigo-500 text-sm"></i> Editar
           </li>
+          <li v-if="isStaff" class="border-t border-gray-100 my-1" />
           <li
             v-if="isStaff"
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 cursor-pointer rounded text-red-600"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 cursor-pointer rounded-lg text-red-600"
             @click="onDeletePatient(activeRow?._id)"
           >
             <i class="pi pi-trash text-sm"></i> Eliminar

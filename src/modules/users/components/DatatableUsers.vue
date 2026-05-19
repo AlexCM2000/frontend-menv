@@ -233,7 +233,7 @@
           <template #body="{ data }">
             <div class="flex justify-center">
               <Button
-                icon="pi pi-ellipsis-v"
+                icon="pi pi-ellipsis-h"
                 text
                 rounded
                 size="small"
@@ -249,14 +249,14 @@
         <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
         <ul class="pb-1">
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded transition-colors"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded-lg transition-colors"
             @click="viewUser(activeRow)"
           >
             <i class="pi pi-eye text-gray-500 text-sm" />
             Ver detalle
           </li>
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded transition-colors"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded-lg transition-colors"
             @click="onEditUser(activeRow)"
           >
             <i class="pi pi-pencil text-indigo-500 text-sm" />

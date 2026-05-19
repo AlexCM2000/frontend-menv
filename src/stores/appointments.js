@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, onMounted, inject, watch } from "vue";
 import AppointmentApi from "../api/AppointmentApi";
+import DoctorScheduleApi from "@/api/doctorScheduleApi";
 import { convertToDDMMYYYY, convertToISO } from "@/helpers/date";
 import { useRouter } from "vue-router";
 import { useUserStore } from "./user";
@@ -21,8 +22,10 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   const doctor = ref(null);
   const notes = ref("");
   const selectedCategory = ref(null);
-  const availabilityData = ref({ doctors: [], appointments: [] });
+  const availabilityData = ref({ doctors: [], appointments: [], shiftInfo: null });
   const availabilityLoaded = ref(false);
+  const doctorScheduleMap = ref({});  // { 'Lunes': { morning, afternoon }, ... }
+  const scheduleLoaded = ref(false);
 
   const user = useUserStore();
 
@@ -50,16 +53,41 @@ watch(() => date.value, async () => {
     const { data } = await AppointmentApi.getAvailability(
       date.value,
       selectedCategory.value,
-      appointmentID.value || null
+      appointmentID.value || null,
+      doctor.value || null
     );
     availabilityData.value = data;
   } catch (error) {
     console.log(error);
-    availabilityData.value = { doctors: [], appointments: [] };
+    availabilityData.value = { doctors: [], appointments: [], shiftInfo: null };
   } finally {
     availabilityLoaded.value = true;
   }
 }, { deep: true });
+
+// Carga el horario del médico seleccionado para restringir el calendario
+watch(() => doctor.value, async (newDoc) => {
+  doctorScheduleMap.value = {};
+  scheduleLoaded.value = false;
+  if (!newDoc) {
+    scheduleLoaded.value = true;
+    return;
+  }
+  try {
+    const { data } = await DoctorScheduleApi.getSchedules(newDoc);
+    const map = {};
+    (data || []).forEach(s => {
+      if (s.active && (s.morning || s.afternoon)) {
+        map[s.dayOfWeek] = { morning: s.morning, afternoon: s.afternoon };
+      }
+    });
+    doctorScheduleMap.value = map;
+  } catch {
+    doctorScheduleMap.value = {};
+  } finally {
+    scheduleLoaded.value = true;
+  }
+});
 
 const setSelectedCategory = (categoryName) => {
   selectedCategory.value = categoryName;
@@ -101,7 +129,7 @@ const setSelectedAppointment = (appointment) => {
   const noServicesSelected=computed(()=>services.value.length===0)
 
   const isValidReservation =computed(()=>{
-    return services.value.length && date.value.length && time?.value?.length
+    return services.value.length && date.value.length && time?.value?.length && doctor.value
   })
 
   const isDateSelected =computed(()=>{
@@ -109,10 +137,17 @@ const setSelectedAppointment = (appointment) => {
   })
 
   const disableTime = computed(() => {
-    const { doctors, appointments: appts } = availabilityData.value;
+    const { doctors, appointments: appts, shiftInfo } = availabilityData.value;
     const selectedDoc = doctor.value;
     return (hour) => {
       if (!availabilityLoaded.value) return false;
+      // Restricción por turno según horario del médico seleccionado
+      if (shiftInfo) {
+        const hourNum = parseInt(hour.split(':')[0]);
+        const isMorning = hourNum < 13;
+        if (isMorning && !shiftInfo.morning) return true;
+        if (!isMorning && !shiftInfo.afternoon) return true;
+      }
       const bookedAtHour = appts.filter(a => a.time === hour);
       if (doctors.length === 0) return true;
       if (bookedAtHour.length >= doctors.length) return true;
@@ -211,6 +246,8 @@ const setSelectedAppointment = (appointment) => {
     doctor.value = null;
     notes.value = "";
     selectedCategory.value = null;
+    doctorScheduleMap.value = {};
+    scheduleLoaded.value = false;
   };
 
   return {
@@ -235,5 +272,7 @@ const setSelectedAppointment = (appointment) => {
     setSelectedCategory,
     availabilityLoaded,
     saving,
+    doctorScheduleMap,
+    scheduleLoaded,
   };
 });

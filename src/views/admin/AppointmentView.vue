@@ -6,7 +6,10 @@
           <div class="flex-1">
             <p class="font-bold text-base text-gray-800">Citas médicas</p>
             <p class="text-xs font-normal text-gray-400 mt-0.5">
-              {{ totalRecords }} registro{{ totalRecords !== 1 ? "s" : "" }} encontrado{{ totalRecords !== 1 ? "s" : "" }}
+              {{ totalRecords }} registro{{
+                totalRecords !== 1 ? "s" : ""
+              }}
+              encontrado{{ totalRecords !== 1 ? "s" : "" }}
             </p>
           </div>
           <div class="flex items-center gap-2">
@@ -30,9 +33,11 @@
       <template #content>
         <!-- Barra de filtros -->
         <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center">
-
           <!-- Búsqueda (admin y branchManager): flex-1 en desktop -->
-          <IconField v-if="user?.admin || user?.branchManager" class="w-full sm:flex-1">
+          <IconField
+            v-if="user?.admin || user?.branchManager"
+            class="w-full sm:flex-1"
+          >
             <InputIcon class="pi pi-search" />
             <InputText
               v-model="search"
@@ -54,14 +59,20 @@
           >
             <template #value="{ value }">
               <div v-if="value" class="flex items-center gap-2">
-                <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(value)" />
+                <span
+                  class="inline-block w-2 h-2 rounded-full"
+                  :class="stateDot(value)"
+                />
                 <span>{{ value }}</span>
               </div>
               <span v-else class="text-gray-400">Estado</span>
             </template>
             <template #option="{ option }">
               <div class="flex items-center gap-2">
-                <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(option.value)" />
+                <span
+                  class="inline-block w-2 h-2 rounded-full"
+                  :class="stateDot(option.value)"
+                />
                 <span>{{ option.label }}</span>
               </div>
             </template>
@@ -136,22 +147,36 @@
         >
           <template #empty>
             <div class="flex flex-col items-center justify-center py-12 gap-3">
-              <img src="/img/undraw_no_data.svg" alt="Sin datos" class="w-44 opacity-60" />
-              <p class="text-sm text-gray-400">No se encontraron citas médicas</p>
+              <img
+                src="/img/undraw_no_data.svg"
+                alt="Sin datos"
+                class="w-44 opacity-60"
+              />
+              <p class="text-sm text-gray-400">
+                No se encontraron citas médicas
+              </p>
             </div>
           </template>
 
           <!-- Servicio -->
           <Column style="min-width: 160px">
-            <template #header><p class="font-semibold text-sm">Servicio</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Servicio</p></template
+            >
             <template #body="{ data }">
-              <p class="text-xs text-gray-400 uppercase tracking-wide leading-none mb-0.5">
+              <p
+                class="text-xs text-gray-400 uppercase tracking-wide leading-none mb-0.5"
+              >
                 {{ data?.services[0]?.category ?? "—" }}
               </p>
               <p class="font-semibold text-sm text-gray-700">
                 {{ data?.services[0]?.name ?? "—" }}
               </p>
-              <p v-if="data?.notes" class="text-xs text-gray-400 italic mt-0.5 truncate max-w-[180px]" :title="data.notes">
+              <p
+                v-if="data?.notes"
+                class="text-xs text-gray-400 italic mt-0.5 truncate max-w-[180px]"
+                :title="data.notes"
+              >
                 {{ data.notes }}
               </p>
             </template>
@@ -159,11 +184,15 @@
 
           <!-- Fecha / Hora -->
           <Column style="min-width: 130px">
-            <template #header><p class="font-semibold text-sm">Fecha / Hora</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Fecha / Hora</p></template
+            >
             <template #body="{ data }">
               <div class="flex items-center gap-1.5">
                 <i class="pi pi-calendar text-xs text-gray-400" />
-                <p class="text-sm text-gray-700">{{ formatDate(data?.date) }}</p>
+                <p class="text-sm text-gray-700">
+                  {{ formatDate(data?.date) }}
+                </p>
               </div>
               <div class="flex items-center gap-1.5 mt-0.5">
                 <i class="pi pi-clock text-xs text-gray-400" />
@@ -173,8 +202,13 @@
           </Column>
 
           <!-- Paciente (admin, branchManager y médico) -->
-          <Column v-if="user?.admin || user?.branchManager || user?.doctor" style="min-width: 190px">
-            <template #header><p class="font-semibold text-sm">Paciente</p></template>
+          <Column
+            v-if="user?.admin || user?.branchManager || user?.doctor"
+            style="min-width: 190px"
+          >
+            <template #header
+              ><p class="font-semibold text-sm">Paciente</p></template
+            >
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                 <Avatar
@@ -186,7 +220,12 @@
                   <p class="font-semibold text-sm text-gray-800 truncate">
                     {{ getPatientName(data) }}
                   </p>
-                  <p class="text-xs text-gray-400 truncate">{{ data?.user?.email ?? (data?.patient ? 'Sin cuenta de usuario' : '') }}</p>
+                  <p class="text-xs text-gray-400 truncate">
+                    {{
+                      data?.user?.email ??
+                      (data?.patient ? "Sin cuenta de usuario" : "")
+                    }}
+                  </p>
                 </div>
               </div>
             </template>
@@ -194,21 +233,31 @@
 
           <!-- Centro médico -->
           <Column style="min-width: 130px" class="hidden md:table-cell">
-            <template #header><p class="font-semibold text-sm">Centro médico</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Centro médico</p></template
+            >
             <template #body="{ data }">
-              <p class="text-sm text-gray-500">{{ data?.health?.name ?? "—" }}</p>
+              <p class="text-sm text-gray-500">
+                {{ data?.health?.name ?? "—" }}
+              </p>
             </template>
           </Column>
 
           <!-- Médico -->
           <Column style="min-width: 150px" class="hidden lg:table-cell">
-            <template #header><p class="font-semibold text-sm">Médico</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Médico</p></template
+            >
             <template #body="{ data }">
               <div v-if="data?.doctor" class="flex items-center gap-1.5">
                 <i class="pi pi-user text-xs text-indigo-400" />
                 <div>
-                  <p class="text-sm text-gray-700 font-medium">{{ data.doctor.name }}</p>
-                  <p class="text-xs text-gray-400">{{ data.doctor.specialty }}</p>
+                  <p class="text-sm text-gray-700 font-medium">
+                    {{ data.doctor.name }}
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    {{ data.doctor.specialty }}
+                  </p>
                 </div>
               </div>
               <span v-else class="text-xs text-gray-400">Sin asignar</span>
@@ -217,7 +266,9 @@
 
           <!-- Estado -->
           <Column style="min-width: 110px">
-            <template #header><p class="font-semibold text-sm">Estado</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Estado</p></template
+            >
             <template #body="{ data }">
               <Tag
                 :value="data?.state"
@@ -229,11 +280,13 @@
 
           <!-- Acción -->
           <Column style="min-width: 60px; text-align: center">
-            <template #header><p class="font-semibold text-sm">Acción</p></template>
+            <template #header
+              ><p class="font-semibold text-sm">Acción</p></template
+            >
             <template #body="{ data }">
               <div class="flex justify-center">
                 <Button
-                  icon="pi pi-ellipsis-v"
+                  icon="pi pi-ellipsis-h"
                   text
                   rounded
                   size="small"
@@ -250,7 +303,7 @@
           @created="getUserAppointments(user._id)"
         />
 
-        <!-- Modal Editar Cita (Bug 25) -->
+        <!-- Modal Editar Cita  -->
         <ModalEditAdminAppointment
           v-model:visible="showEditModal"
           :appointment="editAppointment"
@@ -266,13 +319,20 @@
           :breakpoints="{ '640px': '95vw' }"
         >
           <div class="space-y-4 pt-1">
-            <p class="text-sm text-gray-500">Selecciona la nueva fecha y hora. Se notificará por correo al paciente y al médico.</p>
+            <p class="text-sm text-gray-500">
+              Selecciona la nueva fecha y hora. Se notificará por correo al
+              paciente y al médico.
+            </p>
 
             <div>
-              <label class="block text-gray-700 font-medium text-sm mb-1">Nueva fecha <span class="text-red-500">*</span></label>
+              <label class="block text-gray-700 font-medium text-sm mb-1"
+                >Nueva fecha <span class="text-red-500">*</span></label
+              >
               <DatePicker
                 v-model="rescheduleForm.date"
                 :minDate="tomorrow"
+                :maxDate="endOfCurrentWeek"
+                :disabledDays="rescheduleDisabledDays"
                 dateFormat="dd/mm/yy"
                 placeholder="Seleccione una fecha"
                 showIcon
@@ -282,12 +342,20 @@
             </div>
 
             <div>
-              <label class="block text-gray-700 font-medium text-sm mb-1">Nueva hora <span class="text-red-500">*</span></label>
+              <label class="block text-gray-700 font-medium text-sm mb-1"
+                >Nueva hora <span class="text-red-500">*</span></label
+              >
               <Select
                 v-model="rescheduleForm.time"
                 :options="rescheduleTimeSlots"
                 :disabled="!rescheduleForm.date || loadingRescheduleSlots"
-                :placeholder="!rescheduleForm.date ? 'Seleccione primero una fecha' : loadingRescheduleSlots ? 'Cargando horarios...' : 'Seleccione una hora'"
+                :placeholder="
+                  !rescheduleForm.date
+                    ? 'Seleccione primero una fecha'
+                    : loadingRescheduleSlots
+                      ? 'Cargando horarios...'
+                      : 'Seleccione una hora'
+                "
                 :optionDisabled="(opt) => rescheduleOccupied.includes(opt)"
                 class="w-full"
               >
@@ -296,43 +364,58 @@
                     <div class="flex items-center gap-2">
                       <i
                         class="pi text-xs"
-                        :class="rescheduleOccupied.includes(option)
-                          ? 'pi-lock text-red-400'
-                          : 'pi-clock text-green-500'"
+                        :class="
+                          rescheduleOccupied.includes(option)
+                            ? 'pi-lock text-red-400'
+                            : 'pi-clock text-green-500'
+                        "
                       />
                       <span
-                        :class="rescheduleOccupied.includes(option)
-                          ? 'line-through text-gray-400'
-                          : 'text-gray-800'"
+                        :class="
+                          rescheduleOccupied.includes(option)
+                            ? 'line-through text-gray-400'
+                            : 'text-gray-800'
+                        "
                       >
                         {{ option }}
                       </span>
                     </div>
                     <span
                       class="text-[11px] font-medium px-1.5 py-0.5 rounded-full"
-                      :class="rescheduleOccupied.includes(option)
-                        ? 'bg-red-50 text-red-400'
-                        : 'bg-green-50 text-green-600'"
+                      :class="
+                        rescheduleOccupied.includes(option)
+                          ? 'bg-red-50 text-red-400'
+                          : 'bg-green-50 text-green-600'
+                      "
                     >
-                      {{ rescheduleOccupied.includes(option) ? 'Ocupado' : 'Disponible' }}
+                      {{
+                        rescheduleOccupied.includes(option)
+                          ? "Ocupado"
+                          : "Disponible"
+                      }}
                     </span>
                   </div>
                 </template>
               </Select>
               <!-- Leyenda -->
-              <div v-if="rescheduleForm.date && !loadingRescheduleSlots" class="flex items-center gap-4 mt-1.5">
+              <div
+                v-if="rescheduleForm.date && !loadingRescheduleSlots"
+                class="flex items-center gap-4 mt-1.5"
+              >
                 <span class="flex items-center gap-1 text-xs text-green-600">
                   <i class="pi pi-clock text-[10px]" /> Disponible
                 </span>
                 <span class="flex items-center gap-1 text-xs text-red-400">
-                  <i class="pi pi-lock text-[10px]" /> Ocupado (no seleccionable)
+                  <i class="pi pi-lock text-[10px]" /> Ocupado (no
+                  seleccionable)
                 </span>
               </div>
             </div>
 
             <div>
               <label class="block text-gray-700 font-medium text-sm mb-1">
-                Motivo de reprogramación <span class="text-gray-400 font-normal">(opcional)</span>
+                Motivo de reprogramación
+                <span class="text-gray-400 font-normal">(opcional)</span>
               </label>
               <textarea
                 v-model="rescheduleForm.notes"
@@ -346,36 +429,44 @@
 
           <template #footer>
             <div class="flex gap-2 justify-end pt-2">
-              <Button label="Cancelar" severity="secondary" outlined @click="showRescheduleModal = false" />
-              <Button label="Confirmar reprogramación" icon="pi pi-calendar" severity="warn" :loading="rescheduling" @click="confirmReschedule" />
+              <Button
+                label="Cancelar"
+                severity="secondary"
+                outlined
+                @click="showRescheduleModal = false"
+              />
+              <Button
+                label="Confirmar reprogramación"
+                icon="pi pi-calendar"
+                severity="warn"
+                :loading="rescheduling"
+                @click="confirmReschedule"
+              />
             </div>
           </template>
         </Dialog>
 
-        <!-- Historial del paciente -->
-        <ModalHealthRecordDetail />
-        <ModalAddSubdoc />
-
         <!-- Popover -->
         <Popover ref="panel" appendTo="body" style="min-width: 185px">
+          <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
           <!-- Acciones -->
           <div class="border-b border-gray-100 pb-1 mb-1">
-            <button
-              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+            <!-- <button
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors w-full"
               @click="openEditModal(activeRow)"
             >
               <i class="pi pi-pencil text-xs text-blue-500" />
               Editar cita
-            </button>
+            </button> -->
             <button
-              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors w-full"
               @click="openRescheduleModal"
             >
               <i class="pi pi-calendar text-xs text-orange-500" />
               Reprogramar
             </button>
             <button
-              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded transition-colors w-full"
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors w-full"
               @click="onPrintReceipt(activeRow)"
             >
               <i class="pi pi-print text-xs text-teal-600" />
@@ -384,20 +475,33 @@
           </div>
 
           <!-- Cambio rápido de estado (excepto Reprogramada) -->
-          <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-1 pb-1 font-semibold">
+          <p
+            class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-1 pb-1 font-semibold"
+          >
             Cambiar estado
           </p>
           <ul class="pb-1">
             <li
-              v-for="s in ['Pendiente', 'Completada', 'Cancelada', 'No asistio']"
+              v-for="s in [
+                'Pendiente',
+                'Completada',
+                'Cancelada',
+                'No asistio',
+              ]"
               :key="s"
-              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded transition-colors"
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded-lg transition-colors"
               :class="{ 'font-semibold': activeRow?.state === s }"
               @click="changeState(s)"
             >
-              <span class="inline-block w-2 h-2 rounded-full" :class="stateDot(s)" />
+              <span
+                class="inline-block w-2 h-2 rounded-full"
+                :class="stateDot(s)"
+              />
               {{ s }}
-              <i v-if="activeRow?.state === s" class="pi pi-check ml-auto text-xs text-gray-400" />
+              <i
+                v-if="activeRow?.state === s"
+                class="pi pi-check ml-auto text-xs text-gray-400"
+              />
             </li>
           </ul>
         </Popover>
@@ -412,22 +516,36 @@
       >
         <div class="absolute bottom-0 left-0 h-0.5 bg-amber-400 reminder-bar" />
         <div class="flex items-start gap-3">
-          <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0">
+          <div
+            class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0"
+          >
             <i class="pi pi-clipboard text-amber-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-gray-800 leading-tight">Recuerda actualizar el historial</p>
-            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ completedReminder.patientName }}</p>
+            <p class="text-sm font-semibold text-gray-800 leading-tight">
+              Recuerda actualizar el historial
+            </p>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">
+              {{ completedReminder.patientName }}
+            </p>
             <button
               class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors disabled:opacity-50"
               :disabled="loadingReminder"
               @click="openRecordFromReminder"
             >
-              <i class="pi text-xs" :class="loadingReminder ? 'pi-spin pi-spinner' : 'pi-arrow-right'" />
-              {{ loadingReminder ? 'Abriendo...' : 'Ir al historial' }}
+              <i
+                class="pi text-xs"
+                :class="
+                  loadingReminder ? 'pi-spin pi-spinner' : 'pi-arrow-right'
+                "
+              />
+              {{ loadingReminder ? "Abriendo..." : "Ir al historial" }}
             </button>
           </div>
-          <button class="text-gray-300 hover:text-gray-500 transition-colors -mt-0.5" @click="completedReminder = null">
+          <button
+            class="text-gray-300 hover:text-gray-500 transition-colors -mt-0.5"
+            @click="completedReminder = null"
+          >
             <i class="pi pi-times text-xs" />
           </button>
         </div>
@@ -438,6 +556,7 @@
 
 <script setup>
 import AppointmentApi from "@/api/AppointmentApi";
+import DoctorScheduleApi from "@/api/doctorScheduleApi";
 import { formatDate, convertToDDMMYYYY } from "@/helpers/date";
 import { useHealthStore } from "@/stores/healths";
 import { useUserStore } from "@/stores/user";
@@ -457,20 +576,34 @@ import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
 import { inject, computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalAdminAppointment from "@/components/ModalAdminAppointment.vue";
 import ModalEditAdminAppointment from "@/components/ModalEditAdminAppointment.vue";
 import { printReceipt } from "@/composables/usePrintReceipt";
-import { useRecordStore } from "@/modules/medical-record/store/recordStore";
-import { getRecordByAppointment, getRecordById } from "@/modules/medical-record/api/recordsApi";
-import ModalAddSubdoc from "@/modules/medical-record/components/ModalAddSubdoc.vue";
-import ModalHealthRecordDetail from "@/modules/medical-record/components/ModalHealthRecordDetail.vue";
+import { getRecordByAppointment } from "@/modules/medical-record/api/recordsApi";
 
 const toast = inject("toast");
+const router = useRouter();
 
 const userAuth = useUserStore();
-const { loading, totalRecords, user, userAppointments, page_first, dateFrom, dateTo } = storeToRefs(userAuth);
-const { onPage, onSearch, getSelectedHealths, setAppointmentState, getUserAppointments, setDateFilter } = userAuth;
+const {
+  loading,
+  totalRecords,
+  user,
+  userAppointments,
+  page_first,
+  dateFrom,
+  dateTo,
+} = storeToRefs(userAuth);
+const {
+  onPage,
+  onSearch,
+  getSelectedHealths,
+  setAppointmentState,
+  getUserAppointments,
+  setDateFilter,
+} = userAuth;
 
 const healthStore = useHealthStore();
 const { getHealths } = healthStore;
@@ -514,11 +647,31 @@ const rescheduleForm = ref({ date: null, time: null, notes: "" });
 const rescheduling = ref(false);
 const loadingRescheduleSlots = ref(false);
 const rescheduleOccupied = ref([]);
+const rescheduleDisabledDays = ref([0]);
+
+const DAY_NUM_MAP_RESCHEDULE = {
+  Lunes: 1,
+  Martes: 2,
+  Miércoles: 3,
+  Jueves: 4,
+  Viernes: 5,
+  Sábado: 6,
+};
+const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
 const tomorrow = computed(() => {
   const d = new Date();
   d.setDate(d.getDate() + 1);
   return d;
+});
+
+const endOfCurrentWeek = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const sat = new Date(today);
+  sat.setDate(today.getDate() + (6 - today.getDay()));
+  sat.setHours(23, 59, 59, 999);
+  return sat;
 });
 
 // Slots fijos del horario (sin slots extra fuera de rango)
@@ -546,21 +699,33 @@ const onRescheduleDateChange = async (newDate) => {
   try {
     const category = activeRow.value.services?.[0]?.category ?? null;
     const excludeId = activeRow.value._id;
-    // El backend espera dd/MM/yyyy
+    const apptDoctor =
+      activeRow.value.doctor?._id ?? activeRow.value.doctor ?? null;
     const formattedDate = convertToDDMMYYYY(newDate.toISOString());
-    const { data } = await AppointmentApi.getAvailability(formattedDate, category, excludeId);
+    const { data } = await AppointmentApi.getAvailability(
+      formattedDate,
+      category,
+      excludeId,
+      apptDoctor,
+    );
     const appts = data.appointments ?? [];
     const doctors = data.doctors ?? [];
-    const apptDoctor = activeRow.value.doctor?._id ?? activeRow.value.doctor ?? null;
+    const shiftInfo = data.shiftInfo ?? null;
 
     rescheduleOccupied.value = rescheduleTimeSlots.value.filter((slot) => {
+      const hourNum = parseInt(slot.split(":")[0]);
+      const isMorning = hourNum < 13;
+      if (shiftInfo) {
+        if (isMorning && !shiftInfo.morning) return true;
+        if (!isMorning && !shiftInfo.afternoon) return true;
+      }
       const atSlot = appts.filter((a) => a.time === slot);
-      // Si hay médicos en la categoría: ocupado cuando todos están tomados
       if (doctors.length > 0 && atSlot.length >= doctors.length) return true;
-      // Si la cita tiene médico asignado: ocupado si ese médico ya tiene ese slot
       if (apptDoctor) {
         return atSlot.some(
-          (a) => (a.doctor?.toString() ?? String(a.doctor)) === apptDoctor.toString()
+          (a) =>
+            (a.doctor?.toString() ?? String(a.doctor)) ===
+            apptDoctor.toString(),
         );
       }
       return false;
@@ -573,16 +738,43 @@ const onRescheduleDateChange = async (newDate) => {
   }
 };
 
-const openRescheduleModal = () => {
+const openRescheduleModal = async () => {
   panel.value?.hide();
-  rescheduleForm.value = { date: null, time: null, notes: activeRow.value?.notes ?? "" };
+  rescheduleForm.value = {
+    date: null,
+    time: null,
+    notes: activeRow.value?.notes ?? "",
+  };
   rescheduleOccupied.value = [];
+  rescheduleDisabledDays.value = [0];
+
+  const apptDoctor =
+    activeRow.value?.doctor?._id ?? activeRow.value?.doctor ?? null;
+  if (apptDoctor) {
+    try {
+      const { data } = await DoctorScheduleApi.getSchedules(apptDoctor);
+      const activeDayNums = data
+        .filter((s) => s.active && (s.morning || s.afternoon))
+        .map((s) => DAY_NUM_MAP_RESCHEDULE[s.dayOfWeek])
+        .filter((n) => n !== undefined);
+      rescheduleDisabledDays.value =
+        activeDayNums.length > 0
+          ? ALL_WEEK_DAYS.filter((d) => !activeDayNums.includes(d))
+          : ALL_WEEK_DAYS;
+    } catch {
+      rescheduleDisabledDays.value = [0];
+    }
+  }
+
   showRescheduleModal.value = true;
 };
 
 const confirmReschedule = async () => {
   if (!rescheduleForm.value.date || !rescheduleForm.value.time) {
-    toast?.open({ message: "Selecciona la nueva fecha y hora", type: "warning" });
+    toast?.open({
+      message: "Selecciona la nueva fecha y hora",
+      type: "warning",
+    });
     return;
   }
   rescheduling.value = true;
@@ -597,7 +789,10 @@ const confirmReschedule = async () => {
       time: rescheduleForm.value.time,
       notes: rescheduleForm.value.notes,
     });
-    toast?.open({ message: "Cita reprogramada correctamente", type: "success" });
+    toast?.open({
+      message: "Cita reprogramada correctamente",
+      type: "success",
+    });
     showRescheduleModal.value = false;
     getUserAppointments(user.value._id);
   } catch (err) {
@@ -612,11 +807,11 @@ const confirmReschedule = async () => {
 };
 
 const exportParams = computed(() => ({
-  ...(search.value        && { search:    search.value }),
-  ...(selectedState.value && { state:     selectedState.value }),
-  ...(selectedHealth.value&& { health:    selectedHealth.value }),
-  ...(dateFrom.value      && { date_from: dateFrom.value }),
-  ...(dateTo.value        && { date_to:   dateTo.value }),
+  ...(search.value && { search: search.value }),
+  ...(selectedState.value && { state: selectedState.value }),
+  ...(selectedHealth.value && { health: selectedHealth.value }),
+  ...(dateFrom.value && { date_from: dateFrom.value }),
+  ...(dateTo.value && { date_to: dateTo.value }),
 }));
 
 const stateOptions = [
@@ -651,7 +846,11 @@ function getInitials(src) {
 
 function getPatientName(data) {
   const src = data?.user || data?.patient;
-  return [src?.primerApellido, src?.segundoApellido, src?.nombres].filter(Boolean).join(" ") || "—";
+  return (
+    [src?.primerApellido, src?.segundoApellido, src?.nombres]
+      .filter(Boolean)
+      .join(" ") || "—"
+  );
 }
 
 watch(selectedHealth, async (val) => {
@@ -694,8 +893,6 @@ function openPanel(event, data) {
   panel.value.toggle(event);
 }
 
-const recordStore = useRecordStore();
-
 const changeState = async (state) => {
   panel.value?.hide();
   if (!activeRow.value?._id) return;
@@ -711,12 +908,20 @@ const changeState = async (state) => {
     toast?.open({ message: `Cita marcada como "${state}"`, type: "success" });
 
     // Recordatorio no bloqueante cuando se completa
-    if (state === "Completada" && (user.value?.doctor || user.value?.admin || user.value?.branchManager)) {
+    if (
+      state === "Completada" &&
+      (user.value?.doctor || user.value?.admin || user.value?.branchManager)
+    ) {
       const src = snapshot.user || snapshot.patient;
-      const patientName = [src?.primerApellido, src?.segundoApellido, src?.nombres].filter(Boolean).join(" ") || "Paciente";
+      const patientName =
+        [src?.primerApellido, src?.segundoApellido, src?.nombres]
+          .filter(Boolean)
+          .join(" ") || "Paciente";
       clearTimeout(reminderTimer);
       completedReminder.value = { appointmentId: snapshot._id, patientName };
-      reminderTimer = setTimeout(() => { completedReminder.value = null; }, 12000);
+      reminderTimer = setTimeout(() => {
+        completedReminder.value = null;
+      }, 12000);
     }
 
     // Refetch silencioso en segundo plano
@@ -724,7 +929,10 @@ const changeState = async (state) => {
   } catch {
     // Revertir update optimista
     if (idx !== -1) userAppointments.value[idx].state = prev;
-    toast?.open({ message: "No se pudo actualizar el estado de la cita", type: "error" });
+    toast?.open({
+      message: "No se pudo actualizar el estado de la cita",
+      type: "error",
+    });
   }
 };
 
@@ -732,12 +940,19 @@ const openRecordFromReminder = async () => {
   if (!completedReminder.value?.appointmentId) return;
   loadingReminder.value = true;
   try {
-    const { healthRecordId } = await getRecordByAppointment(completedReminder.value.appointmentId);
-    const record = await getRecordById(healthRecordId);
-    recordStore.onCurrentRecordDetail(record);
+    const { healthRecordId } = await getRecordByAppointment(
+      completedReminder.value.appointmentId,
+    );
     completedReminder.value = null;
+    router.push({
+      name: "health-record-detail",
+      params: { id: healthRecordId },
+    });
   } catch {
-    toast?.open({ message: "El paciente no tiene historial médico registrado", type: "warning" });
+    toast?.open({
+      message: "El paciente no tiene historial médico registrado",
+      type: "warning",
+    });
   } finally {
     loadingReminder.value = false;
   }
@@ -747,16 +962,30 @@ const openRecordFromReminder = async () => {
 <style scoped>
 /* Barra de progreso del recordatorio */
 @keyframes shrink {
-  from { width: 100%; }
-  to   { width: 0%; }
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
 }
 .reminder-bar {
   animation: shrink 12s linear forwards;
 }
 
 /* Transición de entrada/salida del recordatorio */
-.reminder-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.reminder-leave-active { transition: all 0.2s ease-in; }
-.reminder-enter-from  { opacity: 0; transform: translateY(1rem) scale(0.95); }
-.reminder-leave-to    { opacity: 0; transform: translateY(0.5rem) scale(0.97); }
+.reminder-enter-active {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.reminder-leave-active {
+  transition: all 0.2s ease-in;
+}
+.reminder-enter-from {
+  opacity: 0;
+  transform: translateY(1rem) scale(0.95);
+}
+.reminder-leave-to {
+  opacity: 0;
+  transform: translateY(0.5rem) scale(0.97);
+}
 </style>

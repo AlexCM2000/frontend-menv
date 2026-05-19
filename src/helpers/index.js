@@ -14,10 +14,9 @@ export const fullName = (obj) =>
     .join(" ");
 
   export const list = [
-    {id:"P",text:"Pendiente"}, 
-    {id:"R",text:"Reprogramada"}, 
-    {id:"CA",text:"Cancelada"}, 
-    {id:"CO",text:"Completada"}, 
-    {id:"CO",text:"Completada"}, 
-    {id:"NA",text:"No asistio"}, 
+    {id:"P",text:"Pendiente"},
+    {id:"R",text:"Reprogramada"},
+    {id:"CA",text:"Cancelada"},
+    {id:"CO",text:"Completada"},
+    {id:"NA",text:"No asistio"},
 ]

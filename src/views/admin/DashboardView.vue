@@ -215,6 +215,49 @@
       </div>
     </div>
 
+    <!-- ── Alertas de stock bajo mínimo (farmacéutico / branchManager) ───────── -->
+    <div
+      v-if="(isPharmacist || (!isAdmin && !isDoctor && user?.branchManager)) && stats.stockAlerts?.length"
+      class="bg-white rounded-xl border border-orange-200 shadow-sm overflow-hidden"
+    >
+      <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-orange-100 bg-orange-50">
+        <i class="pi pi-exclamation-triangle text-orange-500 text-sm"></i>
+        <h3 class="text-sm font-semibold text-orange-800">Alertas de stock bajo mínimo</h3>
+        <span class="text-xs font-semibold bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">
+          {{ stats.stockAlerts.length }}
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-orange-50/50 border-b border-orange-100">
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide">Medicamento</th>
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide hidden sm:table-cell">Categoría</th>
+              <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide">Disponible</th>
+              <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide">Mínimo</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-orange-50">
+            <tr v-for="med in stats.stockAlerts" :key="med._id" class="hover:bg-orange-50/30 transition-colors">
+              <td class="px-4 py-2.5 font-semibold text-gray-800">{{ med.name }}</td>
+              <td class="px-4 py-2.5 text-xs text-gray-500 hidden sm:table-cell capitalize">{{ med.category }}</td>
+              <td class="px-4 py-2.5 text-center">
+                <span class="font-bold" :class="med.availableQuantity === 0 ? 'text-red-600' : 'text-orange-600'">
+                  {{ med.availableQuantity }} {{ med.unit }}
+                </span>
+              </td>
+              <td class="px-4 py-2.5 text-center text-xs text-gray-400">{{ med.minimumQuantity }} {{ med.unit }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-5 py-2.5 bg-orange-50/30 border-t border-orange-100">
+        <router-link :to="{ name: 'admin-stock' }" class="text-xs text-orange-700 font-semibold hover:underline flex items-center gap-1">
+          <i class="pi pi-arrow-right text-[10px]"></i> Gestionar stock
+        </router-link>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -240,8 +283,9 @@ const healthStore = useHealthStore();
 const { user } = storeToRefs(userStore);
 const { healths } = storeToRefs(healthStore);
 
-const isAdmin = computed(() => user.value?.admin === true);
-const isDoctor = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
+const isAdmin      = computed(() => user.value?.admin === true);
+const isDoctor     = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
+const isPharmacist = computed(() => user.value?.pharmacist === true);
 
 const healthSelectOptions = computed(() =>
   (healths.value ?? []).map((h) => ({ label: h.label, value: h.id }))
@@ -258,6 +302,7 @@ const stats = ref({
   tendenciaPorDia: [],
   citasPorEspecialidad: [],
   topMedicos: [],
+  stockAlerts: [],
 });
 
 const rangeOptions = [

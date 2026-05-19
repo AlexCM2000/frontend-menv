@@ -35,17 +35,14 @@
       <!-- Médico -->
       <div>
         <label class="block text-gray-700 font-medium text-sm mb-1">
-          Médico
-          <span v-if="isBranchManager" class="text-red-500">*</span>
-          <span v-else class="text-gray-400 font-normal">(opcional)</span>
+          Médico <span class="text-red-500">*</span>
         </label>
         <Select
           v-model="form.doctor"
           :options="doctorOptions"
           optionLabel="label"
           optionValue="value"
-          :placeholder="isBranchManager ? 'Seleccione un médico' : 'Sin preferencia'"
-          :showClear="!isBranchManager"
+          placeholder="Seleccione un médico"
           class="w-full"
           :loading="loadingDoctors"
         />
@@ -78,15 +75,13 @@
 </template>
 
 <script setup>
-import { ref, watch, inject, computed, onMounted } from "vue";
+import { ref, watch, inject, computed } from "vue";
 import Dialog from "primevue/dialog";
 import Select from "primevue/select";
 import Button from "primevue/button";
 import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
 import AppointmentApi from "@/api/AppointmentApi";
 import { displayDate } from "@/helpers/date";
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
 
 const emit = defineEmits(["updated"]);
 
@@ -96,10 +91,6 @@ const props = defineProps({
 });
 
 const toast = inject("toast");
-
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-const isBranchManager = computed(() => user.value?.branchManager === true && !user.value?.admin);
 
 const form = ref({
   state: "Pendiente",
@@ -156,7 +147,7 @@ watch(() => props.appointment, (appt) => {
 
 const submit = async () => {
   errors.value = {};
-  if (isBranchManager.value && !form.value.doctor) {
+  if (!form.value.doctor) {
     errors.value.doctor = "Seleccione un médico";
     return;
   }

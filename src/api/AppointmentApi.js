@@ -22,9 +22,10 @@ export default {
   getCalendar(start, end) {
     return api.get(`/appointments/calendar?start=${start}&end=${end}`);
   },
-  getAvailability(date, category, excludeId = null) {
+  getAvailability(date, category, excludeId = null, doctorId = null) {
     const params = { date, category };
     if (excludeId) params.excludeId = excludeId;
+    if (doctorId) params.doctorId = doctorId;
     return api.get("/appointments/availability", { params });
   },
 };

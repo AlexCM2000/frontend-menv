@@ -23,11 +23,10 @@
         </div>
       </div>
 
-      <!-- Médico (opcional) -->
+      <!-- Médico -->
       <div>
         <p class="text-xs text-gray-400 uppercase font-semibold tracking-wide mb-2">
-          Médico
-          <span class="normal-case font-normal text-gray-400 ml-1">(opcional)</span>
+          Médico <span class="text-red-500 ml-1">*</span>
         </p>
 
         <!-- Aviso: sin médicos para la especialidad -->
@@ -53,7 +52,7 @@
                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                    bg-white appearance-none"
           >
-            <option :value="null">Sin preferencia de médico</option>
+            <option :value="null" disabled>— Seleccione un médico —</option>
             <option
               v-for="doc in availableDoctors"
               :key="doc._id"
@@ -69,7 +68,16 @@
       <div>
         <p class="text-xs text-gray-400 uppercase font-semibold tracking-wide mb-3">Fecha y Hora</p>
 
-        <div class="flex flex-col lg:flex-row gap-6 items-start">
+        <!-- Sin médico seleccionado -->
+        <div v-if="!appointments.doctor"
+          class="flex flex-col items-center justify-center py-10 text-center
+                 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+          <i class="pi pi-user text-3xl text-gray-300 mb-2"></i>
+          <p class="text-gray-400 text-sm font-medium">Selecciona primero un médico</p>
+          <p class="text-gray-300 text-xs mt-1">para ver las fechas disponibles</p>
+        </div>
+
+        <div v-else class="flex flex-col lg:flex-row gap-6 items-start">
 
           <!-- Calendario -->
           <div class="w-full lg:w-auto flex justify-center">
@@ -198,7 +206,7 @@ import { computed, onMounted, ref } from 'vue'
 import SelectedService from '@/components/SelectedService.vue'
 import { useAppointmentsStore } from '@/stores/appointments'
 import VueTailwindDatepicker from 'vue-tailwind-datepicker'
-import { addDays, nextFriday, isWithinInterval } from 'date-fns'
+import { addDays } from 'date-fns'
 import { getDoctorsForSelect } from '@/modules/doctors/api/doctorsApi'
 
 const appointments = useAppointmentsStore()
@@ -209,12 +217,37 @@ const formatter = ref({
   month: 'MMMM',
 })
 
-const disabledDate = (date) => {
-  const today = new Date()
-  const startDate = addDays(today, 1)
-  const endDate = nextFriday(today)
-  return !isWithinInterval(date, { start: startDate, end: endDate })
-}
+// Nombres de días en español indexados por getDay() (0=Domingo, 1=Lunes, ...)
+const DAY_NAMES_ES = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+
+// Computed para que el datepicker se reactive cuando cambia el horario del médico
+const disabledDate = computed(() => {
+  const map = appointments.doctorScheduleMap
+  const doc = appointments.doctor
+  const loaded = appointments.scheduleLoaded
+
+  return (date) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (date < addDays(today, 1)) return true   // Pasado o hoy
+    // Solo la semana actual: hasta el sábado de la semana Mon-Sáb en curso
+    if (date > addDays(today, 6 - today.getDay())) return true
+    if (date.getDay() === 0) return true         // Domingo siempre deshabilitado
+
+    if (doc) {
+      if (!loaded) return true  // Cargando horario: deshabilitar todo temporalmente
+      const hasSchedules = Object.keys(map).length > 0
+      if (hasSchedules) {
+        // Tiene horario configurado: solo habilitar sus días activos
+        const dayName = DAY_NAMES_ES[date.getDay()]
+        return !map[dayName]
+      }
+      // Sin horario configurado: sin disponibilidad
+      return true
+    }
+    return false
+  }
+})
 
 // Separar horarios en mañana (< 13h) y tarde (>= 13h)
 const morningHours = computed(() =>
@@ -234,11 +267,12 @@ const getTimeClass = (hour) => {
   return 'bg-white border border-gray-200 text-gray-700 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'
 }
 
-// Al cambiar médico, limpiar el horario seleccionado para evitar el error 11000
+// Al cambiar médico: limpiar fecha y hora (el horario puede cambiar los días disponibles)
 const onDoctorChange = (e) => {
   const newDoctor = e.target.value || null;
   appointments.doctor = newDoctor;
   appointments.time = "";
+  appointments.date = "";
 };
 
 onMounted(async () => {

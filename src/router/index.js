@@ -58,6 +58,31 @@ const router = createRouter({
           name: "admin-profile",
           component: () => import("@/views/admin/ProfileView.vue"),
         },
+        {
+          path: "auditoria",
+          name: "admin-audit",
+          component: () => import("@/views/admin/AuditLogView.vue"),
+        },
+        {
+          path: "cdss",
+          name: "admin-cdss-config",
+          component: () => import("@/views/admin/CdssConfigView.vue"),
+        },
+        {
+          path: "stock",
+          name: "admin-stock",
+          component: () => import("@/views/admin/StockView.vue"),
+        },
+        {
+          path: "recetas",
+          name: "admin-prescriptions",
+          component: () => import("@/views/admin/PrescriptionView.vue"),
+        },
+        {
+          path: "historial/:id",
+          name: "health-record-detail",
+          component: () => import("@/views/admin/HealthRecordDetailView.vue"),
+        },
       ],
     },
     {

@@ -246,8 +246,10 @@
           <template #body="{ data }">
             <div class="flex justify-center">
               <Button
-                icon="pi pi-ellipsis-v"
-                class="p-button-text p-button-rounded p-button-sm"
+                icon="pi pi-ellipsis-h"
+                text
+                rounded
+                size="small"
                 @click="openPanel($event, data)"
               />
             </div>
@@ -256,22 +258,30 @@
       </DataTable>
 
       <!-- Popover de acciones -->
-      <Popover ref="panel" appendTo="body" style="min-width: 160px">
-        <ul class="py-1">
+      <Popover ref="panel" appendTo="body" style="min-width: 170px">
+        <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
+        <ul class="pb-1">
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded-lg"
             @click="viewDoctor(activeRow)"
           >
             <i class="pi pi-eye text-gray-500 text-sm"></i> Ver
           </li>
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded-lg"
             @click="editDoctor(activeRow)"
           >
             <i class="pi pi-pencil text-indigo-500 text-sm"></i> Editar
           </li>
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-violet-50 cursor-pointer rounded-lg"
+            @click="editSchedule(activeRow)"
+          >
+            <i class="pi pi-calendar text-violet-500 text-sm"></i> Horario
+          </li>
+          <li class="border-t border-gray-100 my-1" />
+          <li
+            class="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer rounded-lg"
             :class="
               activeRow?.active
                 ? 'hover:bg-red-50 text-red-600'
@@ -292,6 +302,7 @@
 
   <ModalDoctorForm />
   <ModalDoctorDetail />
+  <ModalDoctorSchedule v-model:visible="showSchedule" :doctor="scheduleDoctor" />
 </template>
 
 <script setup>
@@ -315,6 +326,7 @@ import { useHealthStore } from "@/stores/healths";
 import ExportMenu from "@/components/ExportMenu.vue";
 import ModalDoctorForm from "./ModalDoctorForm.vue";
 import ModalDoctorDetail from "./ModalDoctorDetail.vue";
+import ModalDoctorSchedule from "./ModalDoctorSchedule.vue";
 import CategoryApi from "@/api/CategoryApi";
 
 const doctorStore = useDoctorStore();
@@ -360,6 +372,8 @@ const localActive = ref(null);
 const panel = ref(null);
 const activeRow = ref(null);
 const specialtyOptions = ref([]);
+const showSchedule = ref(false);
+const scheduleDoctor = ref(null);
 
 function getInitials(name = "") {
   return name
@@ -412,6 +426,12 @@ const viewDoctor = (data) => {
 const toggleStatus = (data) => {
   panel.value?.hide();
   onToggleStatus(data._id, data.active);
+};
+
+const editSchedule = (data) => {
+  panel.value?.hide();
+  scheduleDoctor.value = data;
+  showSchedule.value = true;
 };
 
 onMounted(async () => {

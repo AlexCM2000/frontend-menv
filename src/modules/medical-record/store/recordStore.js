@@ -13,6 +13,8 @@ import {
   addMedication,
   addTreatment,
   addAllergy,
+  addVitalSigns,
+  addVaccine,
 } from "../api/recordsApi";
 
 export const useRecordStore = defineStore("health-records", () => {
@@ -203,28 +205,39 @@ export const useRecordStore = defineStore("health-records", () => {
   };
 
   // ── Agregar subdocumento clínico ──────────────────
+  // Retorna { alerts } si el tipo es vitalSigns, para que el formulario los muestre
   const onAddSubdoc = async (payload) => {
     if (!subdocTarget.value || !subdocType.value) return;
     try {
       saving.value = true;
       const id = subdocTarget.value._id;
       const apiMap = {
-        observation: addObservation,
-        diagnosis: addDiagnosis,
-        medication: addMedication,
-        treatment: addTreatment,
-        allergy: addAllergy,
+        observation:  addObservation,
+        diagnosis:    addDiagnosis,
+        medication:   addMedication,
+        treatment:    addTreatment,
+        allergy:      addAllergy,
+        vitalSigns:   addVitalSigns,
+        vaccine:      addVaccine,
       };
       const apiFn = apiMap[subdocType.value];
       if (!apiFn) throw new Error("Tipo no válido");
-      await apiFn(id, payload);
+
+      const result = await apiFn(id, payload);
+      const cdssAlerts = result?.alerts ?? [];
+
       toast.open({ message: "Entrada agregada al historial", type: "success" });
+      subdocSaved.value = true;
       closeSubdocModal();
+
       if (visibleDetail.value && currentRecordDetail.value?._id === id) {
         currentRecordDetail.value = await getRecordById(id);
       }
+
+      return { alerts: cdssAlerts };
     } catch (error) {
       toast.open({ message: error?.response?.data?.message ?? "Error al agregar entrada", type: "error" });
+      return { alerts: [] };
     } finally {
       saving.value = false;
     }
@@ -234,7 +247,10 @@ export const useRecordStore = defineStore("health-records", () => {
   const onCurrentRecord = (data) => { currentRecord.value = data; openModal(); };
   const onCurrentRecordDetail = (data) => { currentRecordDetail.value = data; openModalDetail(); };
 
+  const subdocSaved = ref(false);
+
   const openSubdocModal = (record, type) => {
+    subdocSaved.value = false;
     subdocTarget.value = record;
     subdocType.value = type;
     visibleSubdoc.value = true;
@@ -254,7 +270,7 @@ export const useRecordStore = defineStore("health-records", () => {
     records, totalRecords, page, page_size, page_first, loading, saving,
     search, state, health, showArchived, dateFrom, dateTo,
     visibleForm, visibleDetail, visibleSubdoc,
-    currentRecord, currentRecordDetail, subdocTarget, subdocType,
+    currentRecord, currentRecordDetail, subdocTarget, subdocType, subdocSaved,
     setRecords, onPage, onSearch, setStateFilter, setHealthFilter,
     setDateFilter, toggleShowArchived, resetFilters,
     onCreateRecord, onArchivedRecord, onUnarchiveRecord, onUpdateState, onAddSubdoc,

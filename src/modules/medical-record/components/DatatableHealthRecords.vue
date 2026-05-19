@@ -234,8 +234,10 @@
           <template #body="{ data }">
             <div class="flex justify-center">
               <Button
-                icon="pi pi-ellipsis-v"
-                class="p-button-text p-button-rounded p-button-sm"
+                icon="pi pi-ellipsis-h"
+                text
+                rounded
+                size="small"
                 @click="openPanel($event, data)"
               />
             </div>
@@ -245,10 +247,11 @@
 
       <!-- Popover de acciones -->
       <Popover ref="panel" appendTo="body" style="min-width: 190px">
-        <ul class="py-1">
+        <p class="text-xs text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1 font-semibold">Opciones</p>
+        <ul class="pb-1">
           <!-- Ver detalle -->
           <li
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer rounded text-blue-700"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer rounded-lg text-blue-700"
             @click="viewDetail()"
           >
             <i class="pi pi-eye text-sm" /> Ver detalle
@@ -256,18 +259,9 @@
 
           <!-- Acciones clínicas: solo si no está archivado -->
           <template v-if="!activeRow?.archivedAt">
-            <!-- Agregar entrada (doctor, admin, branchManager) -->
-            <li
-              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-teal-50 cursor-pointer rounded text-teal-700"
-              @click="openAddSubdocMenu($event)"
-            >
-              <i class="pi pi-plus-circle text-sm" /> Agregar entrada
-              <i class="pi pi-chevron-right text-xs ml-auto" />
-            </li>
-
             <!-- Cambiar estado (admin, branchManager, doctor) -->
             <li
-              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded text-indigo-700"
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer rounded-lg text-indigo-700"
               @click="openStateMenu($event)"
             >
               <i class="pi pi-refresh text-sm" /> Cambiar estado
@@ -277,7 +271,7 @@
             <!-- Archivar (solo staff) -->
             <li
               v-if="isStaff"
-              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-amber-50 cursor-pointer rounded text-amber-700"
+              class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-amber-50 cursor-pointer rounded-lg text-amber-700"
               @click="archiveRow()"
             >
               <i class="pi pi-inbox text-sm" /> Archivar
@@ -287,23 +281,10 @@
           <!-- Desarchivar (solo staff y solo si está archivado) -->
           <li
             v-if="isStaff && activeRow?.archivedAt"
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-teal-50 cursor-pointer rounded text-teal-700"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-teal-50 cursor-pointer rounded-lg text-teal-700"
             @click="unarchiveRow()"
           >
             <i class="pi pi-upload text-sm" /> Desarchivar
-          </li>
-        </ul>
-      </Popover>
-
-      <!-- Submenú: tipos de entrada clínica -->
-      <Popover ref="subdocPanel" appendTo="body" style="min-width: 180px">
-        <ul class="py-1">
-          <li v-for="opt in subdocOptions" :key="opt.type"
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded"
-            @click="selectSubdocType(opt.type)"
-          >
-            <i :class="`pi ${opt.icon} text-sm text-gray-500`" />
-            {{ opt.label }}
           </li>
         </ul>
       </Popover>
@@ -312,7 +293,7 @@
       <Popover ref="statePanel" appendTo="body" style="min-width: 160px">
         <ul class="py-1">
           <li v-for="opt in stateOptions" :key="opt.value"
-            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded"
+            class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer rounded-lg"
             :class="{ 'font-semibold': activeRow?.state === opt.value }"
             @click="changeState(opt.value)"
           >
@@ -324,9 +305,7 @@
       </Popover>
 
       <!-- Modales -->
-      <ModalHealthRecordDetail />
       <FormHealthRecord />
-      <ModalAddSubdoc />
     </template>
   </Card>
 </template>
@@ -347,14 +326,14 @@ import Popover from "primevue/popover";
 import Skeleton from "primevue/skeleton";
 import Avatar from "primevue/avatar";
 import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useRecordStore } from "../store/recordStore";
 import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import ExportMenu from "@/components/ExportMenu.vue";
-import ModalHealthRecordDetail from "./ModalHealthRecordDetail.vue";
 import FormHealthRecord from "./FormHealthRecord.vue";
-import ModalAddSubdoc from "./ModalAddSubdoc.vue";
 
+const router = useRouter();
 const recordStore = useRecordStore();
 const {
   loading, records, totalRecords, page_first, showArchived, dateFrom, dateTo,
@@ -362,7 +341,7 @@ const {
 const {
   setRecords, openModal, onArchivedRecord, onUnarchiveRecord,
   onPage, onSearch, setStateFilter, setHealthFilter, setDateFilter, resetFilters,
-  onCurrentRecordDetail, toggleShowArchived, onUpdateState, openSubdocModal,
+  toggleShowArchived, onUpdateState,
 } = recordStore;
 
 const userStore = useUserStore();
@@ -391,14 +370,6 @@ const stateOptions = [
   { label: "Cerrado",        value: "cerrado" },
 ];
 
-const subdocOptions = [
-  { type: "observation", label: "Observación",    icon: "pi-comment" },
-  { type: "diagnosis",   label: "Diagnóstico",    icon: "pi-clipboard" },
-  { type: "medication",  label: "Medicación",     icon: "pi-heart" },
-  { type: "treatment",   label: "Tratamiento",    icon: "pi-star" },
-  { type: "allergy",     label: "Alergia",        icon: "pi-exclamation-triangle" },
-];
-
 const stateSeverity = (state) => {
   if (state === "activo")          return "success";
   if (state === "en tratamiento")  return "warn";
@@ -423,9 +394,8 @@ const localSearch    = ref("");
 const localState     = ref(null);
 const localHealth    = ref(null);
 const localDateRange = ref(null);
-const panel       = ref(null);
-const subdocPanel = ref(null);
-const statePanel  = ref(null);
+const panel      = ref(null);
+const statePanel = ref(null);
 const activeRow   = ref(null);
 
 function openPanel(event, data) {
@@ -435,7 +405,7 @@ function openPanel(event, data) {
 
 const viewDetail = () => {
   panel.value?.hide();
-  onCurrentRecordDetail(activeRow.value);
+  router.push({ name: "health-record-detail", params: { id: activeRow.value._id } });
 };
 
 const archiveRow = () => {
@@ -448,19 +418,9 @@ const unarchiveRow = () => {
   onUnarchiveRecord(activeRow.value?._id);
 };
 
-const openAddSubdocMenu = (event) => {
-  panel.value?.hide();
-  subdocPanel.value?.toggle(event);
-};
-
 const openStateMenu = (event) => {
   panel.value?.hide();
   statePanel.value?.toggle(event);
-};
-
-const selectSubdocType = (type) => {
-  subdocPanel.value?.hide();
-  openSubdocModal(activeRow.value, type);
 };
 
 const changeState = async (newState) => {

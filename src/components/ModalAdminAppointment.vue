@@ -66,9 +66,7 @@
       <!-- Médico -->
       <div>
         <label class="block text-gray-700 font-medium text-sm mb-1">
-          Médico
-          <span v-if="isBranchManager" class="text-red-500">*</span>
-          <span v-else class="text-gray-400 font-normal">(opcional)</span>
+          Médico <span class="text-red-500">*</span>
         </label>
         <Select
           v-model="form.doctor"
@@ -76,7 +74,6 @@
           optionLabel="label"
           optionValue="value"
           :placeholder="!form.category ? 'Seleccione primero una categoría' : 'Seleccione un médico'"
-          :showClear="!isBranchManager"
           :disabled="!form.category || loadingDoctors"
           class="w-full"
           :loading="loadingDoctors"
@@ -103,6 +100,9 @@
         <DatePicker
           v-model="form.date"
           :minDate="tomorrow"
+          :maxDate="endOfCurrentWeek"
+          :disabledDays="scheduleDisabledDays"
+          :disabled="!form.doctor"
           dateFormat="dd/mm/yy"
           placeholder="Seleccione una fecha"
           showIcon
@@ -188,18 +188,12 @@ import DatePicker from "primevue/datepicker";
 import api from "@/lib/axios";
 import { getDoctorsForSelect } from "@/modules/doctors/api/doctorsApi";
 import AppointmentApi from "@/api/AppointmentApi";
+import DoctorScheduleApi from "@/api/doctorScheduleApi";
 import { convertToDDMMYYYY } from "@/helpers/date";
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-
 const emit = defineEmits(["created"]);
 
 const visible = defineModel("visible", { default: false });
 const toast = inject("toast");
-
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-const isBranchManager = computed(() => user.value?.branchManager === true && !user.value?.admin);
 
 // ── Estado del formulario ────────────────────────────────────────────────────
 const form = ref({
@@ -219,6 +213,10 @@ const submitting = ref(false);
 // ── Disponibilidad de horarios ───────────────────────────────────────────────
 const loadingSlots = ref(false);
 const occupiedSlots = ref([]);
+// Días de la semana deshabilitados según horario del médico (0=Dom, 6=Sáb)
+const scheduleDisabledDays = ref([0]); // Domingo siempre deshabilitado
+const DAY_NUM_MAP = { Lunes: 1, Martes: 2, 'Miércoles': 3, Jueves: 4, Viernes: 5, Sábado: 6 };
+const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
 // ── Opciones de listas ───────────────────────────────────────────────────────
 const patientOptions = ref([]);
@@ -250,6 +248,15 @@ const tomorrow = computed(() => {
   return d;
 });
 
+const endOfCurrentWeek = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const sat = new Date(today);
+  sat.setDate(today.getDate() + (6 - today.getDay()));
+  sat.setHours(23, 59, 59, 999);
+  return sat;
+});
+
 // Slots fijos del horario
 const timeSlots = computed(() => {
   const slots = [];
@@ -276,17 +283,27 @@ const fetchAvailability = async () => {
   loadingSlots.value = true;
   form.value.time = null;
   try {
-    // El backend espera dd/MM/yyyy
     const formattedDate = convertToDDMMYYYY(form.value.date.toISOString());
-    const { data } = await AppointmentApi.getAvailability(formattedDate, form.value.category);
+    const { data } = await AppointmentApi.getAvailability(
+      formattedDate,
+      form.value.category,
+      null,
+      form.value.doctor || null
+    );
     const appts = data.appointments ?? [];
     const doctors = data.doctors ?? [];
+    const shiftInfo = data.shiftInfo ?? null;
     const selectedDoc = form.value.doctor;
     occupiedSlots.value = timeSlots.value.filter((slot) => {
+      const hourNum = parseInt(slot.split(':')[0]);
+      const isMorning = hourNum < 13;
+      // Restricción por turno del médico seleccionado
+      if (shiftInfo) {
+        if (isMorning && !shiftInfo.morning) return true;
+        if (!isMorning && !shiftInfo.afternoon) return true;
+      }
       const atSlot = appts.filter((a) => a.time === slot);
-      // Todos los médicos de la categoría están ocupados en este slot
       if (doctors.length > 0 && atSlot.length >= doctors.length) return true;
-      // El médico seleccionado ya tiene cita en este slot
       if (selectedDoc) {
         return atSlot.some((a) => (a.doctor?.toString() ?? String(a.doctor)) === selectedDoc.toString());
       }
@@ -305,16 +322,40 @@ const onDateChange = async () => {
 };
 
 const onDoctorChange = async () => {
-  if (form.value.date) await fetchAvailability();
+  // Resetear fecha y hora al cambiar médico (el horario puede cambiar días disponibles)
+  form.value.date = null;
+  form.value.time = null;
+  occupiedSlots.value = [];
+  scheduleDisabledDays.value = [0]; // Sólo domingo por defecto
+
+  if (form.value.doctor) {
+    try {
+      const { data } = await DoctorScheduleApi.getSchedules(form.value.doctor);
+      const activeDayNums = data
+        .filter(s => s.active && (s.morning || s.afternoon))
+        .map(s => DAY_NUM_MAP[s.dayOfWeek])
+        .filter(n => n !== undefined);
+      if (activeDayNums.length > 0) {
+        // Deshabilitar días que NO están en el horario activo del médico
+        scheduleDisabledDays.value = ALL_WEEK_DAYS.filter(d => !activeDayNums.includes(d));
+      } else {
+        // Sin horario configurado o ningún día activo: deshabilitar todos
+        scheduleDisabledDays.value = ALL_WEEK_DAYS;
+      }
+    } catch {
+      scheduleDisabledDays.value = [0];
+    }
+  }
 };
 
 const onCategoryChange = () => {
   form.value.serviceId = null;
   form.value.doctor = null;
+  form.value.date = null;
   form.value.time = null;
   occupiedSlots.value = [];
+  scheduleDisabledDays.value = [0];
   loadDoctors(form.value.category);
-  if (form.value.date) fetchAvailability();
 };
 
 // ── Carga de datos ───────────────────────────────────────────────────────────
@@ -378,7 +419,7 @@ const validate = () => {
   if (!form.value.serviceId)       e.serviceId       = "Seleccione un servicio";
   if (!form.value.date)            e.date            = "Seleccione una fecha";
   if (!form.value.time)            e.time            = "Seleccione una hora";
-  if (isBranchManager.value && !form.value.doctor) e.doctor = "Seleccione un médico";
+  if (!form.value.doctor) e.doctor = "Seleccione un médico";
   errors.value = e;
   return Object.keys(e).length === 0;
 };
@@ -419,6 +460,7 @@ const resetForm = () => {
   form.value = { targetPatientId: null, category: null, serviceId: null, date: null, time: null, doctor: null, state: "Pendiente", notes: "" };
   errors.value = {};
   occupiedSlots.value = [];
+  scheduleDisabledDays.value = [0];
 };
 
 onMounted(async () => {

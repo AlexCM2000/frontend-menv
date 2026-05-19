@@ -60,3 +60,18 @@ export const addAllergy = async (id, payload) => {
   const { data } = await api.post(`health-records/${id}/allergies`, payload);
   return data;
 };
+
+export const addVitalSigns = async (id, payload) => {
+  const { data } = await api.post(`health-records/${id}/vital-signs`, payload);
+  return data;
+};
+
+export const addVaccine = async (id, payload) => {
+  const { data } = await api.post(`health-records/${id}/vaccines`, payload);
+  return data;
+};
+
+export const downloadHealthRecordPDF = async (id) => {
+  const { data } = await api.get(`health-records/${id}/report`, { responseType: "blob" });
+  return data;
+};
