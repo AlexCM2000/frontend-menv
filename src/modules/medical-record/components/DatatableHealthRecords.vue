@@ -203,9 +203,6 @@
               <span class="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-600 rounded-full px-2 py-0.5">
                 <i class="pi pi-clipboard text-[10px]" /> {{ data?.diagnoses?.length ?? 0 }} diag.
               </span>
-              <span class="inline-flex items-center gap-1 text-xs bg-green-50 text-green-600 rounded-full px-2 py-0.5">
-                <i class="pi pi-heart text-[10px]" /> {{ data?.medications?.length ?? 0 }} med.
-              </span>
               <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-600 rounded-full px-2 py-0.5">
                 <i class="pi pi-calendar text-[10px]" /> {{ data?.medicalAppointments?.length ?? 0 }} citas
               </span>

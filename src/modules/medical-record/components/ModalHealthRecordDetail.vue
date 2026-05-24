@@ -109,25 +109,6 @@
         <EmptySection v-else label="Sin diagnósticos registrados" />
       </section>
 
-      <!-- Medicaciones -->
-      <section>
-        <SectionTitle icon="pi-heart" label="Medicaciones" :count="record.medications?.length" />
-        <div v-if="record.medications?.length" class="space-y-2 mt-2">
-          <div
-            v-for="m in record.medications"
-            :key="m._id"
-            class="bg-green-50 border border-green-100 rounded-lg p-3 text-sm"
-          >
-            <p class="font-semibold text-gray-800">{{ m.name }}</p>
-            <p class="text-gray-500">Dosis: {{ m.dose || "—" }}</p>
-            <p v-if="m.start || m.end" class="text-xs text-gray-400 mt-1">
-              {{ formatDate(m.start) }} → {{ formatDate(m.end) }}
-            </p>
-          </div>
-        </div>
-        <EmptySection v-else label="Sin medicaciones registradas" />
-      </section>
-
       <!-- Tratamientos previos -->
       <section>
         <SectionTitle icon="pi-list" label="Tratamientos previos" :count="record.previousTreatments?.length" />
@@ -226,6 +207,14 @@ const loading = ref(false);
 const record = ref(null);
 const showAllApts = ref(false);
 const APT_PREVIEW = 5;
+
+// Cuando el store actualiza currentRecordDetail (ej: al agregar una medicación
+// u otro subdocumento desde el ModalAddSubdoc), reflejar los cambios en la vista.
+watch(currentRecordDetail, (fresh) => {
+  if (fresh && visibleDetail.value) {
+    record.value = fresh;
+  }
+});
 
 const sortedApts = computed(() =>
   [...(record.value?.medicalAppointments ?? [])].sort(

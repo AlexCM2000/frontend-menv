@@ -46,11 +46,6 @@ export const addDiagnosis = async (id, payload) => {
   return data;
 };
 
-export const addMedication = async (id, payload) => {
-  const { data } = await api.post(`health-records/${id}/medications`, payload);
-  return data;
-};
-
 export const addTreatment = async (id, payload) => {
   const { data } = await api.post(`health-records/${id}/previous-treatments`, payload);
   return data;

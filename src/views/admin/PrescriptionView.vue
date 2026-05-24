@@ -29,12 +29,11 @@ const statusFilter = ref("");
 const STATUS_OPTIONS = [
   { label: "Todos los estados", value: "" },
   { label: "Pendiente", value: "Pendiente" },
-  { label: "Parcial", value: "Parcial" },
   { label: "Despachada", value: "Despachada" },
 ];
 
 const statusSeverity = (s) =>
-  ({ Pendiente: "warn", Parcial: "info", Despachada: "success" }[s] ?? "secondary");
+  ({ Pendiente: "warn", Despachada: "success" }[s] ?? "secondary");
 
 const doSearch = async () => {
   prescriptionStore.search = searchInput.value;

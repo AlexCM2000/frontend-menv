@@ -10,7 +10,6 @@ import {
   updateRecordState,
   addObservation,
   addDiagnosis,
-  addMedication,
   addTreatment,
   addAllergy,
   addVitalSigns,
@@ -214,7 +213,6 @@ export const useRecordStore = defineStore("health-records", () => {
       const apiMap = {
         observation:  addObservation,
         diagnosis:    addDiagnosis,
-        medication:   addMedication,
         treatment:    addTreatment,
         allergy:      addAllergy,
         vitalSigns:   addVitalSigns,

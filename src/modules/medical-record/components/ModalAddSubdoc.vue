@@ -142,70 +142,6 @@
 
       </template>
 
-      <!-- ── MEDICACIÓN + CDSS interacciones ── -->
-      <template v-else-if="subdocType === 'medication'">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Medicamento <span class="text-red-500">*</span>
-            </label>
-            <InputText
-              v-model="form.name"
-              placeholder="Ej. Paracetamol"
-              class="w-full"
-              @blur="checkInteractions"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Dosis <span class="text-red-500">*</span>
-            </label>
-            <InputText v-model="form.dose" placeholder="Ej. 500mg cada 8h" class="w-full" />
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Vía de administración
-            </label>
-            <Select
-              v-model="form.route"
-              :options="routeOptions"
-              placeholder="Seleccionar vía"
-              showClear
-              class="w-full"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Frecuencia</label>
-            <InputText v-model="form.frequency" placeholder="Ej. Cada 8 horas" class="w-full" />
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Inicio</label>
-            <DatePicker v-model="form.start" dateFormat="dd/mm/yy" class="w-full" showIcon />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fin (opcional)</label>
-            <DatePicker v-model="form.end" dateFormat="dd/mm/yy" class="w-full" showIcon />
-          </div>
-        </div>
-        <!-- Alertas de interacción CDSS -->
-        <div v-if="interactionAlerts.length" class="space-y-2">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Alertas de interacción</p>
-          <div
-            v-for="(alert, i) in interactionAlerts"
-            :key="i"
-            class="flex items-start gap-2 rounded-lg px-3 py-2 text-sm"
-            :class="interactionAlertClass(alert.level)"
-          >
-            <i class="pi pi-exclamation-triangle mt-0.5 shrink-0" />
-            <span>{{ alert.message }}</span>
-          </div>
-        </div>
-      </template>
-
       <!-- ── TRATAMIENTO PREVIO ── -->
       <template v-else-if="subdocType === 'treatment'">
         <div>
@@ -521,7 +457,6 @@ import Select from "primevue/select";
 import Button from "primevue/button";
 import AutoComplete from "primevue/autocomplete";
 import { useRecordStore } from "../store/recordStore";
-import { checkDrugInteractions } from "@/data/drugInteractions";
 
 const recordStore = useRecordStore();
 const { visibleSubdoc, saving, subdocType, subdocTarget } = storeToRefs(recordStore);
@@ -529,7 +464,6 @@ const { closeSubdocModal, onAddSubdoc } = recordStore;
 
 const form = ref({});
 const validationError = ref("");
-const interactionAlerts = ref([]);
 const showCdssDialog = ref(false);
 const cdssAlerts = ref([]);
 
@@ -545,15 +479,10 @@ const patientName = computed(() => {
   return [p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(" ");
 });
 
-const currentMedNames = computed(() =>
-  (subdocTarget.value?.medications ?? []).map((m) => m.name).filter(Boolean)
-);
-
 const typeConfig = computed(() => {
   const configs = {
     observation: { title: "Agregar observación",      bgClass: "bg-blue-50",   iconClass: "pi-comment text-blue-600",              btnClass: "bg-blue-600 hover:bg-blue-700"   },
     diagnosis:   { title: "Agregar diagnóstico",      bgClass: "bg-purple-50", iconClass: "pi-clipboard text-purple-600",           btnClass: "bg-purple-600 hover:bg-purple-700" },
-    medication:  { title: "Agregar medicación",       bgClass: "bg-green-50",  iconClass: "pi-heart text-green-600",               btnClass: "bg-green-600 hover:bg-green-700"  },
     treatment:   { title: "Agregar tratamiento",      bgClass: "bg-amber-50",  iconClass: "pi-star text-amber-600",                btnClass: "bg-amber-600 hover:bg-amber-700"  },
     allergy:     { title: "Agregar alergia",          bgClass: "bg-red-50",    iconClass: "pi-exclamation-triangle text-red-600",  btnClass: "bg-red-600 hover:bg-red-700"      },
     vitalSigns:  { title: "Registrar signos vitales", bgClass: "bg-teal-50",   iconClass: "pi-heart-fill text-teal-600",           btnClass: "bg-teal-600 hover:bg-teal-700"    },
@@ -698,7 +627,6 @@ const doseOptions = [
 ];
 
 // Opciones de selectores
-const routeOptions = ["Oral", "Intravenosa", "Intramuscular", "Subcutánea", "Tópica", "Inhalada", "Sublingual", "Rectal", "Oftálmica", "Ótica"];
 const treatmentTypeOptions = ["Farmacológico", "Quirúrgico", "Fisioterapia", "Rehabilitación", "Radioterapia", "Quimioterapia", "Psicoterapia", "Dietético-nutricional", "Otro"];
 const severityOptions = [
   { label: "Leve",    value: "leve"    },
@@ -741,17 +669,6 @@ const vsStatusLabel = (status) => {
   return "";
 };
 
-// CDSS interacciones
-const checkInteractions = () => {
-  interactionAlerts.value = checkDrugInteractions(form.value.name, currentMedNames.value);
-};
-
-const interactionAlertClass = (level) => {
-  if (level === "critico")     return "bg-red-50 border border-red-200 text-red-700";
-  if (level === "advertencia") return "bg-amber-50 border border-amber-200 text-amber-700";
-  return "bg-blue-50 border border-blue-200 text-blue-700";
-};
-
 const cdssAlertClass = (level) => {
   if (level === "critico")     return "bg-red-50 border border-red-200 text-red-800";
   if (level === "advertencia") return "bg-amber-50 border border-amber-200 text-amber-800";
@@ -773,10 +690,6 @@ const validate = () => {
   }
   if (t === "diagnosis" && !form.value.description?.trim()) {
     validationError.value = "La descripción del diagnóstico es obligatoria.";
-    return false;
-  }
-  if (t === "medication" && (!form.value.name?.trim() || !form.value.dose?.trim())) {
-    validationError.value = "El medicamento y la dosis son obligatorios.";
     return false;
   }
   if (t === "treatment" && !form.value.treatment?.trim()) {
@@ -818,7 +731,6 @@ const handleSubmit = async () => {
 const resetForm = () => {
   form.value = {};
   validationError.value = "";
-  interactionAlerts.value = [];
   diagnosisQuery.value = "";
   selectedDiagnosis.value = null;
   manualDiagnosisMode.value = false;

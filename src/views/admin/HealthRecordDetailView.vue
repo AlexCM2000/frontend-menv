@@ -177,7 +177,7 @@
                 <i class="pi pi-calendar text-[#1A3C5E] text-xs"></i>
               </div>
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Fecha de nacimiento</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Fecha de nacimiento</p>
                 <p class="text-sm font-semibold text-gray-800">{{ formatDOB(record.patient?.dateOfBirth) }}</p>
               </div>
             </div>
@@ -187,7 +187,7 @@
                 <i class="pi pi-clock text-[#1A3C5E] text-xs"></i>
               </div>
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Edad</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Edad</p>
                 <p class="text-sm font-semibold text-gray-800">{{ calcAge(record.patient?.dateOfBirth) || "—" }}</p>
               </div>
             </div>
@@ -197,7 +197,7 @@
                 <i class="pi pi-phone text-[#1A3C5E] text-xs"></i>
               </div>
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Teléfono</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Teléfono</p>
                 <p class="text-sm font-semibold text-gray-800">{{ record.patient?.contactInfo?.phone || "—" }}</p>
               </div>
             </div>
@@ -223,7 +223,7 @@
                     v-for="a in record.patient.allergies.filter(Boolean)" :key="a"
                     class="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-medium"
                   >
-                    <i class="pi pi-exclamation-triangle text-[8px]"></i>
+                    <i class="pi pi-exclamation-triangle text-[10px]"></i>
                     {{ a }}
                   </span>
                 </div>
@@ -266,15 +266,15 @@
             </div>
             <div class="px-4 py-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Nombre</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Nombre</p>
                 <p class="text-sm font-semibold text-gray-800">{{ record.patient.emergencyContact.name }}</p>
               </div>
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Parentesco</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Parentesco</p>
                 <p class="text-sm text-gray-700">{{ record.patient.emergencyContact.relationship || "—" }}</p>
               </div>
               <div>
-                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Teléfono</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Teléfono</p>
                 <p class="text-sm font-mono font-semibold text-gray-800">{{ record.patient.emergencyContact.phone || "—" }}</p>
               </div>
             </div>
@@ -302,7 +302,7 @@
         <template v-if="record.vitalSigns?.length">
           <!-- Última toma -->
           <div class="px-5 pt-4 pb-2">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
               Última toma registrada — {{ formatDate(latestVS.date) }}
             </p>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -311,13 +311,13 @@
               <div class="rounded-xl border p-3.5 text-center flex flex-col" :class="vsCardClass(vsAlert(latestVS,'bp'))">
                 <div class="mb-2">
                   <p class="text-sm font-black text-gray-600 leading-none">PA</p>
-                  <p class="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Presión Arterial</p>
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Presión Arterial</p>
                 </div>
                 <p class="text-xl font-bold leading-none flex-1 flex items-center justify-center" :class="vsTextClass(vsAlert(latestVS,'bp'))">{{ bpText(latestVS) ?? "—" }}</p>
                 <div class="mt-2">
                   <p class="text-[10px] font-semibold text-gray-500">mmHg</p>
-                  <p class="text-[8px] text-gray-400 mt-0.5">milímetros de mercurio</p>
-                  <p class="text-[8px] text-gray-300 mt-0.5">Ref: 90–120 / 60–80</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">milímetros de mercurio</p>
+                  <p class="text-[10px] text-gray-300 mt-0.5">Ref: 90–120 / 60–80</p>
                 </div>
                 <i v-if="vsAlert(latestVS,'bp')" class="pi text-[10px] mt-1 block" :class="vsIconClass(vsAlert(latestVS,'bp'))"></i>
               </div>
@@ -326,13 +326,13 @@
               <div class="rounded-xl border p-3.5 text-center flex flex-col" :class="vsCardClass(vsAlert(latestVS,'hr'))">
                 <div class="mb-2">
                   <p class="text-sm font-black text-gray-600 leading-none">FC</p>
-                  <p class="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Frec. Cardíaca</p>
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Frec. Cardíaca</p>
                 </div>
                 <p class="text-xl font-bold leading-none flex-1 flex items-center justify-center" :class="vsTextClass(vsAlert(latestVS,'hr'))">{{ latestVS.heartRate ?? "—" }}</p>
                 <div class="mt-2">
                   <p class="text-[10px] font-semibold text-gray-500">lpm</p>
-                  <p class="text-[8px] text-gray-400 mt-0.5">latidos por minuto</p>
-                  <p class="text-[8px] text-gray-300 mt-0.5">Ref: 60–100 lpm</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">latidos por minuto</p>
+                  <p class="text-[10px] text-gray-300 mt-0.5">Ref: 60–100 lpm</p>
                 </div>
                 <i v-if="vsAlert(latestVS,'hr')" class="pi text-[10px] mt-1 block" :class="vsIconClass(vsAlert(latestVS,'hr'))"></i>
               </div>
@@ -341,13 +341,13 @@
               <div class="rounded-xl border p-3.5 text-center flex flex-col" :class="vsCardClass(vsAlert(latestVS,'temp'))">
                 <div class="mb-2">
                   <p class="text-sm font-black text-gray-600 leading-none">Temp.</p>
-                  <p class="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Temperatura</p>
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Temperatura</p>
                 </div>
                 <p class="text-xl font-bold leading-none flex-1 flex items-center justify-center" :class="vsTextClass(vsAlert(latestVS,'temp'))">{{ latestVS.temperature ?? "—" }}</p>
                 <div class="mt-2">
                   <p class="text-[10px] font-semibold text-gray-500">°C</p>
-                  <p class="text-[8px] text-gray-400 mt-0.5">grados Celsius</p>
-                  <p class="text-[8px] text-gray-300 mt-0.5">Ref: 36.0–37.5 °C</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">grados Celsius</p>
+                  <p class="text-[10px] text-gray-300 mt-0.5">Ref: 36.0–37.5 °C</p>
                 </div>
                 <i v-if="vsAlert(latestVS,'temp')" class="pi text-[10px] mt-1 block" :class="vsIconClass(vsAlert(latestVS,'temp'))"></i>
               </div>
@@ -356,13 +356,13 @@
               <div class="rounded-xl border p-3.5 text-center flex flex-col" :class="vsCardClass(vsAlert(latestVS,'o2'))">
                 <div class="mb-2">
                   <p class="text-sm font-black text-gray-600 leading-none">SpO₂</p>
-                  <p class="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Saturación O₂</p>
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Saturación O₂</p>
                 </div>
                 <p class="text-xl font-bold leading-none flex-1 flex items-center justify-center" :class="vsTextClass(vsAlert(latestVS,'o2'))">{{ latestVS.oxygenSaturation ?? "—" }}</p>
                 <div class="mt-2">
                   <p class="text-[10px] font-semibold text-gray-500">%</p>
-                  <p class="text-[8px] text-gray-400 mt-0.5">porcentaje de saturación</p>
-                  <p class="text-[8px] text-gray-300 mt-0.5">Ref: ≥ 95 %</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">porcentaje de saturación</p>
+                  <p class="text-[10px] text-gray-300 mt-0.5">Ref: ≥ 95 %</p>
                 </div>
                 <i v-if="vsAlert(latestVS,'o2')" class="pi text-[10px] mt-1 block" :class="vsIconClass(vsAlert(latestVS,'o2'))"></i>
               </div>
@@ -371,13 +371,13 @@
               <div class="rounded-xl border border-gray-100 p-3.5 text-center flex flex-col bg-gray-50">
                 <div class="mb-2">
                   <p class="text-sm font-black text-gray-600 leading-none">Peso</p>
-                  <p class="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Corporal</p>
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5 leading-none">Corporal</p>
                 </div>
                 <p class="text-xl font-bold text-gray-800 leading-none flex-1 flex items-center justify-center">{{ latestVS.weight ?? "—" }}</p>
                 <div class="mt-2">
                   <p class="text-[10px] font-semibold text-gray-500">kg</p>
-                  <p class="text-[8px] text-gray-400 mt-0.5">kilogramos</p>
-                  <p class="text-[8px] text-gray-300 mt-0.5">&nbsp;</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">kilogramos</p>
+                  <p class="text-[10px] text-gray-300 mt-0.5">&nbsp;</p>
                 </div>
               </div>
 
@@ -399,37 +399,37 @@
                   <thead>
                     <tr class="bg-gray-50 border-y border-gray-100">
                       <th class="text-left px-3 py-2 whitespace-nowrap">
-                        <p class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Fecha</p>
+                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">Fecha</p>
                       </th>
                       <th class="text-left px-3 py-2 whitespace-nowrap">
                         <p class="text-xs font-black text-gray-700 leading-none">PA</p>
-                        <p class="text-[9px] text-gray-500 mt-0.5">Presión Arterial</p>
-                        <p class="text-[8px] text-gray-400 mt-0.5">mmHg · milímetros de mercurio</p>
-                        <p class="text-[8px] text-gray-300 mt-0.5">Ref: 90–120 / 60–80</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Presión Arterial</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">mmHg · milímetros de mercurio</p>
+                        <p class="text-[10px] text-gray-300 mt-0.5">Ref: 90–120 / 60–80</p>
                       </th>
                       <th class="text-left px-3 py-2 whitespace-nowrap">
                         <p class="text-xs font-black text-gray-700 leading-none">FC</p>
-                        <p class="text-[9px] text-gray-500 mt-0.5">Frec. Cardíaca</p>
-                        <p class="text-[8px] text-gray-400 mt-0.5">lpm · latidos por minuto</p>
-                        <p class="text-[8px] text-gray-300 mt-0.5">Ref: 60–100 lpm</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Frec. Cardíaca</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">lpm · latidos por minuto</p>
+                        <p class="text-[10px] text-gray-300 mt-0.5">Ref: 60–100 lpm</p>
                       </th>
                       <th class="text-left px-3 py-2 whitespace-nowrap">
                         <p class="text-xs font-black text-gray-700 leading-none">Temp.</p>
-                        <p class="text-[9px] text-gray-500 mt-0.5">Temperatura</p>
-                        <p class="text-[8px] text-gray-400 mt-0.5">°C · grados Celsius</p>
-                        <p class="text-[8px] text-gray-300 mt-0.5">Ref: 36.0–37.5 °C</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Temperatura</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">°C · grados Celsius</p>
+                        <p class="text-[10px] text-gray-300 mt-0.5">Ref: 36.0–37.5 °C</p>
                       </th>
                       <th class="text-left px-3 py-2 whitespace-nowrap">
                         <p class="text-xs font-black text-gray-700 leading-none">SpO₂</p>
-                        <p class="text-[9px] text-gray-500 mt-0.5">Saturación de Oxígeno</p>
-                        <p class="text-[8px] text-gray-400 mt-0.5">% · porcentaje de saturación</p>
-                        <p class="text-[8px] text-gray-300 mt-0.5">Ref: ≥ 95 %</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Saturación de Oxígeno</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">% · porcentaje de saturación</p>
+                        <p class="text-[10px] text-gray-300 mt-0.5">Ref: ≥ 95 %</p>
                       </th>
                       <th class="text-left px-3 py-2 whitespace-nowrap">
                         <p class="text-xs font-black text-gray-700 leading-none">Peso</p>
-                        <p class="text-[9px] text-gray-500 mt-0.5">Peso corporal</p>
-                        <p class="text-[8px] text-gray-400 mt-0.5">kg · kilogramos</p>
-                        <p class="text-[8px] text-gray-300 mt-0.5">&nbsp;</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Peso corporal</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">kg · kilogramos</p>
+                        <p class="text-[10px] text-gray-300 mt-0.5">&nbsp;</p>
                       </th>
                     </tr>
                   </thead>
@@ -473,23 +473,23 @@
         <!-- Gráficas: >= 2 tomas -->
         <div v-else class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div v-if="hasBP">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Presión arterial (mmHg)</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Presión arterial (mmHg)</p>
             <canvas ref="bpChartRef" height="130"></canvas>
           </div>
           <div v-if="hasO2">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Saturación O₂ (%)</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Saturación O₂ (%)</p>
             <canvas ref="o2ChartRef" height="130"></canvas>
           </div>
           <div v-if="hasWeight">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Peso (kg)</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Peso (kg)</p>
             <canvas ref="weightChartRef" height="130"></canvas>
           </div>
           <div v-if="hasFCChart">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Frecuencia cardíaca (lpm)</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Frecuencia cardíaca (lpm)</p>
             <canvas ref="heartRateChartRef" height="130"></canvas>
           </div>
           <div v-if="hasTempChart">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Temperatura (°C)</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Temperatura (°C)</p>
             <canvas ref="tempChartRef" height="130"></canvas>
           </div>
           <div v-if="!hasAnyChart" class="col-span-2 py-8 text-center">
@@ -521,11 +521,11 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">CIE-10</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Descripción</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Médico</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Registrado por</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">CIE-10</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Descripción</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Médico</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Registrado por</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -580,10 +580,10 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Sustancia</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Reacción</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Severidad</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Fecha</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Sustancia</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Reacción</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Severidad</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Fecha</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -635,10 +635,10 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Tratamiento</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Tipo</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Desde</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Hasta</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tratamiento</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Tipo</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Desde</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Hasta</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -688,11 +688,11 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Vacuna</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Dosis</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Lote</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Aplicado por</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Vacuna</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Dosis</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Lote</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Aplicado por</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -769,10 +769,10 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Hora</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Servicio</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Hora</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Servicio</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -827,11 +827,11 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Código</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Médico</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell text-center">Ítems</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Código</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Médico</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell text-center">Ítems</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
                   <th class="px-4 py-3"></th>
                 </tr>
               </thead>
