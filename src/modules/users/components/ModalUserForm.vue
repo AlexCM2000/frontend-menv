@@ -11,7 +11,7 @@
       footer: { class: 'border-t border-gray-100 px-6 py-4' },
     }"
   >
-    <!-- ── HEADER del Dialog ── -->
+    <!-- Header del Dialog -->
     <template #header>
       <div class="flex items-center gap-3">
         <div
@@ -42,7 +42,7 @@
       </div>
     </template>
 
-    <!-- ── CONTENIDO: FormKit ── -->
+    <!-- Contenido: FormKit -->
     <FormKit
       id="userForm"
       type="form"
@@ -64,7 +64,7 @@
               <FormKit
                 type="text"
                 name="primerApellido"
-                placeholder="Ej. Mamani"
+                placeholder="Ingrese su apellido"
                 validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'El primer apellido es obligatorio',
@@ -80,7 +80,7 @@
               <FormKit
                 type="text"
                 name="segundoApellido"
-                placeholder="Ej. Quispe"
+                placeholder="Segundo apellido"
                 validation="matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]*$/"
                 :validation-messages="{ matches: 'Solo letras y espacios' }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -92,7 +92,7 @@
               <FormKit
                 type="text"
                 name="nombres"
-                placeholder="Ej. Juan Carlos"
+                placeholder="Ingrese sus nombres"
                 validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'Los nombres son obligatorios',
@@ -109,7 +109,7 @@
               <FormKit
                 type="email"
                 name="email"
-                placeholder="Ej. juan@correo.com"
+                placeholder="correo@ejemplo.com"
                 validation="required|email"
                 :validation-messages="{
                   required: 'El correo es obligatorio',
@@ -125,7 +125,7 @@
               <FormKit
                 type="text"
                 name="susCode"
-                placeholder="Ej. SUS-001"
+                placeholder="Código del paciente"
                 validation="required"
                 :validation-messages="{ required: 'El código SUS es obligatorio' }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -344,7 +344,7 @@
       </div>
     </FormKit>
 
-    <!-- ── FOOTER del Dialog ── -->
+    <!-- Footer del Dialog -->
     <template #footer>
       <div class="flex justify-end gap-3">
         <button

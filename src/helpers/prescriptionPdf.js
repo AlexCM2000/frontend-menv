@@ -29,7 +29,7 @@ export async function generatePrescriptionPdf(rx) {
   const W = 148;
   let y = 0;
 
-  // ── Encabezado institucional ──────────────────────────────
+  // Encabezado institucional
   doc.setDrawColor(30, 30, 30);
   doc.setLineWidth(0.8);
   doc.line(10, 6, W - 10, 6);
@@ -53,7 +53,7 @@ export async function generatePrescriptionPdf(rx) {
 
   y += 6;
 
-  // ── Título + código + fecha ───────────────────────────────
+  // Título, código y fecha
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20, 20, 20);
@@ -76,7 +76,7 @@ export async function generatePrescriptionPdf(rx) {
   doc.line(10, y, W - 10, y);
   y += 5;
 
-  // ── Datos del paciente ────────────────────────────────────
+  // Datos del paciente
   doc.setFontSize(7);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(80, 80, 80);
@@ -92,7 +92,7 @@ export async function generatePrescriptionPdf(rx) {
 
   y += 6;
 
-  // ── Datos del médico ──────────────────────────────────────
+  // Datos del médico
   doc.setFontSize(7);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(80, 80, 80);
@@ -116,7 +116,7 @@ export async function generatePrescriptionPdf(rx) {
   doc.line(10, y, W - 10, y);
   y += 5;
 
-  // ── Medicamentos ──────────────────────────────────────────
+  // Medicamentos
   doc.setFontSize(7);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(80, 80, 80);
@@ -146,7 +146,7 @@ export async function generatePrescriptionPdf(rx) {
     y += 5;
   });
 
-  // ── Notas ─────────────────────────────────────────────────
+  // Notas
   if (rx.notes) {
     doc.setDrawColor(160, 160, 160);
     doc.setLineWidth(0.3);
@@ -165,7 +165,7 @@ export async function generatePrescriptionPdf(rx) {
     y += noteLines.length * 3.5;
   }
 
-  // ── Firma del médico ──────────────────────────────────────
+  // Firma del médico
   const signY = Math.max(y + 10, 170);
   doc.setDrawColor(80, 80, 80);
   doc.setLineWidth(0.4);
@@ -175,7 +175,7 @@ export async function generatePrescriptionPdf(rx) {
   doc.setTextColor(100, 100, 100);
   doc.text("Firma y sello del médico", 37.5, signY + 4, { align: "center" });
 
-  // ── Footer ────────────────────────────────────────────────
+  // Footer
   doc.setDrawColor(160, 160, 160);
   doc.setLineWidth(0.3);
   doc.line(10, 202, W - 10, 202);

@@ -17,7 +17,7 @@ const isStaff      = computed(() => isAdmin.value || isBranchMgr.value);
 const collapsed  = ref(false);
 const mobileOpen = ref(false);
 
-/* ─── Secciones de navegación por rol ─────────────── */
+// Secciones de navegación por rol
 const navSections = computed(() => {
   const sections = [
     {
@@ -89,7 +89,7 @@ const navSections = computed(() => {
   return sections;
 });
 
-/* ─── Datos del usuario ────────────────────────────── */
+// Datos del usuario
 const roleLabel = computed(() => {
   if (isAdmin.value)      return "Administrador";
   if (isBranchMgr.value)  return "Gestor";
@@ -113,7 +113,7 @@ function getInitials(name = "") {
     : name.slice(0, 2).toUpperCase() || "?";
 }
 
-/* ─── Breadcrumbs ─────────────────────────────────── */
+// Breadcrumbs
 const breadcrumbMap = {
   "admin-dashboard":      [{ label: "Principal" }, { label: "Dashboard" }],
   "admin-appointments":   [{ label: "Clínico" },   { label: "Citas" }],
@@ -138,7 +138,7 @@ const breadcrumbMap = {
 
 const breadcrumbs = computed(() => breadcrumbMap[route.name] ?? []);
 
-/* ─── Toggle sidebar ───────────────────────────────── */
+// Toggle sidebar
 const toggleSidebar = () => {
   if (typeof window !== "undefined" && window.innerWidth >= 1024) {
     collapsed.value = !collapsed.value;
@@ -153,7 +153,7 @@ onMounted(() => userAuth.getUser());
 <template>
   <div class="flex h-screen overflow-hidden bg-gray-50">
 
-    <!-- ── Backdrop mobile ────────────────────────────── -->
+    <!-- Backdrop mobile -->
     <Transition name="t-fade">
       <div
         v-if="mobileOpen"
@@ -170,7 +170,7 @@ onMounted(() => userAuth.getUser());
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
-      <!-- ── Logo ────────────────────────────────────── -->
+      <!-- Logo -->
       <div
         class="flex items-center gap-3 h-16 px-4 border-b border-white/[0.07] shrink-0"
         :class="collapsed && 'justify-center px-2'"
@@ -186,7 +186,7 @@ onMounted(() => userAuth.getUser());
         </div>
       </div>
 
-      <!-- ── Navegación ──────────────────────────────── -->
+      <!-- Navegación -->
       <nav class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-0.5 nav-scroll">
         <template v-for="(section, si) in navSections" :key="section.id">
           <!-- Título de sección -->
@@ -230,7 +230,7 @@ onMounted(() => userAuth.getUser());
       :class="collapsed ? 'lg:ml-[68px]' : 'lg:ml-64'"
     >
 
-      <!-- ── Header principal ──────────────────────── -->
+      <!-- Header principal -->
       <header class="flex items-center gap-3 h-16 px-4 bg-white border-b border-gray-100 shadow-sm shrink-0 z-30">
 
         <!-- Toggle sidebar / menú mobile -->
@@ -242,7 +242,7 @@ onMounted(() => userAuth.getUser());
           <i class="pi pi-bars text-lg"></i>
         </button>
 
-        <!-- Breadcrumbs ─────────────────────────────── -->
+        <!-- Breadcrumbs -->
         <div class="flex-1 min-w-0 overflow-hidden">
           <!-- Ruta completa en pantallas sm+ -->
           <nav class="hidden sm:flex items-center gap-0.5 text-sm">
@@ -279,7 +279,7 @@ onMounted(() => userAuth.getUser());
           </p>
         </div>
 
-        <!-- Perfil de usuario ────────────────────────── -->
+        <!-- Perfil de usuario -->
         <div class="flex items-center gap-1.5 shrink-0">
           <!-- Nombre + cargo (solo md+) -->
           <div class="hidden md:block text-right mr-1">

@@ -120,7 +120,7 @@ export const useRecordStore = defineStore("health-records", () => {
     await setRecords();
   };
 
-  // ── Crear historial ──────────────────────────────
+  // Crear historial
   const onCreateRecord = async (record) => {
     try {
       saving.value = true;
@@ -137,7 +137,7 @@ export const useRecordStore = defineStore("health-records", () => {
     }
   };
 
-  // ── Archivar ──────────────────────────────────────
+  // Archivar
   const onArchivedRecord = async (id) => {
     const result = await Swal.fire({
       title: "¿Archivar historial?",
@@ -163,7 +163,7 @@ export const useRecordStore = defineStore("health-records", () => {
     }
   };
 
-  // ── Desarchivar ───────────────────────────────────
+  // Desarchivar
   const onUnarchiveRecord = async (id) => {
     const result = await Swal.fire({
       title: "¿Desarchivar historial?",
@@ -189,7 +189,7 @@ export const useRecordStore = defineStore("health-records", () => {
     }
   };
 
-  // ── Cambiar estado ────────────────────────────────
+  // Cambiar estado
   const onUpdateState = async (id, newState) => {
     const rec = records.value.find((r) => r._id === id);
     const oldState = rec?.state;
@@ -203,8 +203,7 @@ export const useRecordStore = defineStore("health-records", () => {
     }
   };
 
-  // ── Agregar subdocumento clínico ──────────────────
-  // Retorna { alerts } si el tipo es vitalSigns, para que el formulario los muestre
+  // Agregar subdocumento clínico (retorna { alerts } cuando el tipo es vitalSigns)
   const onAddSubdoc = async (payload) => {
     if (!subdocTarget.value || !subdocType.value) return;
     try {
@@ -241,7 +240,7 @@ export const useRecordStore = defineStore("health-records", () => {
     }
   };
 
-  // ── Control de modales ────────────────────────────
+  // Control de modales
   const onCurrentRecord = (data) => { currentRecord.value = data; openModal(); };
   const onCurrentRecordDetail = (data) => { currentRecordDetail.value = data; openModalDetail(); };
 

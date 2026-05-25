@@ -28,7 +28,7 @@
           type="text"
           label="Nombre completo"
           name="name"
-          placeholder="Ej: Dr. Juan Pérez"
+          placeholder="Nombre completo del médico"
           validation="required|length:3"
           :validation-messages="{
             required: 'El nombre es obligatorio',
@@ -56,7 +56,7 @@
           type="text"
           label="N° de Licencia Médica"
           name="licenseNumber"
-          placeholder="Ej: LM-00123"
+          placeholder="Ej: LM-12345"
           validation="required|length:3"
           :validation-messages="{
             required: 'El número de licencia es obligatorio',
@@ -83,7 +83,7 @@
           type="number"
           label="Teléfono de contacto"
           name="phone"
-          placeholder="Ej: 70001234"
+          placeholder="Ej: 71234567"
           validation="required|length:7,8"
           :validation-messages="{
             required: 'El teléfono es obligatorio',

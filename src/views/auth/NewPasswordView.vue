@@ -163,7 +163,7 @@ const success = ref(false);
 const showPwd = ref(false);
 const showConfirm = ref(false);
 
-// ── Fortaleza de contraseña ──────────────────────────
+// Fortaleza de contraseña
 const strength = computed(() => {
   const pwd = form.value.password;
   if (!pwd) return 0;
@@ -193,7 +193,7 @@ const strengthTextColor = computed(() => {
   return colors[strength.value] || "";
 });
 
-// ── Validaciones ─────────────────────────────────────
+// Validaciones
 const validatePassword = () => {
   if (!form.value.password) {
     errors.value.password = "La contraseña es obligatoria";
@@ -214,7 +214,7 @@ const validateConfirm = () => {
   }
 };
 
-// ── Ciclo de vida ─────────────────────────────────────
+// Ciclo de vida
 onMounted(async () => {
   try {
     await AuthApi.verifyPasswordResetToken(token);
@@ -223,7 +223,7 @@ onMounted(async () => {
   }
 });
 
-// ── Submit ────────────────────────────────────────────
+// Submit
 const handleSubmit = async () => {
   validatePassword();
   validateConfirm();

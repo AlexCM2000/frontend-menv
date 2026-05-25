@@ -22,7 +22,7 @@ const { user } = storeToRefs(userStore);
 
 const canDispense = computed(() => user.value?.admin || user.value?.branchManager || user.value?.pharmacist);
 
-/* ─── Filtros ──────────────────────────────────────────────── */
+// Filtros
 const searchInput  = ref("");
 const statusFilter = ref("");
 
@@ -51,7 +51,7 @@ const clearFilters = async () => {
   await prescriptionStore.loadPrescriptions();
 };
 
-/* ─── Modal despacho ──────────────────────────────────────── */
+// Modal despacho
 const showDispatch   = ref(false);
 const selectedRx     = ref(null);
 const dispatchQtys   = ref({});
@@ -78,7 +78,7 @@ const submitDispatch = async () => {
   await prescriptionStore.loadPrescriptions();
 };
 
-/* ─── Helpers de display ──────────────────────────────────── */
+// Helpers de display
 const patientName = (p) => {
   if (!p) return "—";
   return [p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(" ");
@@ -87,7 +87,7 @@ const patientName = (p) => {
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString("es-BO", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
 
-/* ─── Imprimir receta ──────────────────────────────────────── */
+// Imprimir receta
 const printRx = async (rx) => {
   try {
     const { data } = await PrescriptionApi.getPrescriptionById(rx._id);

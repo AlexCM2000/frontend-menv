@@ -47,7 +47,7 @@
     >
       <div class="space-y-6">
 
-        <!-- ── SECCIÓN 1: Identificación ── -->
+        <!-- Sección 1: Identificación -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -66,7 +66,7 @@
               <FormKit
                 type="text"
                 name="primerApellido"
-                placeholder="Ej. Mamani"
+                placeholder="Ingrese su apellido"
                 validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'El primer apellido es obligatorio',
@@ -86,7 +86,7 @@
               <FormKit
                 type="text"
                 name="segundoApellido"
-                placeholder="Ej. Quispe"
+                placeholder="Segundo apellido"
                 validation="matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]*$/"
                 :validation-messages="{ matches: 'Solo letras y espacios' }"
                 input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -102,7 +102,7 @@
               <FormKit
                 type="text"
                 name="nombres"
-                placeholder="Ej. Juan Carlos"
+                placeholder="Ingrese sus nombres"
                 validation="required|length:2|matches:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/"
                 :validation-messages="{
                   required: 'Los nombres son obligatorios',
@@ -163,7 +163,7 @@
           </div>
         </section>
 
-        <!-- ── SECCIÓN 2: Centro e identificación médica ── -->
+        <!-- Sección 2: Centro e identificación médica -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-md bg-indigo-100 flex items-center justify-center flex-shrink-0">
@@ -215,7 +215,7 @@
           </div>
         </section>
 
-        <!-- ── SECCIÓN 3: Datos de contacto ── -->
+        <!-- Sección 3: Datos de contacto -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center flex-shrink-0">
@@ -252,7 +252,7 @@
               <FormKit
                 type="number"
                 name="phone"
-                placeholder="Ej. 70000000"
+                placeholder="Ej: 71234567"
                 validation="required|length:7,8"
                 :validation-messages="{
                   required: 'El número de celular es obligatorio',
@@ -284,7 +284,7 @@
           </div>
         </section>
 
-        <!-- ── SECCIÓN 4: Contacto de emergencia ── -->
+        <!-- Sección 4: Contacto de emergencia -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-md bg-orange-100 flex items-center justify-center flex-shrink-0">
@@ -323,7 +323,7 @@
               <FormKit
                 type="number"
                 name="phoneContact"
-                placeholder="Ej. 70000000"
+                placeholder="Ej: 71234567"
                 validation="required|length:7,8"
                 :validation-messages="{
                   required: 'El teléfono del contacto es obligatorio',
@@ -352,7 +352,7 @@
           </div>
         </section>
 
-        <!-- ── SECCIÓN 5: Antecedentes médicos ── -->
+        <!-- Sección 5: Antecedentes médicos -->
         <section>
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-md bg-rose-100 flex items-center justify-center flex-shrink-0">

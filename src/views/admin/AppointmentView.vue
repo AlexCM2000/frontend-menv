@@ -626,7 +626,7 @@ const completedReminder = ref(null);
 const loadingReminder = ref(false);
 let reminderTimer = null;
 
-// ── Editar cita (Bug 25) ─────────────────────────────────────────────────────
+// Editar cita
 const showEditModal = ref(false);
 const editAppointment = ref(null);
 
@@ -641,7 +641,7 @@ const onPrintReceipt = (data) => {
   printReceipt(data);
 };
 
-// ── Reprogramar cita ─────────────────────────────────────────────────────────
+// Reprogramar cita
 const showRescheduleModal = ref(false);
 const rescheduleForm = ref({ date: null, time: null, notes: "" });
 const rescheduling = ref(false);

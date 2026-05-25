@@ -215,7 +215,7 @@
       </div>
     </div>
 
-    <!-- ── Alertas de stock bajo mínimo (farmacéutico / branchManager) ───────── -->
+    <!-- Alertas de stock bajo mínimo -->
     <div
       v-if="(isPharmacist || (!isAdmin && !isDoctor && user?.branchManager)) && stats.stockAlerts?.length"
       class="bg-white rounded-xl border border-orange-200 shadow-sm overflow-hidden"
@@ -367,7 +367,7 @@ onMounted(async () => {
   await load();
 });
 
-// ─── Colores del estado ────────────────────────────────
+// Colores del estado
 const STATE_COLORS = {
   Pendiente:    "#F59E0B",
   Completada:   "#10B981",
@@ -377,7 +377,7 @@ const STATE_COLORS = {
 };
 const STATE_ORDER = ["Pendiente", "Completada", "Cancelada", "Reprogramada", "No asistio"];
 
-// ─── Tasa de asistencia color ──────────────────────────
+// Tasa de asistencia — color según porcentaje
 const tasaColor = computed(() => {
   const t = stats.value.kpis.tasaAsistencia;
   if (t === null) return { bg: "bg-gray-100", text: "text-gray-400" };
@@ -386,7 +386,7 @@ const tasaColor = computed(() => {
   return { bg: "bg-red-100", text: "text-red-500" };
 });
 
-// ─── Donut chart ───────────────────────────────────────
+// Gráfico donut de citas por estado
 const donutData = computed(() => {
   const map = {};
   for (const e of stats.value.citasPorEstado ?? []) map[e._id] = e.count;
@@ -412,7 +412,7 @@ const donutOptions = {
   cutout: "65%",
 };
 
-// ─── Line chart ────────────────────────────────────────
+// Gráfico de líneas — citas por día
 function buildDateRange(days) {
   const result = [];
   const today = new Date();
@@ -476,7 +476,7 @@ const lineOptions = {
   },
 };
 
-// ─── Bar horizontal chart ──────────────────────────────
+// Gráfico de barras — citas por especialidad
 const BAR_PALETTE = [
   "#6366F1", "#8B5CF6", "#EC4899", "#14B8A6",
   "#F59E0B", "#10B981", "#3B82F6", "#EF4444",
@@ -504,7 +504,7 @@ const barOptions = {
   },
 };
 
-// ─── Helpers de UI ─────────────────────────────────────
+// Helpers de UI
 function getInitials(name = "") {
   const parts = name.trim().split(" ");
   return parts.length >= 2

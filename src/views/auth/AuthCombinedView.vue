@@ -48,7 +48,7 @@
         class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
       >
         <Transition name="fade-form" mode="out-in">
-          <!-- ── Login (mobile) ── -->
+          <!-- Login (mobile) -->
           <div v-if="!isActive" key="ml" class="p-7">
             <h3 class="text-xl font-bold text-gray-900 mb-0.5">Bienvenido</h3>
             <p class="text-xs text-gray-400 uppercase tracking-widest mb-6">
@@ -123,7 +123,7 @@
             </form>
           </div>
 
-          <!-- ── Register (mobile) ── -->
+          <!-- Register (mobile) -->
           <div v-else key="mr" class="p-7 max-h-[74vh] overflow-y-auto">
             <h3 class="text-xl font-bold text-gray-900 mb-0.5">Crear cuenta</h3>
 
@@ -141,7 +141,7 @@
                   <label class="field-label">Primer apellido *</label>
                   <InputText
                     v-model="register.primerApellido"
-                    placeholder="Mamani"
+                    placeholder="Primer apellido"
                     class="w-full"
                     :class="register.errors.primerApellido ? 'p-invalid' : ''"
                   />
@@ -153,7 +153,7 @@
                   <label class="field-label">Segundo apellido</label>
                   <InputText
                     v-model="register.segundoApellido"
-                    placeholder="Quispe"
+                    placeholder="Segundo apellido"
                     class="w-full"
                   />
                 </div>
@@ -162,7 +162,7 @@
                 <label class="field-label">Nombres *</label>
                 <InputText
                   v-model="register.nombres"
-                  placeholder="Juan Carlos"
+                  placeholder="Nombres completos"
                   class="w-full"
                   :class="register.errors.nombres ? 'p-invalid' : ''"
                 />
@@ -314,7 +314,7 @@
                   <label class="field-label">Primer apellido *</label>
                   <InputText
                     v-model="register.primerApellido"
-                    placeholder="Mamani"
+                    placeholder="Primer apellido"
                     class="w-full"
                     :class="register.errors.primerApellido ? 'p-invalid' : ''"
                   />
@@ -326,7 +326,7 @@
                   <label class="field-label">Segundo apellido</label>
                   <InputText
                     v-model="register.segundoApellido"
-                    placeholder="Quispe"
+                    placeholder="Segundo apellido"
                     class="w-full"
                   />
                 </div>
@@ -335,7 +335,7 @@
                 <label class="field-label">Nombres *</label>
                 <InputText
                   v-model="register.nombres"
-                  placeholder="Juan Carlos"
+                  placeholder="Nombres completos"
                   class="w-full"
                   :class="register.errors.nombres ? 'p-invalid' : ''"
                 />
@@ -537,7 +537,7 @@
           </div>
         </div>
 
-        <!-- ─── PANEL DESLIZANTE ─── -->
+        <!-- Panel deslizante -->
         <div class="toggle-container">
           <div class="toggle">
             <!-- Panel izquierdo: se muestra cuando el registro está activo -->
@@ -597,7 +597,7 @@ const healthStore = useHealthStore();
 const { healths } = storeToRefs(healthStore);
 const { getHealths } = healthStore;
 
-// ── Modo: false = login, true = register ────────────────
+// Modo: false = login, true = register
 const isActive = ref(route.name === "register");
 
 const setMode = (toRegister) => {
@@ -605,13 +605,13 @@ const setMode = (toRegister) => {
   router.replace({ name: toRegister ? "register" : "login" });
 };
 
-// ── Opciones de centros de salud ────────────────────────
+// Opciones de centros de salud
 const healthSelectOptions = computed(() => [
   { label: "Seleccione un centro de salud", value: "" },
   ...(healths.value ?? []),
 ]);
 
-// ── Estado del login ────────────────────────────────────
+// Estado del login
 const login = reactive({
   email: "",
   password: "",
@@ -621,7 +621,7 @@ const login = reactive({
   errors: { email: "", password: "" },
 });
 
-// ── Estado del registro ─────────────────────────────────
+// Estado del registro
 const register = reactive({
   primerApellido: "",
   segundoApellido: "",
@@ -638,7 +638,7 @@ const register = reactive({
   errors: {},
 });
 
-// ── Validaciones login ──────────────────────────────────
+// Validaciones login
 const validateLogin = () => {
   login.errors.email = !login.email
     ? "El correo es obligatorio"
@@ -672,7 +672,7 @@ const handleLogin = async () => {
   }
 };
 
-// ── Validaciones registro ───────────────────────────────
+// Validaciones registro
 const validateRegister = () => {
   const e = {};
   if (!register.primerApellido || register.primerApellido.length < 2)
@@ -762,7 +762,7 @@ onMounted(() => {
   height: 580px; /* altura fija para que height:100% en hijos funcione */
 }
 
-/* ── Form containers: posiciones FIJAS y separadas ── */
+/* Form containers */
 .form-container {
   position: absolute;
   top: 0;
@@ -781,7 +781,7 @@ onMounted(() => {
   left: 50%;
 }
 
-/* ── Form inner layouts ── */
+/* Form inner layouts */
 .form-inner {
   display: flex;
   flex-direction: column;
@@ -887,7 +887,7 @@ onMounted(() => {
   transform: translateX(200%);
 }
 
-/* ── Toggle content ── */
+/* Toggle content */
 .toggle-icon {
   width: 60px;
   height: 60px;

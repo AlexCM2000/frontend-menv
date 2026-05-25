@@ -12,7 +12,7 @@ const loadError = ref(false);
 const cdssStore = useCdssStore();
 const { config, loading, saving } = storeToRefs(cdssStore);
 
-/* ─── Definición de signos vitales ───────────────────── */
+// Definición de signos vitales
 const VITAL_DEFS = [
   {
     key: "systolicBP",
@@ -115,7 +115,7 @@ const THRESHOLD_FIELDS = [
   },
 ];
 
-/* ─── Formulario local (deep clone de config) ─────────── */
+// Formulario local (deep clone de config)
 const form = ref({});
 
 const initForm = () => {
@@ -150,7 +150,7 @@ onMounted(async () => {
   initForm();
 });
 
-/* ─── Acciones ─────────────────────────────────────────── */
+// Acciones
 const save = async () => {
   await cdssStore.saveConfig(form.value);
 };
@@ -177,7 +177,7 @@ const resetToDefaults = async () => {
   initForm();
 };
 
-/* ─── Vista previa de zonas ────────────────────────────── */
+// Vista previa de zonas
 const getZoneLabel = (vsKey) => {
   const v = form.value[vsKey];
   if (!v) return "";
@@ -196,7 +196,7 @@ const getZoneLabel = (vsKey) => {
 
 <template>
   <div class="px-4 sm:px-6 py-6 max-w-5xl mx-auto space-y-6">
-    <!-- ── Encabezado ──────────────────────────────────── -->
+    <!-- Encabezado -->
     <div>
       <div class="flex items-center gap-3 mb-3">
         <div
@@ -226,7 +226,7 @@ const getZoneLabel = (vsKey) => {
       </div> -->
     </div>
 
-    <!-- ── Leyenda de colores ──────────────────────────── -->
+    <!-- Leyenda de colores -->
     <div class="flex flex-wrap gap-3 text-xs">
       <span
         class="flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full font-medium"
@@ -246,7 +246,7 @@ const getZoneLabel = (vsKey) => {
       </span>
     </div>
 
-    <!-- ── Skeleton mientras carga ─────────────────────── -->
+    <!-- Skeleton mientras carga -->
     <div v-if="loading" class="space-y-4">
       <div
         v-for="i in 5"
@@ -264,7 +264,7 @@ const getZoneLabel = (vsKey) => {
       </div>
     </div>
 
-    <!-- ── Error al cargar ─────────────────────────────── -->
+    <!-- Error al cargar -->
     <div
       v-else-if="loadError"
       class="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
@@ -278,7 +278,7 @@ const getZoneLabel = (vsKey) => {
       </p>
     </div>
 
-    <!-- ── Cards de signos vitales ─────────────────────── -->
+    <!-- Cards de signos vitales -->
     <div v-else-if="hasForm" class="space-y-4">
       <div
         v-for="vs in VITAL_DEFS"
@@ -373,7 +373,7 @@ const getZoneLabel = (vsKey) => {
         </div>
       </div>
 
-      <!-- ── Botones de acción ──────────────────────────── -->
+      <!-- Botones de acción -->
       <div
         class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2"
       >

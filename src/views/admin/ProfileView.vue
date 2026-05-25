@@ -1,7 +1,7 @@
 <template>
   <div class="m-3 sm:m-5 space-y-5">
 
-    <!-- ── Datos personales ─────────────────────────── -->
+    <!-- Datos personales -->
     <Card>
       <template #title>
         <div class="flex items-center gap-3">
@@ -33,7 +33,7 @@
                 <FormKit
                   type="text"
                   name="primerApellido"
-                  placeholder="Ej. Mamani"
+                  placeholder="Ingrese su apellido"
                   validation="required|length:2"
                   :validation-messages="{
                     required: 'El primer apellido es obligatorio',
@@ -50,7 +50,7 @@
                 <FormKit
                   type="text"
                   name="segundoApellido"
-                  placeholder="Ej. Quispe"
+                  placeholder="Segundo apellido"
                   input-class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   messages-class="mt-1.5 text-xs text-red-500"
                 />
@@ -64,7 +64,7 @@
               <FormKit
                 type="text"
                 name="nombres"
-                placeholder="Ej. Juan Carlos"
+                placeholder="Ingrese sus nombres"
                 validation="required|length:2"
                 :validation-messages="{
                   required: 'Los nombres son obligatorios',
@@ -107,7 +107,7 @@
       </template>
     </Card>
 
-    <!-- ── Cambiar contraseña ───────────────────────── -->
+    <!-- Cambiar contraseña -->
     <Card>
       <template #title>
         <div class="flex items-center gap-3">

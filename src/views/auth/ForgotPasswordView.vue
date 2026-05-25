@@ -15,7 +15,7 @@
     <!-- Cuerpo -->
     <div class="px-8 py-7">
 
-      <!-- ── Estado: Enviado ── -->
+      <!-- Estado: enviado -->
       <Transition name="fade-up" mode="out-in">
         <div v-if="sent" class="text-center py-4">
           <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 ring-4 ring-emerald-100">
@@ -35,7 +35,7 @@
           </RouterLink>
         </div>
 
-        <!-- ── Estado: Formulario ── -->
+        <!-- Estado: formulario -->
         <div v-else>
           <!-- Aviso informativo -->
           <div class="mb-5 flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-700">

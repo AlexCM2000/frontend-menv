@@ -5,7 +5,7 @@
     :style="{ width: '58rem', maxWidth: '95vw' }"
     :breakpoints="{ '1199px': '80vw', '575px': '95vw' }"
   >
-    <!-- ── HEADER ── -->
+    <!-- Header -->
     <template #header>
       <div class="w-full flex items-start gap-4">
         <!-- Avatar -->
@@ -46,7 +46,7 @@
       </div>
     </template>
 
-    <!-- ── BODY ── -->
+    <!-- Body -->
     <div v-if="p" class="space-y-4 pt-1">
 
       <!-- 1. DATOS PERSONALES -->
@@ -177,7 +177,7 @@
 
     </div>
 
-    <!-- ── FOOTER ── -->
+    <!-- Footer -->
     <template #footer>
       <div class="flex items-center justify-between w-full">
         <span class="text-xs text-gray-300 font-mono select-all">{{ p._id ?? "" }}</span>
@@ -195,7 +195,7 @@ import Button from "primevue/button";
 import Tag from "primevue/tag";
 import { usePatientStore } from "../store/patientStore";
 
-// ── Componente interno: campo con icono ──────────────────
+// Componente interno: campo con icono
 const InfoField = {
   props: {
     icon: String,
@@ -228,7 +228,7 @@ const InfoField = {
   },
 };
 
-// ── Store ────────────────────────────────────────────────
+// Store
 const { visibleDetail, currentPatientDetail } = storeToRefs(usePatientStore());
 const { closeModalDetail } = usePatientStore();
 

@@ -12,7 +12,7 @@
   >
     <div class="voucher-wrap select-none" ref="voucherEl">
 
-      <!-- ── Header / Banner ── -->
+      <!-- Header / Banner -->
       <div
         class="relative overflow-hidden px-5 pt-5 pb-6"
         :style="{ background: headerGradient }"
@@ -55,7 +55,7 @@
         </svg>
       </div>
 
-      <!-- ── Body ── -->
+      <!-- Body -->
       <div class="bg-white px-5 pb-0 pt-4 space-y-4">
 
         <!-- Date / Time -->
@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <!-- ── Patient strip (bottom) ── -->
+      <!-- Patient strip (bottom) -->
       <div class="relative overflow-hidden" :style="{ background: headerGradient }">
         <!-- Zigzag top -->
         <svg class="w-full -mt-px" viewBox="0 0 400 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="transform: scaleY(-1)">

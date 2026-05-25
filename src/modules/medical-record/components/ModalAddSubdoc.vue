@@ -28,7 +28,7 @@
 
     <div class="space-y-4">
 
-      <!-- ── OBSERVACIÓN ── -->
+      <!-- Observación -->
       <template v-if="subdocType === 'observation'">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -38,7 +38,7 @@
         </div>
       </template>
 
-      <!-- ── DIAGNÓSTICO ── -->
+      <!-- Diagnóstico -->
       <template v-else-if="subdocType === 'diagnosis'">
 
         <!-- Búsqueda CIE-10 -->
@@ -121,7 +121,7 @@
               <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                 Descripción del diagnóstico <span class="text-red-500">*</span>
               </label>
-              <InputText v-model="form.description" placeholder="Ej. Infección aguda de vías respiratorias superiores" class="w-full" />
+              <InputText v-model="form.description" placeholder="Descripción del diagnóstico" class="w-full" />
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
 
       </template>
 
-      <!-- ── TRATAMIENTO PREVIO ── -->
+      <!-- Tratamiento previo -->
       <template v-else-if="subdocType === 'treatment'">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -172,7 +172,7 @@
         </div>
       </template>
 
-      <!-- ── ALERGIA ── -->
+      <!-- Alergia -->
       <template v-else-if="subdocType === 'allergy'">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -215,7 +215,7 @@
         </div>
       </template>
 
-      <!-- ── SIGNOS VITALES ── -->
+      <!-- Signos vitales -->
       <template v-else-if="subdocType === 'vitalSigns'">
 
         <!-- Banner informativo -->
@@ -224,7 +224,7 @@
           <p class="text-xs text-sky-700 leading-relaxed">Complete solo los campos disponibles. Los valores se compararán con rangos clínicos normales en tiempo real.</p>
         </div>
 
-        <!-- ❶ Presión Arterial -->
+        <!-- Presión Arterial -->
         <div class="rounded-xl border border-gray-200 overflow-hidden">
           <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-gray-50 border-b border-gray-200">
             <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
@@ -255,7 +255,7 @@
           </div>
         </div>
 
-        <!-- ❷ Frecuencia Cardíaca -->
+        <!-- Frecuencia Cardíaca -->
         <div class="rounded-xl border border-gray-200 overflow-hidden">
           <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-gray-50 border-b border-gray-200">
             <div class="w-6 h-6 rounded-md bg-rose-50 flex items-center justify-center shrink-0">
@@ -275,7 +275,7 @@
           </div>
         </div>
 
-        <!-- ❸ Temperatura y Saturación de Oxígeno -->
+        <!-- Temperatura y Saturación de Oxígeno -->
         <div class="rounded-xl border border-gray-200 overflow-hidden">
           <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-gray-50 border-b border-gray-200">
             <div class="w-6 h-6 rounded-md bg-orange-50 flex items-center justify-center shrink-0">
@@ -307,7 +307,7 @@
           </div>
         </div>
 
-        <!-- ❹ Peso corporal -->
+        <!-- Peso corporal -->
         <div class="rounded-xl border border-gray-200 overflow-hidden">
           <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-gray-50 border-b border-gray-200">
             <div class="w-6 h-6 rounded-md bg-violet-50 flex items-center justify-center shrink-0">
@@ -334,7 +334,7 @@
 
       </template>
 
-      <!-- ── VACUNA ── -->
+      <!-- Vacuna -->
       <template v-else-if="subdocType === 'vaccine'">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -491,7 +491,7 @@ const typeConfig = computed(() => {
   return configs[subdocType.value] ?? configs.observation;
 });
 
-// ── Diagnóstico CIE-10 ────────────────────────────────────────────────────
+// Diagnóstico CIE-10
 const diagnosisQuery      = ref("");
 const filteredDiagnoses   = ref([]);
 const selectedDiagnosis   = ref(null);
@@ -579,7 +579,7 @@ const useManualDiagnosis = () => {
   diagnosisQuery.value = "";
 };
 
-// ── Vacunas (PAI Bolivia + comunes) ──────────────────────────────────────────
+// Vacunas PAI Bolivia
 const vaccineList = [
   "BCG (Tuberculosis)",
   "Hepatitis B",

@@ -76,7 +76,7 @@
     <!-- ══ CONTENIDO ═════════════════════════════════════════════════════════ -->
     <div v-else-if="record" class="max-w-6xl mx-auto px-4 sm:px-6 py-5 space-y-4">
 
-      <!-- ── Stats ──────────────────────────────────────────────────────── -->
+      <!-- Stats -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
@@ -131,7 +131,7 @@
 
       </div>
 
-      <!-- ── Datos del paciente ─────────────────────────────────────────── -->
+      <!-- Datos del paciente -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
 
         <!-- Cabecera con avatar + nombre + estado -->
@@ -282,7 +282,7 @@
         </div>
       </div>
 
-      <!-- ── Signos vitales ──────────────────────────────────────────────── -->
+      <!-- Signos vitales -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -455,7 +455,7 @@
         </div>
       </div>
 
-      <!-- ── Gráficas de evolución ────────────────────────────────────────── -->
+      <!-- Gráficas de evolución -->
       <div v-if="sortedVS.length > 0" class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100">
           <div class="w-1 h-5 rounded-sm bg-[#2A7C6F]"></div>
@@ -500,7 +500,7 @@
         </div>
       </div>
 
-      <!-- ── Diagnósticos ──────────────────────────────────────────────────── -->
+      <!-- Diagnósticos -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -559,7 +559,7 @@
         </div>
       </div>
 
-      <!-- ── Alergias ─────────────────────────────────────────────────────── -->
+      <!-- Alergias -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -614,7 +614,7 @@
         </div>
       </div>
 
-      <!-- ── Tratamientos previos ─────────────────────────────────────────── -->
+      <!-- Tratamientos previos -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -667,7 +667,7 @@
         </div>
       </div>
 
-      <!-- ── Vacunas ──────────────────────────────────────────────────────── -->
+      <!-- Vacunas -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -720,7 +720,7 @@
         </div>
       </div>
 
-      <!-- ── Observaciones clínicas ─────────────────────────────────────────── -->
+      <!-- Observaciones clínicas -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -756,7 +756,7 @@
         </div>
       </div>
 
-      <!-- ── Citas médicas ────────────────────────────────────────────────── -->
+      <!-- Citas médicas -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100">
           <div class="w-1 h-5 rounded-sm bg-[#1A3C5E]"></div>
@@ -801,7 +801,7 @@
         </div>
       </div>
 
-      <!-- ── Recetas médicas ─────────────────────────────────────────────── -->
+      <!-- Recetas médicas -->
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <div class="flex items-center gap-2.5">
@@ -846,7 +846,6 @@
                       class="px-2 py-0.5 text-xs rounded-full font-medium border"
                       :class="{
                         'bg-yellow-50 text-yellow-700 border-yellow-200': rx.status === 'Pendiente',
-                        'bg-blue-50 text-blue-700 border-blue-200': rx.status === 'Parcial',
                         'bg-green-50 text-green-700 border-green-200': rx.status === 'Despachada',
                       }"
                     >{{ rx.status }}</span>
@@ -886,7 +885,7 @@
 
     <ModalAddSubdoc />
 
-    <!-- ── Dialog: ver texto completo ───────────────────────────────────────── -->
+    <!-- Dialog: ver texto completo -->
     <Dialog
       v-model:visible="showDetailDialog"
       :header="detailDialogTitle"
@@ -896,7 +895,7 @@
       <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ detailDialogText }}</p>
     </Dialog>
 
-    <!-- ── Modal: Generar receta ───────────────────────────────────────────── -->
+    <!-- Modal: Generar receta -->
     <Dialog
       v-model:visible="showRxModal"
       header="Generar receta médica"
@@ -1050,7 +1049,7 @@ import { generatePrescriptionPdf } from "@/helpers/prescriptionPdf";
 
 Chart.register(...registerables);
 
-// ── Setup ─────────────────────────────────────────────────────────────────────
+// Setup
 const route       = useRoute();
 const toast       = inject("toast");
 const recordStore = useRecordStore();
@@ -1069,7 +1068,7 @@ const currentState = ref(null);
 const canWrite = computed(() => user.value?.admin || user.value?.branchManager || user.value?.doctor);
 const canCreatePrescription = computed(() => user.value?.doctor || user.value?.admin);
 
-// ── Recetas ────────────────────────────────────────────────────────────────────
+// Recetas
 const prescriptions  = ref([]);
 const loadingRx      = ref(false);
 const savingRx       = ref(false);
@@ -1149,7 +1148,7 @@ const printRx = async (rx) => {
   }
 };
 
-// ── Ver detalle completo de texto largo ───────────────────────────────────────
+// Ver detalle completo de texto largo
 const showDetailDialog   = ref(false);
 const detailDialogTitle  = ref("");
 const detailDialogText   = ref("");
@@ -1194,7 +1193,7 @@ const heartRateChartRef = ref(null);
 const tempChartRef      = ref(null);
 let chartInstances = [];
 
-// ── Cargar historial ──────────────────────────────────────────────────────────
+// Cargar historial
 const loadRecord = async () => {
   loading.value   = true;
   loadError.value = null;
@@ -1222,7 +1221,7 @@ watch(
   async (open) => { if (!open && record.value && recordStore.subdocSaved) await loadRecord(); }
 );
 
-// ── Computeds ─────────────────────────────────────────────────────────────────
+// Computeds
 const patientFullName = computed(() => {
   const p = record.value?.patient;
   return p ? [p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(" ") : "—";
@@ -1247,7 +1246,7 @@ const hasFCChart   = computed(() => sortedVS.value.some((v) => v.heartRate != nu
 const hasTempChart = computed(() => sortedVS.value.some((v) => v.temperature != null));
 const hasAnyChart  = computed(() => hasBP.value || hasO2.value || hasWeight.value || hasFCChart.value || hasTempChart.value);
 
-// ── Formatters ────────────────────────────────────────────────────────────────
+// Formatters
 const formatDate = (d) => {
   if (!d) return "—";
   const dt = new Date(d);
@@ -1265,7 +1264,7 @@ const calcAge = (dob) => {
 const bpText      = (vs) => vs.systolicBP && vs.diastolicBP ? `${vs.systolicBP}/${vs.diastolicBP}` : null;
 const userFullName = (u) => u ? [u.primerApellido, u.nombres].filter(Boolean).join(" ") : "—";
 
-// ── Estado ────────────────────────────────────────────────────────────────────
+// Estado
 const stateOptions = [
   { label: "Activo",         value: "activo" },
   { label: "En tratamiento", value: "en tratamiento" },
@@ -1285,7 +1284,7 @@ const handleStateChange = async () => {
   }
 };
 
-// ── CDSS — alertas visuales en signos vitales ─────────────────────────────────
+// CDSS: alertas visuales en signos vitales
 const vsAlert = (vs, type) => {
   if (type === "bp") {
     const s = vs.systolicBP, d = vs.diastolicBP;
@@ -1330,10 +1329,10 @@ const vsIconClass = (level) => {
   return "pi-info-circle text-blue-400";
 };
 
-// ── Abrir modal de agregar ────────────────────────────────────────────────────
+// Abrir modal de agregar
 const openAdd = (type) => openSubdocModal(record.value, type);
 
-// ── Descargar PDF ─────────────────────────────────────────────────────────────
+// Descargar PDF
 const downloadPDF = async () => {
   loadingPDF.value = true;
   try {
@@ -1353,7 +1352,7 @@ const downloadPDF = async () => {
   }
 };
 
-// ── Gráficas Chart.js ─────────────────────────────────────────────────────────
+// Gráficas Chart.js
 const buildCharts = () => {
   chartInstances.forEach((c) => c.destroy());
   chartInstances = [];

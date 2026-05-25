@@ -195,7 +195,7 @@ const emit = defineEmits(["created"]);
 const visible = defineModel("visible", { default: false });
 const toast = inject("toast");
 
-// ── Estado del formulario ────────────────────────────────────────────────────
+// Estado del formulario
 const form = ref({
   targetPatientId: null,
   category: null,
@@ -210,7 +210,7 @@ const form = ref({
 const errors = ref({});
 const submitting = ref(false);
 
-// ── Disponibilidad de horarios ───────────────────────────────────────────────
+// Disponibilidad de horarios
 const loadingSlots = ref(false);
 const occupiedSlots = ref([]);
 // Días de la semana deshabilitados según horario del médico (0=Dom, 6=Sáb)
@@ -218,7 +218,7 @@ const scheduleDisabledDays = ref([0]); // Domingo siempre deshabilitado
 const DAY_NUM_MAP = { Lunes: 1, Martes: 2, 'Miércoles': 3, Jueves: 4, Viernes: 5, Sábado: 6 };
 const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
-// ── Opciones de listas ───────────────────────────────────────────────────────
+// Opciones de listas
 const patientOptions = ref([]);
 const allServiceOptions = ref([]);
 const categoryOptions = ref([]);
@@ -274,7 +274,7 @@ const timeSlots = computed(() => {
   return slots;
 });
 
-// ── Carga de disponibilidad al cambiar fecha o médico ───────────────────────
+// Carga de disponibilidad al cambiar fecha o médico
 const fetchAvailability = async () => {
   if (!form.value.date || !form.value.category) {
     occupiedSlots.value = [];
@@ -358,7 +358,7 @@ const onCategoryChange = () => {
   loadDoctors(form.value.category);
 };
 
-// ── Carga de datos ───────────────────────────────────────────────────────────
+// Carga de datos
 const loadPatients = async () => {
   loadingPatients.value = true;
   try {
@@ -411,7 +411,7 @@ const loadDoctors = async (specialty = null) => {
   }
 };
 
-// ── Validación ───────────────────────────────────────────────────────────────
+// Validación
 const validate = () => {
   const e = {};
   if (!form.value.targetPatientId) e.targetPatientId = "Seleccione un paciente";
@@ -424,7 +424,7 @@ const validate = () => {
   return Object.keys(e).length === 0;
 };
 
-// ── Submit ───────────────────────────────────────────────────────────────────
+// Submit
 const submit = async () => {
   if (!validate()) return;
   if (submitting.value) return;

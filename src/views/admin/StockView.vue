@@ -5,25 +5,29 @@ import { useStockStore } from "@/stores/stockStore";
 import { useUserStore } from "@/stores/user";
 import Swal from "sweetalert2";
 
-import DataTable   from "primevue/datatable";
-import Column      from "primevue/column";
-import Button      from "primevue/button";
-import InputText   from "primevue/inputtext";
-import Tag         from "primevue/tag";
-import Select      from "primevue/select";
-import Skeleton    from "primevue/skeleton";
-import Dialog      from "primevue/dialog";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Tag from "primevue/tag";
+import Select from "primevue/select";
+import Skeleton from "primevue/skeleton";
+import Dialog from "primevue/dialog";
 import InputNumber from "primevue/inputnumber";
 
 const stockStore = useStockStore();
-const { items, loading, saving, total, page, pageSize, pageFirst } = storeToRefs(stockStore);
+const { items, loading, saving, total, page, pageSize, pageFirst } =
+  storeToRefs(stockStore);
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const isAdmin = computed(() => user.value?.admin === true);
-const canManage = computed(() => user.value?.admin || user.value?.branchManager || user.value?.pharmacist);
+const canManage = computed(
+  () =>
+    user.value?.admin || user.value?.branchManager || user.value?.pharmacist,
+);
 
-/* ─── Filtros ───────────────────────────────────────────────── */
+// Filtros
 const searchInput = ref("");
 const activeFilter = ref("true");
 
@@ -34,7 +38,12 @@ const ACTIVE_OPTIONS = [
 ];
 
 const CATEGORIES = [
-  "antibiótico", "analgésico", "antihipertensivo", "antidiabético", "vitamina", "otro",
+  "antibiótico",
+  "analgésico",
+  "antihipertensivo",
+  "antidiabético",
+  "vitamina",
+  "otro",
 ];
 const FORMS = ["comprimido", "cápsula", "jarabe", "inyectable", "crema"];
 const UNITS = ["comprimidos", "ml", "frascos"];
@@ -43,20 +52,20 @@ const categoryLabel = (c) => c.charAt(0).toUpperCase() + c.slice(1);
 
 const categorySeverity = (cat) => {
   const map = {
-    "antibiótico": "danger",
-    "analgésico": "warn",
-    "antihipertensivo": "info",
-    "antidiabético": "secondary",
-    "vitamina": "success",
-    "otro": "contrast",
+    antibiótico: "danger",
+    analgésico: "warn",
+    antihipertensivo: "info",
+    antidiabético: "secondary",
+    vitamina: "success",
+    otro: "contrast",
   };
   return map[cat] ?? "secondary";
 };
 
-/* ─── Modal crear / editar ──────────────────────────────────── */
-const showModal   = ref(false);
-const isEdit      = ref(false);
-const editingId   = ref(null);
+// Modal crear / editar
+const showModal = ref(false);
+const isEdit = ref(false);
+const editingId = ref(null);
 
 const emptyForm = () => ({
   name: "",
@@ -91,7 +100,13 @@ const openEdit = (row) => {
 };
 
 const submitForm = async () => {
-  if (!form.value.name || !form.value.category || !form.value.pharmaceuticalForm || !form.value.unit) return;
+  if (
+    !form.value.name ||
+    !form.value.category ||
+    !form.value.pharmaceuticalForm ||
+    !form.value.unit
+  )
+    return;
   if (isEdit.value) {
     await stockStore.updateStock(editingId.value, form.value);
   } else {
@@ -101,7 +116,7 @@ const submitForm = async () => {
   await stockStore.loadStock();
 };
 
-/* ─── Toggle activo ─────────────────────────────────────────── */
+// Toggle activo
 const confirmToggle = async (row) => {
   const action = row.active ? "desactivar" : "activar";
   const result = await Swal.fire({
@@ -112,7 +127,8 @@ const confirmToggle = async (row) => {
     cancelButtonText: "Cancelar",
     buttonsStyling: false,
     customClass: {
-      confirmButton: "bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700 transition",
+      confirmButton:
+        "bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700 transition",
       cancelButton: "bg-gray-300 text-gray-800 px-4 py-2 rounded ml-2",
     },
   });
@@ -120,7 +136,7 @@ const confirmToggle = async (row) => {
   await stockStore.toggleActive(row._id);
 };
 
-/* ─── Paginación y búsqueda ─────────────────────────────────── */
+// Paginación y búsqueda
 const doSearch = async () => {
   stockStore.search = searchInput.value;
   stockStore.filterActive = activeFilter.value;
@@ -137,7 +153,7 @@ const clearFilters = async () => {
   await stockStore.loadStock();
 };
 
-/* ─── Clase visual de cantidad disponible ───────────────────── */
+// Clase visual de cantidad disponible
 const qtyClass = (row) => {
   if (row.availableQuantity <= row.minimumQuantity)
     return "font-bold text-red-600";
@@ -149,11 +165,14 @@ onMounted(() => stockStore.loadStock());
 
 <template>
   <div class="px-4 sm:px-6 py-6 max-w-6xl mx-auto space-y-5">
-
     <!-- Encabezado -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+    >
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center shrink-0">
+        <div
+          class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center shrink-0"
+        >
           <i class="pi pi-box text-teal-600 text-lg"></i>
         </div>
         <div>
@@ -186,7 +205,13 @@ onMounted(() => stockStore.loadStock());
         class="w-36"
       />
       <Button label="Buscar" icon="pi pi-search" @click="doSearch" />
-      <Button label="Limpiar" icon="pi pi-times" severity="secondary" outlined @click="clearFilters" />
+      <Button
+        label="Limpiar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined
+        @click="clearFilters"
+      />
     </div>
 
     <!-- Skeleton -->
@@ -210,41 +235,53 @@ onMounted(() => stockStore.loadStock());
       class="text-sm"
       rowHover
     >
-      <Column field="name" header="Medicamento" style="min-width:180px">
+      <Column field="name" header="Medicamento" style="min-width: 180px">
         <template #body="{ data }">
           <span class="font-medium text-gray-800">{{ data.name }}</span>
           <div class="text-xs text-gray-400">{{ data.pharmaceuticalForm }}</div>
         </template>
       </Column>
 
-      <Column field="category" header="Categoría" style="min-width:140px">
+      <Column field="category" header="Categoría" style="min-width: 140px">
         <template #body="{ data }">
-          <Tag :value="categoryLabel(data.category)" :severity="categorySeverity(data.category)" />
+          <Tag :value="categoryLabel(data.category)" severity="warn" />
         </template>
       </Column>
 
-      <Column header="Disponible" style="min-width:130px" class="text-center">
+      <Column header="Disponible" style="min-width: 130px" class="text-center">
         <template #body="{ data }">
           <span :class="qtyClass(data)">
             {{ data.availableQuantity }} {{ data.unit }}
           </span>
-          <div class="text-xs text-gray-400">Mín: {{ data.minimumQuantity }}</div>
+          <div class="text-xs text-gray-400">
+            Mín: {{ data.minimumQuantity }}
+          </div>
         </template>
       </Column>
 
-      <Column header="Centro" style="min-width:140px" v-if="isAdmin">
+      <Column header="Centro" style="min-width: 140px" v-if="isAdmin">
         <template #body="{ data }">
-          <span class="text-gray-600 text-xs">{{ data.health?.name ?? '—' }}</span>
+          <span class="text-gray-600 text-xs">{{
+            data.health?.name ?? "—"
+          }}</span>
         </template>
       </Column>
 
-      <Column header="Estado" style="min-width:90px" class="text-center">
+      <Column header="Estado" style="min-width: 90px" class="text-center">
         <template #body="{ data }">
-          <Tag :value="data.active ? 'Activo' : 'Inactivo'" :severity="data.active ? 'success' : 'secondary'" />
+          <Tag
+            :value="data.active ? 'Activo' : 'Inactivo'"
+            :severity="data.active ? 'success' : 'secondary'"
+          />
         </template>
       </Column>
 
-      <Column header="Acciones" style="min-width:110px" class="text-right" v-if="canManage">
+      <Column
+        header="Acciones"
+        style="min-width: 110px"
+        class="text-right"
+        v-if="canManage"
+      >
         <template #body="{ data }">
           <div class="flex gap-1 justify-end">
             <Button
@@ -269,9 +306,13 @@ onMounted(() => stockStore.loadStock());
     </DataTable>
 
     <!-- Alerta stock bajo -->
-    <p class="text-xs text-red-600 flex items-center gap-1" v-if="items.some(i => i.availableQuantity <= i.minimumQuantity)">
+    <p
+      class="text-xs text-red-600 flex items-center gap-1"
+      v-if="items.some((i) => i.availableQuantity <= i.minimumQuantity)"
+    >
       <i class="pi pi-exclamation-triangle"></i>
-      Los medicamentos en <strong class="mx-1">rojo</strong> están por debajo del stock mínimo.
+      Los medicamentos en <strong class="mx-1">rojo</strong> están por debajo
+      del stock mínimo.
     </p>
 
     <!-- Modal crear / editar -->
@@ -283,13 +324,21 @@ onMounted(() => stockStore.loadStock());
     >
       <div class="space-y-4 pt-2">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-          <InputText v-model="form.name" class="w-full" placeholder="Ej: Amoxicilina 500mg" />
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Nombre *</label
+          >
+          <InputText
+            v-model="form.name"
+            class="w-full"
+            placeholder="Nombre del medicamento y concentración"
+          />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Categoría *</label
+            >
             <Select
               v-model="form.category"
               :options="CATEGORIES"
@@ -298,7 +347,9 @@ onMounted(() => stockStore.loadStock());
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Forma farmacéutica *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Forma farmacéutica *</label
+            >
             <Select
               v-model="form.pharmaceuticalForm"
               :options="FORMS"
@@ -309,7 +360,9 @@ onMounted(() => stockStore.loadStock());
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Unidad *</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Unidad *</label
+          >
           <Select
             v-model="form.unit"
             :options="UNITS"
@@ -320,18 +373,27 @@ onMounted(() => stockStore.loadStock());
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad disponible</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Cantidad disponible</label
+            >
             <InputNumber v-model="form.availableQuantity" :min="0" fluid />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad mínima</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Cantidad mínima</label
+            >
             <InputNumber v-model="form.minimumQuantity" :min="0" fluid />
           </div>
         </div>
       </div>
 
       <template #footer>
-        <Button label="Cancelar" severity="secondary" outlined @click="showModal = false" />
+        <Button
+          label="Cancelar"
+          severity="secondary"
+          outlined
+          @click="showModal = false"
+        />
         <Button
           :label="isEdit ? 'Guardar cambios' : 'Crear medicamento'"
           icon="pi pi-check"
@@ -340,6 +402,5 @@ onMounted(() => stockStore.loadStock());
         />
       </template>
     </Dialog>
-
   </div>
 </template>
