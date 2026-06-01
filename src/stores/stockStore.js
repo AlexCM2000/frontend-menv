@@ -3,15 +3,18 @@ import { defineStore } from "pinia";
 import StockApi from "@/api/stockApi";
 
 export const useStockStore = defineStore("stock", () => {
-  const toast    = inject("toast");
-  const items    = ref([]);
-  const loading  = ref(false);
-  const saving   = ref(false);
-  const total    = ref(0);
-  const page     = ref(1);
+  const toast = inject("toast");
+  const items = ref([]);
+  const loading = ref(false);
+  const saving = ref(false);
+  const total = ref(0);
+  const page = ref(1);
   const pageSize = ref(20);
-  const search   = ref("");
+  const search = ref("");
   const filterActive = ref("true");
+
+  const expiringItems = ref([]);
+  const loadingExpiring = ref(false);
 
   const pageFirst = computed(() => (page.value - 1) * pageSize.value);
 
@@ -38,7 +41,10 @@ export const useStockStore = defineStore("stock", () => {
     try {
       saving.value = true;
       const { data } = await StockApi.createStock(formData);
-      toast.open({ message: "Medicamento creado correctamente", type: "success" });
+      toast.open({
+        message: "Medicamento creado correctamente",
+        type: "success",
+      });
       return data;
     } catch (error) {
       const msg = error?.response?.data?.msg ?? "Error al crear medicamento";
@@ -56,7 +62,8 @@ export const useStockStore = defineStore("stock", () => {
       toast.open({ message: "Medicamento actualizado", type: "success" });
       return data;
     } catch (error) {
-      const msg = error?.response?.data?.msg ?? "Error al actualizar medicamento";
+      const msg =
+        error?.response?.data?.msg ?? "Error al actualizar medicamento";
       toast.open({ message: msg, type: "error" });
       throw error;
     } finally {
@@ -87,9 +94,36 @@ export const useStockStore = defineStore("stock", () => {
     await loadStock();
   };
 
+  const loadExpiring = async (days = 5) => {
+    try {
+      loadingExpiring.value = true;
+      const { data } = await StockApi.getExpiring({ days });
+      expiringItems.value = data;
+    } catch {
+      // silencioso — no bloquear si falla
+    } finally {
+      loadingExpiring.value = false;
+    }
+  };
+
   return {
-    items, loading, saving, total, page, pageSize, pageFirst,
-    search, filterActive,
-    loadStock, createStock, updateStock, toggleActive, onPage, onSearch,
+    items,
+    loading,
+    saving,
+    total,
+    page,
+    pageSize,
+    pageFirst,
+    search,
+    filterActive,
+    expiringItems,
+    loadingExpiring,
+    loadStock,
+    createStock,
+    updateStock,
+    toggleActive,
+    onPage,
+    onSearch,
+    loadExpiring,
   };
 });

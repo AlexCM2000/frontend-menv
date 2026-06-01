@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
 import AppointmentsLayout from "../views/appointments/AppointmentsLayout.vue";
 import AuthApi from "@/api/AuthApi";
 
@@ -8,8 +7,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: HomeView,
+      redirect: "/auth/iniciar-sesion",
     },
     {
       path: "/admin",

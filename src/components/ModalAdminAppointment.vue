@@ -355,7 +355,8 @@ const onCategoryChange = () => {
   form.value.time = null;
   occupiedSlots.value = [];
   scheduleDisabledDays.value = [0];
-  loadDoctors(form.value.category);
+  const selectedPat = patientOptions.value.find(p => p.value === form.value.targetPatientId);
+  loadDoctors(selectedPat?.healthCenter ?? null);
 };
 
 // Carga de datos
@@ -366,6 +367,7 @@ const loadPatients = async () => {
     patientOptions.value = (data.results ?? []).map((p) => ({
       value: p._id,
       label: `${[p.primerApellido, p.segundoApellido, p.nombres].filter(Boolean).join(' ')} — SUS: ${p.susCode}`,
+      healthCenter: p.healthCenter?._id ?? p.healthCenter ?? null,
     }));
   } catch (e) {
     console.error(e);
@@ -395,10 +397,10 @@ const loadServices = async () => {
   }
 };
 
-const loadDoctors = async (specialty = null) => {
+const loadDoctors = async (healthCenter = null) => {
   loadingDoctors.value = true;
   try {
-    const params = specialty ? { specialty } : {};
+    const params = healthCenter ? { health: healthCenter } : {};
     const docs = await getDoctorsForSelect(params);
     doctorOptions.value = docs.map((d) => ({
       value: d._id,

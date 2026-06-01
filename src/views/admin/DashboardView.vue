@@ -217,7 +217,7 @@
 
     <!-- Alertas de stock bajo mínimo -->
     <div
-      v-if="(isPharmacist || (!isAdmin && !isDoctor && user?.branchManager)) && stats.stockAlerts?.length"
+      v-if="canSeeStock && stats.stockAlerts?.length"
       class="bg-white rounded-xl border border-orange-200 shadow-sm overflow-hidden"
     >
       <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-orange-100 bg-orange-50">
@@ -235,6 +235,7 @@
               <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide hidden sm:table-cell">Categoría</th>
               <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide">Disponible</th>
               <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide">Mínimo</th>
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-orange-700 uppercase tracking-wide hidden md:table-cell" v-if="isAdmin">Centro</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-orange-50">
@@ -247,12 +248,69 @@
                 </span>
               </td>
               <td class="px-4 py-2.5 text-center text-xs text-gray-400">{{ med.minimumQuantity }} {{ med.unit }}</td>
+              <td class="px-4 py-2.5 text-xs text-gray-400 hidden md:table-cell" v-if="isAdmin">{{ med.health?.name ?? '—' }}</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div class="px-5 py-2.5 bg-orange-50/30 border-t border-orange-100">
         <router-link :to="{ name: 'admin-stock' }" class="text-xs text-orange-700 font-semibold hover:underline flex items-center gap-1">
+          <i class="pi pi-arrow-right text-[10px]"></i> Gestionar stock
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Alertas de vencimientos próximos (5 días o ya vencidos) -->
+    <div
+      v-if="canSeeStock && stats.expirationAlerts?.length"
+      class="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden"
+    >
+      <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-red-100 bg-red-50">
+        <i class="pi pi-calendar-times text-red-500 text-sm"></i>
+        <h3 class="text-sm font-semibold text-red-800">Medicamentos próximos a vencer</h3>
+        <span class="text-xs font-semibold bg-red-200 text-red-800 px-2 py-0.5 rounded-full">
+          {{ stats.expirationAlerts.length }}
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-red-50/50 border-b border-red-100">
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-red-700 uppercase tracking-wide">Medicamento</th>
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-red-700 uppercase tracking-wide hidden sm:table-cell">Categoría</th>
+              <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-red-700 uppercase tracking-wide">Vence</th>
+              <th class="text-center px-4 py-2.5 text-[10px] font-semibold text-red-700 uppercase tracking-wide hidden sm:table-cell">Estado</th>
+              <th class="text-left px-4 py-2.5 text-[10px] font-semibold text-red-700 uppercase tracking-wide hidden md:table-cell" v-if="isAdmin">Centro</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-red-50">
+            <tr v-for="med in stats.expirationAlerts" :key="med._id" class="hover:bg-red-50/30 transition-colors">
+              <td class="px-4 py-2.5 font-semibold text-gray-800">{{ med.name }}</td>
+              <td class="px-4 py-2.5 text-xs text-gray-500 hidden sm:table-cell capitalize">{{ med.category }}</td>
+              <td class="px-4 py-2.5 text-center text-sm font-medium" :class="isPast(new Date(med.expirationDate)) ? 'text-red-700' : 'text-amber-700'">
+                {{ format(new Date(med.expirationDate), 'dd/MM/yyyy', { locale: es }) }}
+              </td>
+              <td class="px-4 py-2.5 text-center hidden sm:table-cell">
+                <Tag
+                  v-if="isPast(new Date(med.expirationDate))"
+                  value="VENCIDO"
+                  severity="danger"
+                  class="text-xs"
+                />
+                <Tag
+                  v-else
+                  :value="`${differenceInDays(new Date(med.expirationDate), new Date())} días`"
+                  severity="warn"
+                  class="text-xs"
+                />
+              </td>
+              <td class="px-4 py-2.5 text-xs text-gray-400 hidden md:table-cell" v-if="isAdmin">{{ med.health?.name ?? '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-5 py-2.5 bg-red-50/30 border-t border-red-100">
+        <router-link :to="{ name: 'admin-stock' }" class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1">
           <i class="pi pi-arrow-right text-[10px]"></i> Gestionar stock
         </router-link>
       </div>
@@ -272,6 +330,8 @@ import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import SelectButton from "primevue/selectbutton";
 import DatePicker from "primevue/datepicker";
+import { format, isPast, differenceInDays } from "date-fns";
+import { es } from "date-fns/locale";
 import { useUserStore } from "@/stores/user";
 import { useHealthStore } from "@/stores/healths";
 import { getDashboardStats } from "@/api/dashboardApi";
@@ -283,9 +343,11 @@ const healthStore = useHealthStore();
 const { user } = storeToRefs(userStore);
 const { healths } = storeToRefs(healthStore);
 
-const isAdmin      = computed(() => user.value?.admin === true);
-const isDoctor     = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
-const isPharmacist = computed(() => user.value?.pharmacist === true);
+const isAdmin       = computed(() => user.value?.admin === true);
+const isBranchMgr   = computed(() => user.value?.branchManager === true);
+const isDoctor      = computed(() => user.value?.doctor === true && !user.value?.admin && !user.value?.branchManager);
+const isPharmacist  = computed(() => user.value?.pharmacist === true);
+const canSeeStock   = computed(() => isAdmin.value || isBranchMgr.value || isPharmacist.value);
 
 const healthSelectOptions = computed(() =>
   (healths.value ?? []).map((h) => ({ label: h.label, value: h.id }))
@@ -303,6 +365,7 @@ const stats = ref({
   citasPorEspecialidad: [],
   topMedicos: [],
   stockAlerts: [],
+  expirationAlerts: [],
 });
 
 const rangeOptions = [

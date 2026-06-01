@@ -4,6 +4,8 @@ import { storeToRefs } from "pinia";
 import { useStockStore } from "@/stores/stockStore";
 import { useUserStore } from "@/stores/user";
 import Swal from "sweetalert2";
+import { format, differenceInDays, isPast } from "date-fns";
+import { es } from "date-fns/locale";
 
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -14,9 +16,10 @@ import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Dialog from "primevue/dialog";
 import InputNumber from "primevue/inputnumber";
+import DatePicker from "primevue/datepicker";
 
 const stockStore = useStockStore();
-const { items, loading, saving, total, page, pageSize, pageFirst } =
+const { items, loading, saving, total, page, pageSize, pageFirst, expiringItems, loadingExpiring } =
   storeToRefs(stockStore);
 
 const userStore = useUserStore();
@@ -74,6 +77,7 @@ const emptyForm = () => ({
   unit: "",
   availableQuantity: 0,
   minimumQuantity: 5,
+  expirationDate: null,
 });
 
 const form = ref(emptyForm());
@@ -93,6 +97,7 @@ const openEdit = (row) => {
     unit: row.unit,
     availableQuantity: row.availableQuantity,
     minimumQuantity: row.minimumQuantity,
+    expirationDate: row.expirationDate ? new Date(row.expirationDate) : null,
   };
   isEdit.value = true;
   editingId.value = row._id;
@@ -160,7 +165,40 @@ const qtyClass = (row) => {
   return "font-semibold text-green-700";
 };
 
-onMounted(() => stockStore.loadStock());
+// Helpers para fecha de vencimiento
+const formatExp = (date) => {
+  if (!date) return null;
+  return format(new Date(date), "dd/MM/yyyy", { locale: es });
+};
+
+const expirationStatus = (date) => {
+  if (!date) return null;
+  const d = new Date(date);
+  if (isPast(d)) return "vencido";
+  const days = differenceInDays(d, new Date());
+  if (days <= 5) return "proximo";
+  return "ok";
+};
+
+const expirationTagSeverity = (date) => {
+  const s = expirationStatus(date);
+  if (s === "vencido") return "danger";
+  if (s === "proximo") return "warn";
+  return "success";
+};
+
+const expirationLabel = (date) => {
+  const s = expirationStatus(date);
+  const f = formatExp(date);
+  if (s === "vencido") return `${f} — VENCIDO`;
+  if (s === "proximo") return `${f} — próximo`;
+  return f;
+};
+
+onMounted(async () => {
+  await stockStore.loadStock();
+  await stockStore.loadExpiring();
+});
 </script>
 
 <template>
@@ -187,6 +225,39 @@ onMounted(() => stockStore.loadStock());
         @click="openCreate"
         class="shrink-0"
       />
+    </div>
+
+    <!-- Banner de alertas de vencimiento -->
+    <div
+      v-if="expiringItems.length > 0"
+      class="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-2"
+    >
+      <div class="flex items-center gap-2 text-orange-700 font-semibold text-sm">
+        <i class="pi pi-exclamation-triangle text-base"></i>
+        {{ expiringItems.length }} medicamento{{ expiringItems.length > 1 ? 's' : '' }}
+        con fecha de vencimiento próxima o vencida
+      </div>
+      <ul class="space-y-1">
+        <li
+          v-for="item in expiringItems"
+          :key="item._id"
+          class="flex flex-wrap items-center gap-2 text-sm"
+        >
+          <Tag
+            :value="isPast(new Date(item.expirationDate)) ? 'VENCIDO' : 'Próximo'"
+            :severity="isPast(new Date(item.expirationDate)) ? 'danger' : 'warn'"
+            class="text-xs"
+          />
+          <span class="font-medium text-gray-800">{{ item.name }}</span>
+          <span class="text-gray-500 text-xs">
+            — vence {{ format(new Date(item.expirationDate), "dd/MM/yyyy", { locale: es }) }}
+            <template v-if="!isPast(new Date(item.expirationDate))">
+              ({{ differenceInDays(new Date(item.expirationDate), new Date()) }} días)
+            </template>
+          </span>
+          <span v-if="isAdmin" class="text-gray-400 text-xs">· {{ item.health?.name }}</span>
+        </li>
+      </ul>
     </div>
 
     <!-- Filtros -->
@@ -264,6 +335,19 @@ onMounted(() => stockStore.loadStock());
           <span class="text-gray-600 text-xs">{{
             data.health?.name ?? "—"
           }}</span>
+        </template>
+      </Column>
+
+      <Column header="Vencimiento" style="min-width: 150px">
+        <template #body="{ data }">
+          <template v-if="data.expirationDate">
+            <Tag
+              :value="expirationLabel(data.expirationDate)"
+              :severity="expirationTagSeverity(data.expirationDate)"
+              class="text-xs"
+            />
+          </template>
+          <span v-else class="text-gray-400 text-xs">—</span>
         </template>
       </Column>
 
@@ -384,6 +468,20 @@ onMounted(() => stockStore.loadStock());
             >
             <InputNumber v-model="form.minimumQuantity" :min="0" fluid />
           </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Fecha de vencimiento
+          </label>
+          <DatePicker
+            v-model="form.expirationDate"
+            dateFormat="dd/mm/yy"
+            showIcon
+            fluid
+            placeholder="dd/mm/aaaa"
+            :minDate="new Date()"
+          />
         </div>
       </div>
 

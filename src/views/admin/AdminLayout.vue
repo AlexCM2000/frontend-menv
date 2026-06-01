@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
+import { useStockStore } from "@/stores/stockStore";
 import { storeToRefs } from "pinia";
 import { RouterLink, useRoute } from "vue-router";
 
 const userAuth = useUserStore();
 const { user, getUserName } = storeToRefs(userAuth);
+const stockStore = useStockStore();
+const { expiringItems } = storeToRefs(stockStore);
 const route = useRoute();
 
 const isAdmin      = computed(() => user.value?.admin === true);
@@ -70,7 +73,7 @@ const navSections = computed(() => {
           id: "farmacia",
           title: "Farmacia",
           links: [
-            { name: "admin-stock",         icon: "pi-box",       label: "Stock"   },
+            { name: "admin-stock",         icon: "pi-box",       label: "Stock",   badge: expiringItems.value.length || null },
             { name: "admin-prescriptions", icon: "pi-file-edit", label: "Recetas" },
           ],
         }]
@@ -147,7 +150,10 @@ const toggleSidebar = () => {
   }
 };
 
-onMounted(() => userAuth.getUser());
+onMounted(() => {
+  userAuth.getUser();
+  stockStore.loadExpiring();
+});
 </script>
 
 <template>
@@ -216,8 +222,14 @@ onMounted(() => userAuth.getUser());
               class="pi text-[17px] shrink-0 transition-transform duration-150 group-hover:scale-105"
               :class="link.icon"
             ></i>
-            <span v-show="!collapsed" class="truncate transition-opacity duration-200">
+            <span v-show="!collapsed" class="flex-1 truncate transition-opacity duration-200">
               {{ link.label }}
+            </span>
+            <span
+              v-if="link.badge && !collapsed"
+              class="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none"
+            >
+              {{ link.badge > 99 ? "99+" : link.badge }}
             </span>
           </RouterLink>
         </template>
