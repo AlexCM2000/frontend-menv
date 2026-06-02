@@ -29,22 +29,44 @@
           Médico <span class="text-red-500 ml-1">*</span>
         </p>
 
+        <!-- Error al cargar médicos -->
+        <div
+          v-if="doctorLoadError"
+          class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-3.5"
+        >
+          <i class="pi pi-exclamation-triangle text-red-500 text-sm mt-0.5 shrink-0"></i>
+          <div>
+            <p class="text-red-700 font-semibold text-sm">Error al cargar médicos</p>
+            <p class="text-red-600 text-xs mt-0.5">No se pudo conectar con el servidor. Intenta recargar la página.</p>
+          </div>
+        </div>
+
         <!-- Aviso: sin médicos para la especialidad -->
         <div
-          v-if="appointments.availabilityLoaded && availableDoctors.length === 0"
+          v-else-if="!doctorLoadError && availableDoctors.length === 0"
           class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-3.5"
         >
           <i class="pi pi-exclamation-triangle text-red-500 text-sm mt-0.5 shrink-0"></i>
           <div>
             <p class="text-red-700 font-semibold text-sm">Sin médicos disponibles</p>
             <p class="text-red-600 text-xs mt-0.5">
-              No hay médicos registrados para
-              <strong>{{ appointments.selectedCategory }}</strong> en este centro.
+              No hay médicos activos registrados en tu centro de salud.
             </p>
           </div>
         </div>
 
-        <div v-else class="max-w-sm">
+        <div v-else class="max-w-sm space-y-2">
+          <!-- Aviso fallback: se muestran todos los médicos del centro -->
+          <div
+            v-if="specialtyFallback"
+            class="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5"
+          >
+            <i class="pi pi-info-circle text-amber-500 text-xs mt-0.5 shrink-0"></i>
+            <p class="text-amber-700 text-xs">
+              No se encontraron médicos para <strong>{{ appointments.selectedCategory }}</strong>.
+              Se muestran todos los médicos disponibles del centro.
+            </p>
+          </div>
           <select
             :value="appointments.doctor"
             @change="onDoctorChange"
@@ -211,6 +233,8 @@ import { getDoctorsForSelect } from '@/modules/doctors/api/doctorsApi'
 
 const appointments = useAppointmentsStore()
 const availableDoctors = ref([])
+const doctorLoadError = ref(false)
+const specialtyFallback = ref(false)
 
 const formatter = ref({
   date: 'DD/MM/YYYY',
@@ -276,12 +300,24 @@ const onDoctorChange = (e) => {
 };
 
 onMounted(async () => {
+  doctorLoadError.value = false
+  specialtyFallback.value = false
   try {
-    const params = appointments.selectedCategory
-      ? { specialty: appointments.selectedCategory }
-      : {}
-    availableDoctors.value = await getDoctorsForSelect(params)
+    if (appointments.selectedCategory) {
+      const withSpecialty = await getDoctorsForSelect({ specialty: appointments.selectedCategory })
+      if (withSpecialty.length > 0) {
+        availableDoctors.value = withSpecialty
+      } else {
+        // Fallback: buscar todos los médicos del centro sin filtro de especialidad
+        const all = await getDoctorsForSelect({})
+        availableDoctors.value = all
+        specialtyFallback.value = all.length > 0
+      }
+    } else {
+      availableDoctors.value = await getDoctorsForSelect({})
+    }
   } catch {
+    doctorLoadError.value = true
     availableDoctors.value = []
   }
 })
