@@ -149,13 +149,14 @@ const setSelectedAppointment = (appointment) => {
         if (!isMorning && !shiftInfo.afternoon) return true;
       }
       const bookedAtHour = appts.filter(a => a.time === hour);
-      if (doctors.length === 0) return true;
-      if (bookedAtHour.length >= doctors.length) return true;
       if (selectedDoc) {
+        // Con médico específico: solo verificar si ese médico tiene ese slot ocupado
         const bookedDoctorIds = bookedAtHour.map(a => a.doctor?.toString()).filter(Boolean);
-        if (bookedDoctorIds.includes(selectedDoc.toString())) return true;
+        return bookedDoctorIds.includes(selectedDoc.toString());
       }
-      return false;
+      // Sin médico específico: capacidad colectiva
+      if (doctors.length === 0) return true;
+      return bookedAtHour.length >= doctors.length;
     };
   });
 
