@@ -36,7 +36,7 @@
 
         <!-- Skeleton -->
         <DataTable v-if="loading" :value="Array(5).fill({})" showGridLines>
-          <Column v-for="n in 4" :key="n" style="min-width: 120px">
+          <Column v-for="n in 5" :key="n" style="min-width: 120px">
             <template #header><Skeleton width="60%" height="1rem" /></template>
             <template #body><Skeleton width="75%" height="0.85rem" /></template>
           </Column>
@@ -69,7 +69,7 @@
           </Column>
 
           <!-- Acción -->
-          <Column style="min-width: 170px">
+          <Column style="min-width: 200px">
             <template #header><p class="font-semibold text-sm">Acción</p></template>
             <template #body="{ data }">
               <Tag :value="data.actionLabel" :severity="actionSeverity(data.action)" class="text-xs" />
@@ -81,7 +81,7 @@
             <template #header><p class="font-semibold text-sm">Realizado por</p></template>
             <template #body="{ data }">
               <div v-if="data.performedBy">
-                <p class="text-sm font-semibold text-gray-800">{{ data.performedBy.name ?? "—" }}</p>
+                <p class="text-sm font-semibold text-gray-800">{{ displayName(data.performedBy.name) }}</p>
                 <p class="text-xs text-gray-400">{{ data.performedBy.email }}</p>
                 <Tag :value="data.performedBy.role" severity="secondary" class="text-xs mt-0.5" />
               </div>
@@ -94,39 +94,43 @@
             <template #header><p class="font-semibold text-sm">Usuario afectado</p></template>
             <template #body="{ data }">
               <div v-if="data.targetUser">
-                <p class="text-sm text-gray-700">{{ data.targetUser.name }}</p>
+                <p class="text-sm text-gray-700">{{ displayName(data.targetUser.name) }}</p>
                 <p class="text-xs text-gray-400">{{ data.targetUser.email }}</p>
               </div>
               <span v-else class="text-xs text-gray-400">—</span>
             </template>
           </Column>
 
-          <!-- Descripción -->
-          <Column style="min-width: 220px">
+          <!-- Descripción + detalles -->
+          <Column style="min-width: 240px">
             <template #header><p class="font-semibold text-sm">Descripción</p></template>
             <template #body="{ data }">
-              <p class="text-sm text-gray-600">{{ data.description ?? "—" }}</p>
-              <!-- Detalles de cambio de rol -->
-              <div v-if="data.details && Object.keys(data.details).length" class="mt-1 space-y-0.5">
-                <div
-                  v-for="(change, field) in data.details"
-                  :key="field"
-                  class="text-xs text-gray-400 flex items-center gap-1 flex-wrap"
-                >
-                  <span class="font-mono bg-gray-100 px-1 rounded">{{ field }}</span>
-                  <span class="text-red-400">{{ String(change.from) }}</span>
-                  <i class="pi pi-arrow-right text-[10px]" />
-                  <span class="text-green-500">{{ String(change.to) }}</span>
-                </div>
-              </div>
-            </template>
-          </Column>
+              <p class="text-sm text-gray-600">{{ data.description || "—" }}</p>
 
-          <!-- IP -->
-          <Column style="min-width: 110px" class="hidden lg:table-cell">
-            <template #header><p class="font-semibold text-sm">IP</p></template>
-            <template #body="{ data }">
-              <p class="text-xs text-gray-400 font-mono">{{ data.ip ?? "—" }}</p>
+              <!-- Detalles de cambios (ej: cambio de rol) -->
+              <div v-if="hasDetails(data.details)" class="mt-1.5 space-y-1">
+                <template v-for="(change, field) in data.details" :key="field">
+                  <!-- Cambio con from → to -->
+                  <div
+                    v-if="isChangeObject(change)"
+                    class="flex items-center gap-1 flex-wrap text-xs"
+                  >
+                    <span class="font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {{ fieldLabel(field) }}
+                    </span>
+                    <span class="text-red-400 font-mono">{{ formatValue(change.from) }}</span>
+                    <i class="pi pi-arrow-right text-[9px] text-gray-400" />
+                    <span class="text-green-500 font-mono">{{ formatValue(change.to) }}</span>
+                  </div>
+                  <!-- Valor simple -->
+                  <div v-else class="flex items-center gap-1 flex-wrap text-xs">
+                    <span class="font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {{ fieldLabel(field) }}
+                    </span>
+                    <span class="text-gray-600 font-mono">{{ formatValue(change) }}</span>
+                  </div>
+                </template>
+              </div>
             </template>
           </Column>
         </DataTable>
@@ -155,19 +159,50 @@ const selectedAction = ref(null);
 const page_first = computed(() => (page.value - 1) * pageSize.value);
 
 const actionOptions = [
-  { label: "Cambio de rol",              value: "role_change" },
-  { label: "Restablecimiento contraseña", value: "password_reset" },
-  { label: "Eliminación de paciente",    value: "patient_delete" },
+  { label: "Cambio de rol",                value: "role_change" },
+  { label: "Restablecimiento contraseña",  value: "password_reset" },
+  { label: "Eliminación de paciente",      value: "patient_delete" },
   { label: "Cambio de estado (historial)", value: "health_record_state_change" },
-  { label: "Actualización de perfil",    value: "profile_update" },
+  { label: "Actualización de perfil",      value: "profile_update" },
 ];
 
+const FIELD_LABELS = {
+  admin:         "Administrador",
+  branchManager: "Gestor de sucursal",
+  doctor:        "Médico",
+  doctorProfile: "Perfil de médico",
+  verified:      "Cuenta verificada",
+  email:         "Correo electrónico",
+  nombres:       "Nombres",
+  primerApellido:"Primer apellido",
+  segundoApellido:"Segundo apellido",
+  phone:         "Teléfono",
+  state:         "Estado",
+};
+
+const fieldLabel = (field) => FIELD_LABELS[field] ?? field;
+
+const formatValue = (v) => {
+  if (v === true  || v === "true")  return "Sí";
+  if (v === false || v === "false") return "No";
+  if (v === null || v === undefined || v === "") return "—";
+  return String(v);
+};
+
+const displayName = (name) => (name && name.trim()) ? name.trim() : "—";
+
+const isChangeObject = (val) =>
+  val !== null && typeof val === "object" && !Array.isArray(val) && ("from" in val || "to" in val);
+
+const hasDetails = (details) =>
+  details !== null && typeof details === "object" && Object.keys(details).length > 0;
+
 const actionSeverity = (action) => {
-  if (action === "role_change")               return "warn";
-  if (action === "password_reset")            return "info";
-  if (action === "patient_delete")            return "danger";
+  if (action === "role_change")                return "warn";
+  if (action === "password_reset")             return "info";
+  if (action === "patient_delete")             return "danger";
   if (action === "health_record_state_change") return "secondary";
-  if (action === "profile_update")            return "success";
+  if (action === "profile_update")             return "success";
   return "secondary";
 };
 

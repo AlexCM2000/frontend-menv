@@ -19,8 +19,17 @@ import InputNumber from "primevue/inputnumber";
 import DatePicker from "primevue/datepicker";
 
 const stockStore = useStockStore();
-const { items, loading, saving, total, page, pageSize, pageFirst, expiringItems, loadingExpiring } =
-  storeToRefs(stockStore);
+const {
+  items,
+  loading,
+  saving,
+  total,
+  page,
+  pageSize,
+  pageFirst,
+  expiringItems,
+  loadingExpiring,
+} = storeToRefs(stockStore);
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -232,9 +241,13 @@ onMounted(async () => {
       v-if="expiringItems.length > 0"
       class="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-2"
     >
-      <div class="flex items-center gap-2 text-orange-700 font-semibold text-sm">
+      <div
+        class="flex items-center gap-2 text-orange-700 font-semibold text-sm"
+      >
         <i class="pi pi-exclamation-triangle text-base"></i>
-        {{ expiringItems.length }} medicamento{{ expiringItems.length > 1 ? 's' : '' }}
+        {{ expiringItems.length }} medicamento{{
+          expiringItems.length > 1 ? "s" : ""
+        }}
         con fecha de vencimiento próxima o vencida
       </div>
       <ul class="space-y-1">
@@ -244,18 +257,32 @@ onMounted(async () => {
           class="flex flex-wrap items-center gap-2 text-sm"
         >
           <Tag
-            :value="isPast(new Date(item.expirationDate)) ? 'VENCIDO' : 'Próximo'"
-            :severity="isPast(new Date(item.expirationDate)) ? 'danger' : 'warn'"
+            :value="
+              isPast(new Date(item.expirationDate)) ? 'VENCIDO' : 'Próximo'
+            "
+            :severity="
+              isPast(new Date(item.expirationDate)) ? 'danger' : 'warn'
+            "
             class="text-xs"
           />
           <span class="font-medium text-gray-800">{{ item.name }}</span>
           <span class="text-gray-500 text-xs">
-            — vence {{ format(new Date(item.expirationDate), "dd/MM/yyyy", { locale: es }) }}
+            — vence
+            {{
+              format(new Date(item.expirationDate), "dd/MM/yyyy", {
+                locale: es,
+              })
+            }}
             <template v-if="!isPast(new Date(item.expirationDate))">
-              ({{ differenceInDays(new Date(item.expirationDate), new Date()) }} días)
+              ({{
+                differenceInDays(new Date(item.expirationDate), new Date())
+              }}
+              días)
             </template>
           </span>
-          <span v-if="isAdmin" class="text-gray-400 text-xs">· {{ item.health?.name }}</span>
+          <span v-if="isAdmin" class="text-gray-400 text-xs"
+            >· {{ item.health?.name }}</span
+          >
         </li>
       </ul>
     </div>
@@ -315,7 +342,10 @@ onMounted(async () => {
 
       <Column field="category" header="Categoría" style="min-width: 140px">
         <template #body="{ data }">
-          <Tag :value="categoryLabel(data.category)" severity="warn" />
+          <Tag
+            :value="categoryLabel(data.category)"
+            :severity="categorySeverity"
+          />
         </template>
       </Column>
 

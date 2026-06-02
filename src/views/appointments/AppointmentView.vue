@@ -282,7 +282,6 @@ onMounted(async () => {
       : {}
     const result = await getDoctorsForSelect(params)
     availableDoctors.value = result
-    console.log(`[Médicos] categoría="${appointments.selectedCategory}" → ${result.length} médico(s) encontrado(s)`, result)
   } catch (err) {
     console.error('[Médicos] Error al cargar:', err?.response?.status, err?.response?.data)
     availableDoctors.value = []
